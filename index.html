@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ON1X VPN — Свободный internet</title>
+    <title>ON1X VPN — FAQ</title>
     <style>
         :root {
             --bg-main: #0b0f17;
@@ -58,18 +58,13 @@
         .section-title { font-size: 12px; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -4px; }
         
         .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 800; text-decoration: none; border: 2px solid var(--card-border); position: relative; box-shadow: 4px 4px 0px var(--shadow-color); transition: transform 0.1s ease, box-shadow 0.1s ease; cursor: pointer; }
-        .btn-left { display: flex; align-items: center; gap: 12px; }
-        .btn svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
-        .btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
         .btn-secondary { background: var(--btn-secondary-bg); color: var(--text-body); }
-        
+
+        /* Модальное окно */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { max-width: 360px; width: 100%; max-height: 80vh; }
-        .scrollable-list { overflow-y: auto; flex-grow: 1; padding-right: 5px; margin-right: -5px; }
-        .status-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 14px; }
-        .status-ok { color: #ccff00; font-weight: bold; }
-        .status-no { color: #ff4d4d; font-weight: bold; }
+        .modal-content { max-width: 360px; width: 100%; max-height: 85vh; background: var(--card-bg); border: 3px solid var(--card-border); padding: 20px; box-shadow: 8px 8px 0px var(--shadow-color); display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+        .modal-img { width: 100%; border: 2px solid var(--card-border); }
     </style>
 </head>
 <body>
@@ -86,36 +81,29 @@
     <div class="container">
         <header class="brand-header">
              <h1 class="brand-title">ON1X VPN</h1>
-            <p class="brand-slogan">Свободный интернет</p>
+            <p class="brand-slogan">Часто задаваемые вопросы</p>
         </header>
 
         <main class="section-box">
-            <div class="section-title">Серверы</div>
-            <button class="btn btn-secondary" onclick="openModal('Германия')"><span>ГЕРМАНИЯ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Нидерланды')"><span>НИДЕРЛАНДЫ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Швеция')"><span>ШВЕЦИЯ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Эстония')"><span>ЭСТОНИЯ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Россия')"><span>РОССИЯ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('США')"><span>США</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Финляндия')"><span>ФИНЛЯНДИЯ</span><span>→</span></button>
-            <button class="btn btn-secondary" onclick="openModal('Франция')"><span>ФРАНЦИЯ</span><span>→</span></button>
-            
-            <a href="https://t.me/on1xVPN_bot?start=utm_link" class="btn btn-primary" style="margin-top: 10px;">
-                <div class="btn-left"><span>ПОДКЛЮЧИТЬСЯ</span></div>
+            <div class="section-title">Вопросы</div>
+            <button class="btn btn-secondary" onclick="openFaq(0)">
+                <span>ПРАВИЛЬНЫЙ ПИНГ В HAPP</span>
                 <span>→</span>
-            </a>
+            </button>
         </main>
     </div>
 
-    <div id="statusModal" class="modal" onclick="closeModal()">
-        <div class="modal-content section-box" onclick="event.stopPropagation()">
-            <h2 id="modalTitle" class="section-title" style="margin-bottom: 10px;"></h2>
-            <div id="serviceList" class="scrollable-list"></div>
-            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="closeModal()">ЗАКРЫТЬ</button>
+    <div id="faqModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="section-title"></h2>
+            <img id="modalImg" class="modal-img" src="" alt="Иллюстрация">
+            <div id="modalText" style="font-size: 14px; line-height: 1.5; white-space: pre-line;"></div>
+            <button class="btn btn-secondary" onclick="closeModal()">ЗАКРЫТЬ</button>
         </div>
     </div>
 
     <script>
+        // Темы
         const themeInput = document.getElementById('themeInput');
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -127,27 +115,21 @@
             localStorage.setItem('theme', theme);
         });
 
-        // Единый набор сервисов
-        const services = [
-            ['PornoHub', true], ['Telegram', true], ['WhatsApp', true],
-            ['FaceTime', true], ['Gemini', true], ['ChatGTP', true],
-            ['Grok', true], ['Claud', true], ['TikTok', true],
-            ['YouTube', true], ['Max', false]
-        ];
+        // FAQ Данные
+        const faqData = [{
+            title: "ПРАВИЛЬНЫЙ ПИНГ В HAPP",
+            img: "https://psv4.userapi.com/s/v1/d2/KsrSKmgah-0-f23yp1tV4JUeWRkuhHen1Lr6U2w5VgvWTlbwA9Jnv7DAY_s9zbtXkbgBHR7FEgBiebsUGarf-W9TCoFQtrLR5K_nb7LSWN5z_nw77rmwsofENmg_kGVb31E70Jy4nuoP/pingrr.png",
+            text: "Для того, чтобы настроить правильную проверку пинга серверов в приложении Happ, вам необходимо:\n\n1. Открыть настройки в приложении Happ\n2. Пролистать ниже\n3. Открыть раздел 'Пинг'\n4. Выбрать 'Протокол пинга' — TCP\n5. Повторно проверить пинг серверов"
+        }];
 
-        function openModal(serverName) {
-            const list = document.getElementById('serviceList');
-            document.getElementById('modalTitle').innerText = serverName;
-            list.innerHTML = services.map(s => `
-                <div class="status-item">
-                    <span>${s[0]}</span>
-                    <span class="${s[1] ? 'status-ok' : 'status-no'}">${s[1] ? 'ДОСТУПЕН' : 'НЕДОСТУПЕН'}</span>
-                </div>
-            `).join('');
-            document.getElementById('statusModal').style.display = 'flex';
+        function openFaq(i) {
+            document.getElementById('modalTitle').innerText = faqData[i].title;
+            document.getElementById('modalImg').src = faqData[i].img;
+            document.getElementById('modalText').innerText = faqData[i].text;
+            document.getElementById('faqModal').style.display = 'flex';
         }
 
-        function closeModal() { document.getElementById('statusModal').style.display = 'none'; }
+        function closeModal() { document.getElementById('faqModal').style.display = 'none'; }
     </script>
 </body>
 </html>
