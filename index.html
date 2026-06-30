@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ON1X VPN — Свободный internet</title>
+    <style>
+        :root {
+            --bg-main: #0b0f17;
+            --card-bg: #1e293b;
+            --card-border: #000000;
+            --shadow-color: #000000;
+            --text-title: #ffffff;
+            --text-body: #f8fafc;
+            --text-sub: #94a3b8;
+            --btn-primary-bg: #ccff00;
+            --btn-primary-text: #000000;
+            --btn-secondary-bg: #0f172a;
+            --btn-secondary-border: #000000;
+            --slider-bg: #1e293b;
+            --slider-thumb: #ccff00;
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-border: #000000;
+            --shadow-color: #000000;
+            --text-title: #000000;
+            --text-body: #0f172a;
+            --text-sub: #64748b;
+            --btn-primary-bg: #000000;
+            --btn-primary-text: #ffffff;
+            --btn-secondary-bg: #f8fafc;
+            --btn-secondary-border: #000000;
+            --slider-bg: #ffffff;
+            --slider-thumb: #000000;
+            --icon-color: #000000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-main); color: var(--text-body); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 24px; transition: background 0.3s ease; }
+
+        .theme-container { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 40px; }
+        .theme-switch { position: relative; width: 76px; height: 38px; background: var(--slider-bg); border: 2px solid var(--card-border); border-radius: 0px; box-shadow: 3px 3px 0px var(--shadow-color); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: space-between; transition: background 0.3s ease; }
+        .theme-checkbox { display: none; }
+        .switch-icon { width: 18px; height: 18px; fill: none; stroke: var(--icon-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; z-index: 1; margin: 0 4px; }
+        .theme-handle { position: absolute; left: 4px; width: 26px; height: 26px; background-color: var(--slider-thumb); border: 2px solid var(--card-border); transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 2; }
+        .theme-checkbox:checked + .theme-switch .theme-handle { transform: translateX(38px); }
+
+        .container { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 28px; }
+        .brand-header { text-align: center; }
+        .brand-title { font-size: 42px; font-weight: 900; letter-spacing: -1px; color: var(--text-title); text-transform: uppercase; -webkit-text-stroke: 1px var(--card-border); }
+        .brand-slogan { display: inline-block; font-size: 12px; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: 2px solid var(--card-border); padding: 2px 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; box-shadow: 2px 2px 0px var(--shadow-color); }
+
+        .section-box { background: var(--card-bg); border: 3px solid var(--card-border); border-radius: 0px; padding: 20px 16px 16px 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: 8px 8px 0px var(--shadow-color); position: relative; }
+        .section-title { font-size: 12px; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -4px; }
+        
+        .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 800; text-decoration: none; border: 2px solid var(--card-border); position: relative; box-shadow: 4px 4px 0px var(--shadow-color); transition: transform 0.1s ease, box-shadow 0.1s ease; cursor: pointer; }
+        .btn-left { display: flex; align-items: center; gap: 12px; }
+        .btn svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
+        .btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+        .btn-secondary { background: var(--btn-secondary-bg); color: var(--text-body); }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { max-width: 360px; width: 100%; max-height: 80vh; }
+        .scrollable-list { overflow-y: auto; flex-grow: 1; padding-right: 5px; margin-right: -5px; }
+        .status-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 14px; }
+        .status-ok { color: #ccff00; font-weight: bold; }
+        .status-no { color: #ff4d4d; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="theme-container">
+        <input type="checkbox" id="themeInput" class="theme-checkbox">
+        <label for="themeInput" class="theme-switch">
+            <svg class="switch-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <div class="theme-handle"></div>
+            <svg class="switch-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </label>
+    </div>
+
+    <div class="container">
+        <header class="brand-header">
+             <h1 class="brand-title">ON1X VPN</h1>
+            <p class="brand-slogan">Свободный интернет</p>
+        </header>
+
+        <main class="section-box">
+            <div class="section-title">Серверы</div>
+            <button class="btn btn-secondary" onclick="openModal('Германия')"><span>ГЕРМАНИЯ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Нидерланды')"><span>НИДЕРЛАНДЫ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Швеция')"><span>ШВЕЦИЯ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Эстония')"><span>ЭСТОНИЯ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Россия')"><span>РОССИЯ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('США')"><span>США</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Финляндия')"><span>ФИНЛЯНДИЯ</span><span>→</span></button>
+            <button class="btn btn-secondary" onclick="openModal('Франция')"><span>ФРАНЦИЯ</span><span>→</span></button>
+            
+            <a href="https://t.me/on1xVPN_bot?start=utm_link" class="btn btn-primary" style="margin-top: 10px;">
+                <div class="btn-left"><span>ПОДКЛЮЧИТЬСЯ</span></div>
+                <span>→</span>
+            </a>
+        </main>
+    </div>
+
+    <div id="statusModal" class="modal" onclick="closeModal()">
+        <div class="modal-content section-box" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="section-title" style="margin-bottom: 10px;"></h2>
+            <div id="serviceList" class="scrollable-list"></div>
+            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="closeModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        const themeInput = document.getElementById('themeInput');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeInput.checked = (savedTheme === 'light');
+
+        themeInput.addEventListener('change', () => {
+            const theme = themeInput.checked ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        });
+
+        // Единый набор сервисов
+        const services = [
+            ['PornoHub', true], ['Telegram', true], ['WhatsApp', true],
+            ['FaceTime', true], ['Gemini', true], ['ChatGTP', true],
+            ['Grok', true], ['Claud', true], ['TikTok', true],
+            ['YouTube', true], ['Max', false]
+        ];
+
+        function openModal(serverName) {
+            const list = document.getElementById('serviceList');
+            document.getElementById('modalTitle').innerText = serverName;
+            list.innerHTML = services.map(s => `
+                <div class="status-item">
+                    <span>${s[0]}</span>
+                    <span class="${s[1] ? 'status-ok' : 'status-no'}">${s[1] ? 'ДОСТУПЕН' : 'НЕДОСТУПЕН'}</span>
+                </div>
+            `).join('');
+            document.getElementById('statusModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('statusModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
