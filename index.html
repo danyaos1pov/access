@@ -1,135 +1,1863 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ON1X VPN — FAQ</title>
-    <style>
-        :root {
-            --bg-main: #0b0f17;
-            --card-bg: #1e293b;
-            --card-border: #000000;
-            --shadow-color: #000000;
-            --text-title: #ffffff;
-            --text-body: #f8fafc;
-            --text-sub: #94a3b8;
-            --btn-primary-bg: #ccff00;
-            --btn-primary-text: #000000;
-            --btn-secondary-bg: #0f172a;
-            --btn-secondary-border: #000000;
-            --slider-bg: #1e293b;
-            --slider-thumb: #ccff00;
-            --icon-color: #ffffff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ON1X — Панель управления</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+    --bg-main: #0b0f17;
+    --card-bg: #1e293b;
+    --card-border: #000000;
+    --shadow-color: #000000;
+    --text-title: #ffffff;
+    --text-body: #f8fafc;
+    --text-sub: #94a3b8;
+    --btn-primary-bg: #ccff00;
+    --btn-primary-text: #000000;
+    --btn-secondary-bg: #0f172a;
+    --btn-secondary-border: #000000;
+    --slider-bg: #1e293b;
+    --slider-thumb: #ccff00;
+    --icon-color: #ffffff;
+    --danger-bg: #ff3333;
+    --danger-text: #ffffff;
+    --btn-danger-bg: #ff3333;
+    --btn-danger-text: #ffffff;
+    --modal-overlay: rgba(11, 15, 23, 0.85);
+    --success-color: #ccff00;
+    --danger-color: #ff3333;
+    --star-filled: #ccff00;
+    --star-empty: transparent;
+    --input-bg: #0f172a;
+    --admin-red: #ff4d4d;
+    --success-green: #2ecc71;
+    --pending-orange: #ffa500;
+    --sidebar-width: 300px;
+}
 
-        [data-theme="light"] {
-            --bg-main: #f1f5f9;
-            --card-bg: #ffffff;
-            --card-border: #000000;
-            --shadow-color: #000000;
-            --text-title: #000000;
-            --text-body: #0f172a;
-            --text-sub: #64748b;
-            --btn-primary-bg: #000000;
-            --btn-primary-text: #ffffff;
-            --btn-secondary-bg: #f8fafc;
-            --btn-secondary-border: #000000;
-            --slider-bg: #ffffff;
-            --slider-thumb: #000000;
-            --icon-color: #000000;
-        }
+[data-theme="light"] {
+    --bg-main: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-border: #000000;
+    --shadow-color: #000000;
+    --text-title: #000000;
+    --text-body: #0f172a;
+    --text-sub: #64748b;
+    --btn-primary-bg: #000000;
+    --btn-primary-text: #ffffff;
+    --btn-secondary-bg: #f8fafc;
+    --btn-secondary-border: #000000;
+    --slider-bg: #ffffff;
+    --slider-thumb: #000000;
+    --icon-color: #000000;
+    --success-color: #008800;
+    --danger-color: #cc0000;
+    --star-filled: #000000;
+    --star-empty: transparent;
+    --input-bg: #f8fafc;
+    --admin-red: #d32f2f;
+    --success-green: #27ae60;
+    --pending-orange: #e67e22;
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); color: var(--text-body); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 24px; transition: background 0.3s ease; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
 
-        .theme-container { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 40px; }
-        .theme-switch { position: relative; width: 76px; height: 38px; background: var(--slider-bg); border: 2px solid var(--card-border); border-radius: 0px; box-shadow: 3px 3px 0px var(--shadow-color); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: space-between; transition: background 0.3s ease; }
-        .theme-checkbox { display: none; }
-        .switch-icon { width: 18px; height: 18px; fill: none; stroke: var(--icon-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; z-index: 1; margin: 0 4px; }
-        .theme-handle { position: absolute; left: 4px; width: 26px; height: 26px; background-color: var(--slider-thumb); border: 2px solid var(--card-border); transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 2; }
-        .theme-checkbox:checked + .theme-switch .theme-handle { transform: translateX(38px); }
+html, body { overflow-x: hidden; }
 
-        .container { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 28px; }
-        .brand-header { text-align: center; }
-        .brand-title { font-size: 42px; font-weight: 900; letter-spacing: -1px; color: var(--text-title); text-transform: uppercase; -webkit-text-stroke: 1px var(--card-border); }
-        .brand-slogan { display: inline-block; font-size: 12px; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: 2px solid var(--card-border); padding: 2px 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; box-shadow: 2px 2px 0px var(--shadow-color); }
+body {
+    background-color: var(--bg-main);
+    color: var(--text-body);
+    min-height: 100vh;
+    transition: background 0.3s ease;
+    position: relative;
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+}
+input, textarea, select { user-select: text !important; -webkit-user-select: text !important; }
 
-        .section-box { background: var(--card-bg); border: 3px solid var(--card-border); border-radius: 0px; padding: 20px 16px 16px 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: 8px 8px 0px var(--shadow-color); position: relative; }
-        .section-title { font-size: 12px; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -4px; }
-        
-        .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 800; text-decoration: none; border: 2px solid var(--card-border); position: relative; box-shadow: 4px 4px 0px var(--shadow-color); transition: transform 0.1s ease, box-shadow 0.1s ease; cursor: pointer; }
-        .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
-        .btn-secondary { background: var(--btn-secondary-bg); color: var(--text-body); }
+/* ============ TOAST ============ */
+.toast-notification {
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 360px;
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 3px solid var(--card-border);
+    box-shadow: 4px 4px 0px var(--shadow-color);
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 9999;
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    word-break: break-word;
+}
+.toast-notification.show { top: 24px; }
+.toast-notification.success { background: var(--success-green); color: #fff; }
 
-        /* Модальное окно */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { max-width: 360px; width: 100%; max-height: 85vh; background: var(--card-bg); border: 3px solid var(--card-border); padding: 20px; box-shadow: 8px 8px 0px var(--shadow-color); display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
-        .modal-img { width: 100%; border: 2px solid var(--card-border); }
-    </style>
+/* ============ TOP BAR ============ */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 24px 0 24px;
+}
+
+.menu-burger-btn {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    padding: 8px 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.menu-burger-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
+.menu-burger-btn svg { stroke: var(--icon-color); stroke-width: 3; stroke-linecap: round; }
+.menu-burger-btn.visible { display: flex; }
+
+.theme-container { margin-left: auto; }
+
+.theme-switch {
+    position: relative;
+    width: 76px;
+    height: 38px;
+    background: var(--slider-bg);
+    border: 2px solid var(--card-border);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s ease;
+}
+.theme-checkbox { display: none; }
+.switch-icon {
+    width: 18px; height: 18px; fill: none; stroke: var(--icon-color);
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    z-index: 1; transition: stroke 0.3s ease; margin: 0 4px;
+}
+.theme-handle {
+    position: absolute; left: 4px; width: 26px; height: 26px;
+    background-color: var(--slider-thumb); border: 2px solid var(--card-border);
+    transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 2;
+}
+.theme-checkbox:checked + .theme-switch .theme-handle { transform: translateX(38px); }
+
+/* ============ SIDEBAR (улучшенное меню) ============ */
+.sidebar-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000; opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+.sidebar-menu {
+    position: fixed; top: 0; left: -300px; width: var(--sidebar-width); height: 100%;
+    background: var(--card-bg);
+    border-right: 4px solid var(--card-border);
+    z-index: 1001;
+    display: flex; flex-direction: column;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+.sidebar-overlay.active .sidebar-menu { left: 0; }
+
+.sidebar-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 20px 16px 20px;
+    border-bottom: 2px dashed var(--card-border);
+}
+.sidebar-logo { display: flex; align-items: center; gap: 10px; }
+.sidebar-logo-badge {
+    width: 34px; height: 34px; background: var(--btn-primary-bg);
+    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: var(--btn-primary-text); font-size: 15px;
+    box-shadow: 2px 2px 0px var(--shadow-color);
+}
+.sidebar-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; }
+.sidebar-close { background: none; border: none; cursor: pointer; font-size: 24px; font-weight: 900; color: var(--text-title); line-height: 1; }
+
+.sidebar-profile {
+    margin: 16px 20px;
+    background: var(--btn-secondary-bg);
+    border: 2px solid var(--card-border);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+}
+.sidebar-avatar {
+    width: 40px; height: 40px; min-width: 40px; background: var(--btn-primary-bg);
+    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px; color: var(--btn-primary-text);
+}
+.sidebar-profile-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+.sidebar-profile-name { font-size: 14px; font-weight: 800; color: var(--text-title); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-profile-role { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.3px; }
+
+.sidebar-section-label {
+    font-size: 10px; font-weight: 800; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 0 20px; margin: 6px 0 8px 0;
+}
+
+.sidebar-links { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+
+.sidebar-item-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; font-size: 14px; font-weight: 800;
+    color: var(--text-body); text-decoration: none; text-transform: uppercase;
+    border: 2px solid var(--card-border); background: var(--bg-main);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease;
+}
+.sidebar-item-link svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.sidebar-item-link:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
+.sidebar-item-link:hover { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+.sidebar-item-link.active { background: var(--btn-primary-bg); color: var(--btn-primary-text); box-shadow: 1px 1px 0px var(--shadow-color); transform: translate(2px, 2px); }
+
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 2px dashed var(--card-border); }
+.sidebar-logout-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 12px 14px; font-size: 13px; font-weight: 800; text-transform: uppercase;
+    background: var(--btn-danger-bg); color: var(--btn-danger-text);
+    border: 2px solid var(--card-border); box-shadow: 3px 3px 0px var(--shadow-color);
+    cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.sidebar-logout-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
+.sidebar-logout-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============ ГЛОБАЛЬНЫЙ ЛЭЙАУТ / АДАПТИВ ПОД ДЕСКТОП ============ */
+.app-shell { width: 100%; }
+.page-wrap {
+    width: 100%; max-width: 1180px; margin: 0 auto;
+    padding: 32px 24px 60px 24px;
+    display: flex; justify-content: center;
+}
+.page { display: none; width: 100%; }
+.page.active { display: flex; flex-direction: column; align-items: center; }
+
+@media (min-width: 960px) {
+    body.authed .sidebar-overlay {
+        position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); height: 100%;
+        background: transparent; opacity: 1; visibility: visible; pointer-events: none;
+    }
+    body.authed .sidebar-menu { left: 0; position: fixed; top: 0; height: 100vh; pointer-events: auto; }
+    body.authed .top-bar { padding-left: calc(var(--sidebar-width) + 24px); }
+    body.authed .page-wrap { padding-left: calc(var(--sidebar-width) + 24px); }
+    body.authed .menu-burger-btn { display: none !important; }
+    body.authed .sidebar-close { display: none; }
+}
+
+/* ============ ОБЩИЕ КОНТЕЙНЕРЫ ============ */
+.container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
+.container-wide { max-width: 560px; }
+
+.brand-header { text-align: center; }
+.brand-title { font-size: 40px; font-weight: 900; letter-spacing: -1px; color: var(--text-title); text-transform: uppercase; -webkit-text-stroke: 1px var(--card-border); }
+.brand-slogan {
+    display: inline-block; font-size: 12px; background: var(--btn-primary-bg); color: var(--btn-primary-text);
+    border: 2px solid var(--card-border); padding: 2px 8px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; margin-top: 6px; box-shadow: 2px 2px 0px var(--shadow-color); transition: background 0.3s ease, color 0.3s ease;
+}
+.brand-slogan.tag-danger { background: var(--admin-red); color: #fff; }
+
+.brutal-box, .section-box {
+    background: var(--card-bg); border: 3px solid var(--card-border);
+    box-shadow: 8px 8px 0px var(--shadow-color); padding: 24px 20px;
+    display: flex; flex-direction: column; gap: 16px; position: relative; width: 100%;
+}
+.box-title { font-size: 22px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; text-align: center; }
+.section-title { font-size: 12px; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 1px; }
+
+.input-group, .form-group { display: flex; flex-direction: column; gap: 6px; }
+.input-label, .form-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-title); }
+.login-input, .form-input, .modal-input,
+select, input[type="text"], input[type="password"], input[type="email"], input[type="number"],
+input[type="date"], input[type="datetime-local"], textarea {
+    width: 100%; padding: 13px; font-size: 15px; font-weight: 700;
+    background: var(--input-bg); color: var(--text-body); border: 2px solid var(--card-border);
+    outline: none; border-radius: 0; font-family: inherit; transition: border-color 0.2s ease;
+}
+.login-input:focus, .form-input:focus, .modal-input:focus,
+select:focus, input:focus, textarea:focus { border-color: var(--btn-primary-bg); }
+select, input[type="date"], input[type="datetime-local"] { cursor: pointer; }
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
+
+/* ============ КНОПКИ ============ */
+.btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 15px 18px; font-size: 15px; font-weight: 800;
+    text-decoration: none; border: 2px solid var(--card-border); position: relative;
+    box-shadow: 4px 4px 0px var(--shadow-color); transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer; text-transform: uppercase;
+}
+.btn-left { display: flex; align-items: center; gap: 12px; }
+.btn svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
+.btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+.btn-secondary { background: var(--btn-secondary-bg); color: var(--text-body); }
+.btn-danger { background: var(--btn-danger-bg); color: var(--btn-danger-text); }
+.btn-small { padding: 10px; font-size: 13px; }
+.actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+
+.welcome-role {
+    font-size: 15px; font-weight: 700; color: var(--text-body); background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--card-border); padding: 14px; text-align: center; box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+/* ============ КАРТОЧКИ ПОЛЬЗОВАТЕЛЕЙ / СПИСКИ ============ */
+.user-card {
+    background: var(--btn-secondary-bg); border: 2px solid var(--card-border); padding: 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 4px 4px 0px var(--shadow-color);
+}
+.user-info { display: flex; flex-direction: column; gap: 4px; }
+.user-name { font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--text-title); }
+.user-details { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+.user-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.badge { font-size: 10px; padding: 2px 6px; border: 1px solid var(--card-border); background: #334155; color: #ffffff; font-weight: 800; }
+.badge.active { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+
+.actions-group { display: flex; gap: 8px; }
+.btn-mini {
+    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--card-border); background: var(--card-bg); cursor: pointer; box-shadow: 2px 2px 0px var(--shadow-color);
+}
+.btn-mini:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
+.btn-mini svg { fill: none; stroke: var(--text-title); stroke-width: 2.5; }
+.btn-mini.del:hover { background: var(--btn-danger-bg); }
+.btn-mini.del:hover svg { stroke: var(--btn-danger-text); }
+.btn-mini.edit:hover { background: var(--btn-primary-bg); }
+.btn-mini.edit:hover svg { stroke: var(--btn-primary-text); }
+
+.checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.15); padding: 12px; border: 2px solid var(--card-border); margin-top: 4px; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; cursor: pointer; color: var(--text-body); }
+.checkbox-item input { width: 16px; height: 16px; accent-color: var(--btn-primary-bg); cursor: pointer; }
+
+/* ============ МОДАЛЬНЫЕ ОКНА ============ */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--modal-overlay); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 24px;
+}
+.modal-overlay.show { display: flex; }
+.modal-content, .modal-box {
+    background: var(--card-bg); border: 3px solid var(--card-border); box-shadow: 8px 8px 0px var(--shadow-color);
+    width: 100%; max-width: 380px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; position: relative;
+}
+.modal-close-x { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; font-weight: 900; color: var(--text-title); cursor: pointer; line-height: 1; }
+.modal-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: 0.5px; }
+.modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+
+select.modal-input, select.form-input {
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;
+}
+[data-theme="light"] select.modal-input, [data-theme="light"] select.form-input {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+}
+
+.empty-state { text-align: center; color: var(--text-sub); padding: 16px; font-weight: 700; }
+
+/* ============ БАЛАНС ============ */
+.crypto-balance-box { text-align: center; padding: 16px 16px; }
+.balance-value { font-size: 38px; font-weight: 900; color: var(--text-title); letter-spacing: -0.5px; margin-top: 4px; }
+.history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; padding-right: 4px; width: 100%; }
+.history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); }
+.history-meta { display: flex; flex-direction: column; gap: 2px; }
+.history-comment { font-size: 14px; font-weight: 700; color: var(--text-body); }
+.history-date { font-size: 11px; color: var(--text-sub); }
+.history-amount { font-size: 15px; font-weight: 900; }
+.amount-plus { color: var(--success-color); }
+.amount-minus { color: var(--danger-color); }
+
+/* ============ СЕРВЕРА ============ */
+.server-list { list-style: none; display: flex; flex-direction: column; gap: 12px; max-height: 420px; overflow-y: auto; padding-right: 4px; width: 100%; }
+.server-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); }
+.server-info { display: flex; flex-direction: column; gap: 2px; }
+.server-location { font-size: 15px; font-weight: 700; color: var(--text-body); }
+.server-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+.server-date-box { text-align: right; }
+.server-date { font-size: 14px; font-weight: 900; color: var(--btn-primary-bg); }
+[data-theme="light"] .server-date { color: var(--text-title); }
+
+/* ============ РОЗЫГРЫШ ============ */
+.stats-box-simple {
+    background: var(--card-bg); border: 3px solid var(--card-border); padding: 16px;
+    box-shadow: 8px 8px 0px var(--shadow-color); display: flex; align-items: center; justify-content: space-between; width: 100%;
+}
+.stats-title { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sub); }
+.stats-value { font-size: 24px; font-weight: 900; color: var(--text-title); }
+.btn-action { background: var(--success-color); color: var(--btn-primary-text); }
+[data-theme="dark"] .btn-action, :root .btn-action { color: #000000; }
+.btn-refresh { background: var(--btn-secondary-bg); color: var(--text-body); box-shadow: none; }
+.btn-refresh:active { transform: none; box-shadow: none; }
+.winners-list { background: rgba(0,0,0,0.2); border: 2px solid var(--card-border); padding: 10px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.winner-item { background: var(--btn-secondary-bg); border: 1px solid var(--success-color); padding: 8px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
+
+/* ============ ОТЗЫВЫ (АДМИНКА) ============ */
+.stats-box { background: var(--card-bg); border: 3px solid var(--card-border); padding: 14px; box-shadow: 4px 4px 0px var(--shadow-color); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center; width: 100%; }
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-value { font-size: 22px; font-weight: 900; }
+.stat-value.published { color: var(--success-green); }
+.stat-value.pending { color: var(--pending-orange); }
+
+.filter-box { background: var(--card-bg); border: 3px solid var(--card-border); padding: 14px; box-shadow: 4px 4px 0px var(--shadow-color); display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.filter-label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-sub); letter-spacing: 0.5px; }
+
+.reviews-grid { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+.review-card { background: var(--card-bg); border: 3px solid var(--card-border); padding: 12px; box-shadow: 4px 4px 0px var(--shadow-color); display: flex; flex-direction: column; position: relative; cursor: pointer; transition: transform 0.1s ease; }
+.review-card:active { transform: translate(1px, 1px); box-shadow: 3px 3px 0px var(--shadow-color); }
+.card-header-clickable { display: flex; flex-direction: column; gap: 8px; padding-right: 24px; }
+.fold-arrow { position: absolute; right: 14px; top: 18px; width: 14px; height: 14px; fill: none; stroke: var(--text-title); stroke-width: 3; transition: transform 0.2s ease; }
+.actions-area { max-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 10px; transition: max-height 0.25s ease-out, margin-top 0.15s ease, padding-top 0.15s ease; }
+.review-card.expanded { cursor: default; }
+.review-card.expanded:active { transform: none; box-shadow: 4px 4px 0px var(--shadow-color); }
+.review-card.expanded .fold-arrow { transform: rotate(180deg); }
+.review-card.expanded .actions-area { max-height: 1000px; border-top: 2px dashed var(--card-border); margin-top: 14px; padding-top: 14px; overflow: visible; }
+
+.status-badge { align-self: flex-start; font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); letter-spacing: 0.5px; margin-bottom: 2px; }
+.status-0 { background: var(--pending-orange); color: #000; }
+.status-1 { background: var(--success-green); color: #fff; }
+.status-2 { background: var(--text-sub); color: #000; }
+
+.stars-row { display: flex; gap: 4px; align-items: center; }
+.stars-edit-row { display: flex; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.star-btn { background: var(--input-bg); border: 2px solid var(--card-border); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0px var(--shadow-color); transition: transform 0.05s ease; }
+.star-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
+.brutal-star { width: 18px; height: 18px; pointer-events: none; }
+.brutal-star path { stroke: #000000; stroke-width: 2.5px; stroke-linejoin: miter; }
+.brutal-star.filled path { fill: var(--star-filled); }
+.brutal-star.empty path { fill: var(--star-empty); }
+
+.user-meta { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 28px; height: 28px; background: var(--btn-primary-bg); border: 2px solid var(--card-border); color: var(--btn-primary-text); display: grid; place-items: center; font-weight: 900; font-size: 12px; }
+.username { display: flex; flex-direction: column; font-weight: 800; font-size: 13px; color: var(--text-title); }
+.review-date { font-size: 10px; color: var(--text-sub); font-weight: 500; }
+
+.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.btn-save { background: var(--btn-primary-bg); color: var(--btn-primary-text); padding: 10px 12px; font-size: 12px; }
+.btn-delete { background: var(--admin-red); color: #fff; padding: 10px 12px; font-size: 12px; }
+
+.hidden { display: none !important; }
+
+/* Скроллбар для длинных списков */
+.history-list::-webkit-scrollbar, .server-list::-webkit-scrollbar, .winners-list::-webkit-scrollbar { width: 6px; }
+.history-list::-webkit-scrollbar-thumb, .server-list::-webkit-scrollbar-thumb, .winners-list::-webkit-scrollbar-thumb { background: var(--text-sub); }
+</style>
 </head>
 <body>
 
-    <div class="theme-container">
-        <input type="checkbox" id="themeInput" class="theme-checkbox">
-        <label for="themeInput" class="theme-switch">
-            <svg class="switch-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <div class="theme-handle"></div>
-            <svg class="switch-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        </label>
-    </div>
+<div class="toast-notification" id="globalToast">Уведомление</div>
 
-    <div class="container">
-        <header class="brand-header">
-             <h1 class="brand-title">ON1X VPN</h1>
-            <p class="brand-slogan">Часто задаваемые вопросы</p>
-        </header>
+<!-- ============ SIDEBAR ============ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenuOnOverlay(event)">
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-badge">ON1X</div>
+                <span class="sidebar-title">Навигация</span>
+            </div>
+            <button class="sidebar-close" onclick="toggleMenu()">×</button>
+        </div>
 
-        <main class="section-box">
-            <div class="section-title">Вопросы</div>
-            <button class="btn btn-secondary" onclick="openFaq(0)">
-                <span>ПРАВИЛЬНЫЙ ПИНГ В HAPP</span>
-                <span>→</span>
+        <div class="sidebar-profile" id="sidebarProfile" style="display:none;">
+            <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+            <div class="sidebar-profile-info">
+                <span class="sidebar-profile-name" id="sidebarProfileName">—</span>
+                <span class="sidebar-profile-role" id="sidebarProfileRole">—</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section-label">Разделы</div>
+        <ul class="sidebar-links" id="menuList"></ul>
+
+        <div class="sidebar-footer" id="sidebarFooter" style="display:none;">
+            <button class="sidebar-logout-btn" onclick="handleLogout()">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Выйти из системы</span>
             </button>
-        </main>
+        </div>
     </div>
+</div>
 
-    <div id="faqModal" class="modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="modalTitle" class="section-title"></h2>
-            <img id="modalImg" class="modal-img" src="" alt="Иллюстрация">
-            <div id="modalText" style="font-size: 14px; line-height: 1.5; white-space: pre-line;"></div>
-            <button class="btn btn-secondary" onclick="closeModal()">ЗАКРЫТЬ</button>
+<div class="app-shell">
+    <div class="top-bar">
+        <button class="menu-burger-btn" id="burgerBtn" onclick="toggleMenu()">
+            <svg width="22" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="2" y1="4" x2="22" y2="4"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <line x1="2" y1="20" x2="22" y2="20"/>
+            </svg>
+        </button>
+        <div class="theme-container">
+            <input type="checkbox" id="themeInput" class="theme-checkbox">
+            <label for="themeInput" class="theme-switch">
+                <svg class="switch-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <div class="theme-handle"></div>
+                <svg class="switch-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </label>
         </div>
     </div>
 
-    <script>
-        // Темы
-        const themeInput = document.getElementById('themeInput');
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeInput.checked = (savedTheme === 'light');
+    <div class="page-wrap">
+        <!-- ============ СТРАНИЦА: АВТОРИЗАЦИЯ ============ -->
+        <section class="page" id="page-login">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X VPN</h1>
+                    <p class="brand-slogan">Вход в систему</p>
+                </header>
 
-        themeInput.addEventListener('change', () => {
-            const theme = themeInput.checked ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
+                <div class="brutal-box">
+                    <h1 class="box-title">Авторизация</h1>
+
+                    <div class="input-group">
+                        <span class="input-label">Логин</span>
+                        <input type="text" class="login-input" id="loginUsername" placeholder="Введите логин">
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-label">Пароль</span>
+                        <input type="password" class="login-input" id="loginPassword" placeholder="Введите пароль">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="handleLogin()">Войти в аккаунт</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: ГЛАВНАЯ ============ -->
+        <section class="page" id="page-home">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X VPN</h1>
+                    <p class="brand-slogan">Панель управления</p>
+                </header>
+
+                <div class="brutal-box">
+                    <h1 class="box-title" id="helloName">Добро пожаловать, ...</h1>
+                    <div class="welcome-role" id="helloRole">Вы авторизовались как ...</div>
+                    <button class="btn btn-secondary" onclick="handleLogout()">Выйти из системы</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: АДМИНКА ============ -->
+        <section class="page" id="page-admin">
+            <div class="container container-wide">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X CORE</h1>
+                    <p class="brand-slogan">Управление персоналом</p>
+                </header>
+
+                <button class="btn btn-primary" onclick="openAdminModalForCreate()">
+                    <div class="btn-left">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Добавить администратора</span>
+                    </div>
+                </button>
+
+                <section class="section-box">
+                    <div class="section-title">База данных персонала</div>
+                    <div id="admUserListContainer" style="display: flex; flex-direction: column; gap: 14px;">
+                        <div class="empty-state">Синхронизация...</div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: БАЛАНС ============ -->
+        <section class="page" id="page-balance">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X VPN</h1>
+                    <p class="brand-slogan">Баланс</p>
+                </header>
+
+                <section class="section-box crypto-balance-box">
+                    <div class="section-title" style="text-align: center; width: 100%;">Текущий баланс</div>
+                    <div class="balance-value" id="balanceDisplay">0 ₽</div>
+                </section>
+
+                <div class="actions-grid">
+                    <button class="btn btn-primary" onclick="openBalanceModal('add')">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>ПОПОЛНИТЬ</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="openBalanceModal('subtract')">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>СПИСАТЬ</span>
+                    </button>
+                </div>
+
+                <section class="section-box">
+                    <div class="section-title">История изменений</div>
+                    <ul class="history-list" id="historyDisplay">
+                        <li class="history-item" style="justify-content: center; font-weight: 700;">Получение данных...</li>
+                    </ul>
+                </section>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: СЕРВЕРА ============ -->
+        <section class="page" id="page-servers">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X VPN</h1>
+                    <p class="brand-slogan">Сервера</p>
+                </header>
+
+                <div class="actions-grid">
+                    <button class="btn btn-primary" onclick="openSrvAddModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Добавить</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="openSrvRenewModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span>Продлить</span>
+                    </button>
+                </div>
+
+                <section class="section-box">
+                    <div class="section-title">Список серверов VPN</div>
+                    <ul class="server-list" id="srvServerDisplay">
+                        <li class="server-item" style="justify-content: center; font-weight: 700;">Получение данных...</li>
+                    </ul>
+                </section>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: ОТЗЫВЫ (админ-модерация) ============ -->
+        <section class="page" id="page-reviews">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X Admin</h1>
+                    <p class="brand-slogan">Модерация отзывов</p>
+                </header>
+
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <span class="filter-label" style="margin-bottom:0;">Опубликовано</span>
+                        <span class="stat-value published" id="revStatPublished">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="filter-label" style="margin-bottom:0;">На проверке</span>
+                        <span class="stat-value pending" id="revStatPending">0</span>
+                    </div>
+                </div>
+
+                <div class="filter-box">
+                    <div>
+                        <span class="filter-label">Фильтр по статусу</span>
+                        <select id="revStatusFilter">
+                            <option value="all">Все отзывы</option>
+                            <option value="0">0 — Ожидает проверки</option>
+                            <option value="1">1 — Опубликован (Учитывается)</option>
+                            <option value="2">2 — Опубликован (НЕ учитывается)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="filter-label">Поиск</span>
+                        <input type="text" id="revSearchInput" placeholder="Имя автора или текст...">
+                    </div>
+                </div>
+
+                <div class="reviews-grid" id="revGrid"></div>
+            </div>
+        </section>
+
+        <!-- ============ СТРАНИЦА: РОЗЫГРЫШ ============ -->
+        <section class="page" id="page-giveaway">
+            <div class="container container-wide">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X CORE</h1>
+                    <p class="brand-slogan">Панель Розыгрышей</p>
+                </header>
+
+                <div class="stats-box-simple">
+                    <span class="stats-title">Всего участников:</span>
+                    <span class="stats-value" id="rafTotalCount">0</span>
+                </div>
+
+                <button class="btn btn-action" onclick="openRaffleModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Определить победителей</span>
+                </button>
+
+                <button class="btn btn-refresh" onclick="loadParticipants()">
+                    <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Обновить список</span>
+                </button>
+
+                <section class="section-box">
+                    <div class="section-title">Записи в таблице 'raffle'</div>
+                    <div id="rafParticipantsContainer" style="display: flex; flex-direction: column; gap: 14px;">
+                        <div class="empty-state">Загрузка данных...</div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- ============ МОДАЛКА: АДМИНКА ============ -->
+<div class="modal-overlay" id="admModalOverlay" onclick="if(event.target.id === 'admModalOverlay') closeAdminModal()">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeAdminModal()">×</button>
+        <div class="section-title" id="admModalTitle">Добавить профиль</div>
+
+        <input type="hidden" id="admUserId">
+
+        <div class="form-group">
+            <span class="form-label">Имя (Отображение)</span>
+            <input type="text" class="form-input" id="admNameInput" placeholder="Имя">
+        </div>
+        <div class="form-group">
+            <span class="form-label">Логин (Username)</span>
+            <input type="text" class="form-input" id="admUsernameInput" placeholder="Логин">
+        </div>
+        <div class="form-group">
+            <span class="form-label">Пароль</span>
+            <input type="text" class="form-input" id="admPasswordInput" placeholder="Пароль">
+        </div>
+        <div class="form-group">
+            <span class="form-label">Роль (Пояснение)</span>
+            <input type="text" class="form-input" id="admRoleInput" placeholder="Напр: Разработчик">
+        </div>
+        <div class="form-group">
+            <span class="form-label">Доступы к панелям:</span>
+            <div class="checkbox-grid">
+                <label class="checkbox-item"><input type="checkbox" id="accAdmin"> Админка</label>
+                <label class="checkbox-item"><input type="checkbox" id="accBalance"> Баланс</label>
+                <label class="checkbox-item"><input type="checkbox" id="accServers"> Сервера</label>
+                <label class="checkbox-item"><input type="checkbox" id="accReviews"> Отзывы</label>
+                <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="admSaveBtn" onclick="saveAdminUser()" style="margin-top: 6px;">Сохранить</button>
+        <button class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
+    </div>
+</div>
+
+<!-- ============ МОДАЛКА: БАЛАНС ============ -->
+<div class="modal-overlay" id="balModal" onclick="if(event.target.id === 'balModal') closeBalanceModal()">
+    <div class="modal-box">
+        <div class="modal-title" id="balModalTitle">Пополнение</div>
+        <input type="number" class="modal-input" id="balModalAmount" placeholder="Сумма (₽)" min="0" step="any">
+        <input type="text" class="modal-input" id="balModalComment" placeholder="Комментарий (Обязательно)">
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="closeBalanceModal()">ОТМЕНА</button>
+            <button class="btn btn-primary btn-small" onclick="submitBalanceModal()">ОК</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ МОДАЛКИ: СЕРВЕРА ============ -->
+<div class="modal-overlay" id="srvAddModal" onclick="if(event.target.id === 'srvAddModal') closeSrvModals()">
+    <div class="modal-box">
+        <div class="modal-title">Новый сервер</div>
+        <input type="text" class="modal-input" id="srvLocationInput" placeholder="Локация (например, Швеция 🇸🇪)">
+        <input type="date" class="modal-input" id="srvPaidUntilInput" placeholder="Оплачен до">
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="closeSrvModals()">ОТМЕНА</button>
+            <button class="btn btn-primary btn-small" onclick="submitAddServer()">ДОБАВИТЬ</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="srvRenewModal" onclick="if(event.target.id === 'srvRenewModal') closeSrvModals()">
+    <div class="modal-box">
+        <div class="modal-title">Продлить сервер</div>
+        <select class="modal-input" id="srvRenewSelect"></select>
+        <input type="number" class="modal-input" id="srvRenewDaysInput" placeholder="Количество дней продления" min="1">
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="closeSrvModals()">ОТМЕНА</button>
+            <button class="btn btn-primary btn-small" onclick="submitRenewServer()">ПРОДЛИТЬ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ МОДАЛКА: РОЗЫГРЫШ ============ -->
+<div class="modal-overlay" id="rafModal" onclick="if(event.target.id === 'rafModal') closeRaffleModal()">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeRaffleModal()">×</button>
+        <div class="section-title" style="color: var(--success-color);">Выбор победителей</div>
+
+        <div class="form-group">
+            <span class="form-label">Укажите количество победителей:</span>
+            <input type="number" class="form-input" id="rafWinnersCountInput" value="1" min="1">
+        </div>
+
+        <button class="btn btn-action" onclick="rollRaffle()" style="margin-top: 6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Запустить рандом</span>
+        </button>
+
+        <div class="form-group" id="rafWinnersResultSection" style="display: none; margin-top: 10px;">
+            <span class="form-label" style="color: var(--success-color);">🎉 Результаты рандома:</span>
+            <div class="winners-list" id="rafWinnersListContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   ГЛОБАЛЬНАЯ КОНФИГУРАЦИЯ
+   ============================================================ */
+const SUPABASE_PROJECT_URL = "https://yvnnngfzzjdbeiscwluy.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bm5uZ2Z6empkYmVpc2N3bHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NzY2ODYsImV4cCI6MjA5MDA1MjY4Nn0.SesGG2QhbJKfAklZDiL8oolWQ6qaTtBwRL_tvigpd9A";
+
+const USERS_AUTH_URL = `${SUPABASE_PROJECT_URL}/rest/v1/users_auth`;
+const BALANCE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/user_balances`;
+const SERVERS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/servers`;
+const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
+
+const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+});
+
+const REST_HEADERS = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+};
+
+/* ============================================================
+   МАРШРУТЫ И ИКОНКИ БОКОВОГО МЕНЮ
+   ============================================================ */
+const ICONS = {
+    home: '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    admin: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    balance: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+    servers: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>',
+    reviews: '<svg viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>',
+    giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
+};
+
+const ROUTES = {
+    home:     { label: 'Главная',   access: null,              onEnter: null },
+    admin:    { label: 'Админка',   access: 'access_admin',    onEnter: loadAdminUsers },
+    balance:  { label: 'Баланс',    access: 'access_balance',  onEnter: fetchBalanceData },
+    servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
+    reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
+    giveaway: { label: 'Розыгрыш',  access: 'access_giveaway', onEnter: loadParticipants }
+};
+
+/* ============================================================
+   ТЕМА ОФОРМЛЕНИЯ
+   ============================================================ */
+(function initTheme() {
+    const themeInput = document.getElementById('themeInput');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeInput.checked = (savedTheme === 'light');
+
+    themeInput.addEventListener('change', () => {
+        const targetTheme = themeInput.checked ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', targetTheme);
+        localStorage.setItem('theme', targetTheme);
+    });
+})();
+
+/* ============================================================
+   ГЛОБАЛЬНЫЙ TOAST
+   ============================================================ */
+let toastTimer = null;
+function showToast(message, type = 'error') {
+    const toast = document.getElementById('globalToast');
+    toast.innerText = message;
+    toast.classList.remove('success');
+    if (type === 'success') toast.classList.add('success');
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+/* ============================================================
+   БОКОВОЕ МЕНЮ
+   ============================================================ */
+function toggleMenu() {
+    if (!isLoggedIn()) return;
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeMenuOnOverlay(event) {
+    if (window.innerWidth >= 960) return;
+    if (event.target.id === 'sidebarOverlay') toggleMenu();
+}
+function closeMenuIfMobile() {
+    if (window.innerWidth < 960) document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+function hasAccess(key) {
+    const val = localStorage.getItem(key);
+    return val === '1' || val === 'true';
+}
+
+function isLoggedIn() {
+    return !!(localStorage.getItem('auth_user_name') && localStorage.getItem('auth_user_role'));
+}
+
+function renderSidebar() {
+    const menuList = document.getElementById('menuList');
+    const burgerBtn = document.getElementById('burgerBtn');
+    const profileBox = document.getElementById('sidebarProfile');
+    const footerBox = document.getElementById('sidebarFooter');
+
+    if (!isLoggedIn()) {
+        burgerBtn.classList.remove('visible');
+        profileBox.style.display = 'none';
+        footerBox.style.display = 'none';
+        menuList.innerHTML = '';
+        document.body.classList.remove('authed');
+        return;
+    }
+
+    document.body.classList.add('authed');
+    burgerBtn.classList.add('visible');
+    profileBox.style.display = 'flex';
+    footerBox.style.display = 'block';
+
+    const userName = localStorage.getItem('auth_user_name') || '';
+    const userRole = localStorage.getItem('auth_user_role') || '';
+    document.getElementById('sidebarProfileName').innerText = userName;
+    document.getElementById('sidebarProfileRole').innerText = userRole;
+    document.getElementById('sidebarAvatar').innerText = userName ? userName[0].toUpperCase() : '?';
+
+    const currentRoute = getCurrentRoute();
+    let html = navLinkHtml('home', currentRoute);
+
+    if (hasAccess('access_admin'))    html += navLinkHtml('admin', currentRoute);
+    if (hasAccess('access_balance'))  html += navLinkHtml('balance', currentRoute);
+    if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
+    if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
+    if (hasAccess('access_giveaway')) html += navLinkHtml('giveaway', currentRoute);
+
+    menuList.innerHTML = html;
+}
+
+function navLinkHtml(route, currentRoute) {
+    const active = route === currentRoute ? ' active' : '';
+    return `<li><a href="#${route}" class="sidebar-item-link${active}" onclick="closeMenuIfMobile()">${ICONS[route]}<span>${ROUTES[route].label}</span></a></li>`;
+}
+
+/* ============================================================
+   РОУТЕР
+   ============================================================ */
+function getCurrentRoute() {
+    const hash = (window.location.hash || '').replace('#', '');
+    return ROUTES[hash] ? hash : null;
+}
+
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function router() {
+    if (!isLoggedIn()) {
+        showPage('login');
+        renderSidebar();
+        return;
+    }
+
+    let route = getCurrentRoute();
+
+    // Нет хэша, либо ссылка на 'login' — уходим на главную
+    if (!route) route = 'home';
+
+    // Проверка прав доступа к разделу
+    if (route !== 'home' && !hasAccess(ROUTES[route].access)) {
+        showToast('Нет доступа к этому разделу!');
+        route = 'home';
+        window.location.hash = '#home';
+        return; // hashchange вызовет router() повторно
+    }
+
+    showPage(route);
+    renderSidebar();
+
+    if (typeof ROUTES[route].onEnter === 'function') {
+        ROUTES[route].onEnter();
+    }
+}
+
+window.addEventListener('hashchange', router);
+
+/* ============================================================
+   АВТОРИЗАЦИЯ
+   ============================================================ */
+async function handleLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!username || !password) {
+        showToast('Заполните все поля!');
+        return;
+    }
+
+    try {
+        const selectColumns = 'name,role,access_admin,access_balance,access_servers,access_reviews,access_giveaway';
+        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
+            method: 'GET',
+            headers: REST_HEADERS
         });
 
-        // FAQ Данные
-        const faqData = [{
-            title: "ПРАВИЛЬНЫЙ ПИНГ В HAPP",
-            img: "https://psv4.userapi.com/s/v1/d2/KsrSKmgah-0-f23yp1tV4JUeWRkuhHen1Lr6U2w5VgvWTlbwA9Jnv7DAY_s9zbtXkbgBHR7FEgBiebsUGarf-W9TCoFQtrLR5K_nb7LSWN5z_nw77rmwsofENmg_kGVb31E70Jy4nuoP/pingrr.png",
-            text: "Для того, чтобы настроить правильную проверку пинга серверов в приложении Happ, вам необходимо:\n\n1. Открыть настройки в приложении Happ\n2. Пролистать ниже\n3. Открыть раздел 'Пинг'\n4. Выбрать 'Протокол пинга' — TCP\n5. Повторно проверить пинг серверов"
-        }];
+        if (!response.ok) throw new Error('Ошибка сервера');
+        const users = await response.json();
 
-        function openFaq(i) {
-            document.getElementById('modalTitle').innerText = faqData[i].title;
-            document.getElementById('modalImg').src = faqData[i].img;
-            document.getElementById('modalText').innerText = faqData[i].text;
-            document.getElementById('faqModal').style.display = 'flex';
+        if (users && users.length > 0) {
+            const u = users[0];
+            localStorage.setItem('auth_user_name', u.name);
+            localStorage.setItem('auth_user_role', u.role);
+            localStorage.setItem('access_admin', String(u.access_admin));
+            localStorage.setItem('access_balance', String(u.access_balance));
+            localStorage.setItem('access_servers', String(u.access_servers));
+            localStorage.setItem('access_reviews', String(u.access_reviews));
+            localStorage.setItem('access_giveaway', String(u.access_giveaway));
+
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+
+            document.getElementById('helloName').innerText = `Добро пожаловать, ${u.name}!`;
+            document.getElementById('helloRole').innerText = `Вы авторизовались как ${u.role}`;
+
+            window.location.hash = '#home';
+            router();
+        } else {
+            showToast('Неверный логин или пароль!');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка подключения!');
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('auth_user_name');
+    localStorage.removeItem('auth_user_role');
+    localStorage.removeItem('access_admin');
+    localStorage.removeItem('access_balance');
+    localStorage.removeItem('access_servers');
+    localStorage.removeItem('access_reviews');
+    localStorage.removeItem('access_giveaway');
+
+    document.getElementById('sidebarOverlay').classList.remove('active');
+    window.location.hash = '';
+    router();
+}
+
+/* ============================================================
+   СТРАНИЦА: АДМИНКА (управление персоналом)
+   ============================================================ */
+let allAdminUsers = [];
+
+async function loadAdminUsers() {
+    try {
+        const response = await fetch(`${USERS_AUTH_URL}?select=*`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error();
+        allAdminUsers = await response.json();
+        renderAdminUserList();
+    } catch (err) {
+        showToast('Ошибка соединения с БД');
+    }
+}
+
+function renderAdminUserList() {
+    const container = document.getElementById('admUserListContainer');
+    if (allAdminUsers.length === 0) {
+        container.innerHTML = `<div class="empty-state">Администраторы отсутствуют</div>`;
+        return;
+    }
+
+    container.innerHTML = allAdminUsers.map(user => {
+        const hasAdmin = Number(user.access_admin) === 1 || user.access_admin === true;
+        const hasBalance = Number(user.access_balance) === 1 || user.access_balance === true;
+        const hasServers = Number(user.access_servers) === 1 || user.access_servers === true;
+        const hasReviews = Number(user.access_reviews) === 1 || user.access_reviews === true;
+        const hasGiveaway = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
+
+        return `
+            <div class="user-card">
+                <div class="user-info">
+                    <div class="user-name">${escapeHtml(user.name)} <span style="color:var(--btn-primary-bg); font-size:13px;">@${escapeHtml(user.username)}</span></div>
+                    <div class="user-details">Роль: ${escapeHtml(user.role || '—')} | Pass: ${escapeHtml(user.password)}</div>
+                    <div class="user-badges">
+                        <span class="badge ${hasAdmin ? 'active' : ''}">ADM</span>
+                        <span class="badge ${hasBalance ? 'active' : ''}">BAL</span>
+                        <span class="badge ${hasServers ? 'active' : ''}">SRV</span>
+                        <span class="badge ${hasReviews ? 'active' : ''}">REV</span>
+                        <span class="badge ${hasGiveaway ? 'active' : ''}">GIV</span>
+                    </div>
+                </div>
+                <div class="actions-group">
+                    <button class="btn-mini edit" onclick="openAdminModalForEdit('${escapeAttr(user.username)}')" title="Редактировать">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </button>
+                    <button class="btn-mini del" onclick="deleteAdminUser('${escapeAttr(user.username)}')" title="Удалить">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openAdminModalForCreate() {
+    resetAdminForm();
+    document.getElementById('admModalTitle').innerText = 'Добавить администратора';
+    document.getElementById('admSaveBtn').innerText = 'Создать аккаунт';
+    document.getElementById('admModalOverlay').classList.add('show');
+}
+
+function openAdminModalForEdit(username) {
+    resetAdminForm();
+    const user = allAdminUsers.find(u => u.username === username);
+    if (!user) return;
+
+    document.getElementById('admModalTitle').innerText = 'Редактировать профиль';
+    document.getElementById('admUserId').value = user.username;
+    document.getElementById('admUsernameInput').value = user.username;
+    document.getElementById('admUsernameInput').disabled = true;
+    document.getElementById('admNameInput').value = user.name;
+    document.getElementById('admPasswordInput').value = user.password;
+    document.getElementById('admRoleInput').value = user.role || '';
+
+    document.getElementById('accAdmin').checked = Number(user.access_admin) === 1 || user.access_admin === true;
+    document.getElementById('accBalance').checked = Number(user.access_balance) === 1 || user.access_balance === true;
+    document.getElementById('accServers').checked = Number(user.access_servers) === 1 || user.access_servers === true;
+    document.getElementById('accReviews').checked = Number(user.access_reviews) === 1 || user.access_reviews === true;
+    document.getElementById('accGiveaway').checked = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
+
+    document.getElementById('admSaveBtn').innerText = 'Сохранить изменения';
+    document.getElementById('admModalOverlay').classList.add('show');
+}
+
+function closeAdminModal() {
+    document.getElementById('admModalOverlay').classList.remove('show');
+}
+
+function resetAdminForm() {
+    document.getElementById('admUserId').value = '';
+    document.getElementById('admUsernameInput').value = '';
+    document.getElementById('admUsernameInput').disabled = false;
+    document.getElementById('admNameInput').value = '';
+    document.getElementById('admPasswordInput').value = '';
+    document.getElementById('admRoleInput').value = '';
+    document.getElementById('accAdmin').checked = false;
+    document.getElementById('accBalance').checked = false;
+    document.getElementById('accServers').checked = false;
+    document.getElementById('accReviews').checked = false;
+    document.getElementById('accGiveaway').checked = false;
+}
+
+async function saveAdminUser() {
+    const userId = document.getElementById('admUserId').value;
+    const username = document.getElementById('admUsernameInput').value.trim();
+    const name = document.getElementById('admNameInput').value.trim();
+    const password = document.getElementById('admPasswordInput').value;
+    const role = document.getElementById('admRoleInput').value.trim();
+
+    if (!username || !name || !password) {
+        showToast('Заполните обязательные поля!');
+        return;
+    }
+
+    const payload = {
+        name: name,
+        username: username,
+        password: password,
+        role: role,
+        access_admin: document.getElementById('accAdmin').checked ? 1 : 0,
+        access_balance: document.getElementById('accBalance').checked ? 1 : 0,
+        access_servers: document.getElementById('accServers').checked ? 1 : 0,
+        access_reviews: document.getElementById('accReviews').checked ? 1 : 0,
+        access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0
+    };
+
+    try {
+        let url = USERS_AUTH_URL;
+        let method = 'POST';
+
+        if (userId) {
+            method = 'PATCH';
+            url = `${USERS_AUTH_URL}?username=eq.${encodeURIComponent(userId)}`;
         }
 
-        function closeModal() { document.getElementById('faqModal').style.display = 'none'; }
-    </script>
+        const response = await fetch(url, {
+            method: method,
+            headers: { ...REST_HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Статус: ${response.status}`);
+        }
+
+        showToast(userId ? 'Изменения сохранены!' : 'Успешно добавлено!', 'success');
+        closeAdminModal();
+        loadAdminUsers();
+    } catch (err) {
+        console.error('Детали ошибки Supabase:', err);
+        showToast(`Ошибка БД: ${err.message}`);
+    }
+}
+
+async function deleteAdminUser(username) {
+    if (!confirm(`Удалить доступ для @${username}?`)) return;
+
+    try {
+        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}`, {
+            method: 'DELETE',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error();
+        showToast('Аккаунт удален', 'success');
+        loadAdminUsers();
+    } catch (err) {
+        showToast('Ошибка удаления');
+    }
+}
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str) {
+    return String(str).replace(/'/g, "\\'");
+}
+
+/* ============================================================
+   СТРАНИЦА: БАЛАНС
+   ============================================================ */
+let currentBalanceActionType = 'add';
+
+async function fetchBalanceData() {
+    try {
+        const response = await fetch(`${BALANCE_TABLE_URL}?select=balance,history_comments,created_at&order=created_at.desc`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        const rows = await response.json();
+
+        const historyList = document.getElementById('historyDisplay');
+
+        if (!rows || rows.length === 0) {
+            document.getElementById('balanceDisplay').innerText = '0 ₽';
+            historyList.innerHTML = '<li class="history-item" style="justify-content: center; font-weight:700;">История пуста</li>';
+            return;
+        }
+
+        const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance), 0);
+        document.getElementById('balanceDisplay').innerText = `${Math.round(totalBalance)} ₽`;
+
+        historyList.innerHTML = '';
+        rows.forEach(row => {
+            const amount = Number(row.balance);
+            const comment = row.history_comments || 'Без комментария';
+
+            const dateObj = new Date(row.created_at);
+            const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+
+            const isPlus = amount >= 0;
+
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `
+                <div class="history-meta">
+                    <span class="history-comment">${escapeHtml(comment)}</span>
+                    <span class="history-date">${formattedDate}</span>
+                </div>
+                <span class="history-amount ${isPlus ? 'amount-plus' : 'amount-minus'}">
+                    ${isPlus ? '+' : ''}${amount.toFixed(2)} ₽
+                </span>
+            `;
+            historyList.appendChild(li);
+        });
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('balanceDisplay').innerText = 'Ошибка';
+        document.getElementById('historyDisplay').innerHTML = `<li class="history-item" style="color:red; justify-content:center;">Ошибка соединения.</li>`;
+    }
+}
+
+function openBalanceModal(type) {
+    currentBalanceActionType = type;
+    document.getElementById('balModalTitle').innerText = type === 'add' ? 'Пополнение баланса' : 'Списание баланса';
+    document.getElementById('balModalAmount').value = '';
+    document.getElementById('balModalComment').value = '';
+    document.getElementById('balModal').style.display = 'flex';
+}
+
+function closeBalanceModal() {
+    document.getElementById('balModal').style.display = 'none';
+}
+
+async function submitBalanceModal() {
+    const amountInput = document.getElementById('balModalAmount').value;
+    const commentInput = document.getElementById('balModalComment').value.trim();
+
+    const numericAmount = parseFloat(amountInput);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+        showToast('Укажите корректную сумму больше 0');
+        return;
+    }
+    if (!commentInput) {
+        showToast("Поле 'Комментарий' обязательно для заполнения!");
+        return;
+    }
+
+    const finalValue = currentBalanceActionType === 'add' ? numericAmount : -numericAmount;
+    closeBalanceModal();
+
+    try {
+        const response = await fetch(BALANCE_TABLE_URL, {
+            method: 'POST',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({
+                balance: finalValue,
+                balance_history: { type: currentBalanceActionType },
+                history_comments: commentInput
+            })
+        });
+
+        if (!response.ok) throw new Error(`Ошибка добавления строки: ${response.status}`);
+        showToast('Операция сохранена', 'success');
+        fetchBalanceData();
+
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка сохранения операции в Supabase.');
+    }
+}
+
+/* ============================================================
+   СТРАНИЦА: СЕРВЕРА
+   ============================================================ */
+let localServersCache = [];
+
+async function fetchServersData() {
+    try {
+        const response = await fetch(`${SERVERS_TABLE_URL}?select=id,location,paid_until&order=created_at.desc`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        localServersCache = await response.json();
+
+        const serverList = document.getElementById('srvServerDisplay');
+
+        if (!localServersCache || localServersCache.length === 0) {
+            serverList.innerHTML = '<li class="server-item" style="justify-content: center; font-weight:700;">Список серверов пуст</li>';
+            return;
+        }
+
+        serverList.innerHTML = '';
+        localServersCache.forEach(row => {
+            const location = row.location || 'Неизвестно';
+            const dateObj = new Date(row.paid_until);
+            const formattedDate = dateObj.toLocaleDateString('ru-RU');
+
+            const li = document.createElement('li');
+            li.className = 'server-item';
+            li.innerHTML = `
+                <div class="server-info">
+                    <span class="server-label">Локация</span>
+                    <span class="server-location">${escapeHtml(location)}</span>
+                </div>
+                <div class="server-date-box">
+                    <span class="server-label">Оплачен до</span>
+                    <div class="server-date">${formattedDate}</div>
+                </div>
+            `;
+            serverList.appendChild(li);
+        });
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('srvServerDisplay').innerHTML = `<li class="server-item" style="color:red; justify-content:center;">Ошибка получения списка.</li>`;
+    }
+}
+
+function openSrvAddModal() {
+    document.getElementById('srvLocationInput').value = '';
+    document.getElementById('srvPaidUntilInput').value = '';
+    document.getElementById('srvAddModal').style.display = 'flex';
+}
+
+function openSrvRenewModal() {
+    const selectElement = document.getElementById('srvRenewSelect');
+    selectElement.innerHTML = '';
+
+    if (localServersCache.length === 0) {
+        showToast('Нет доступных серверов для продления. Сначала добавьте сервер.');
+        return;
+    }
+
+    localServersCache.forEach(server => {
+        const option = document.createElement('option');
+        option.value = server.id;
+        const currentPaidDate = new Date(server.paid_until).toLocaleDateString('ru-RU');
+        option.innerText = `${server.location} (до ${currentPaidDate})`;
+        selectElement.appendChild(option);
+    });
+
+    document.getElementById('srvRenewDaysInput').value = '';
+    document.getElementById('srvRenewModal').style.display = 'flex';
+}
+
+function closeSrvModals() {
+    document.getElementById('srvAddModal').style.display = 'none';
+    document.getElementById('srvRenewModal').style.display = 'none';
+}
+
+async function submitAddServer() {
+    const locationInput = document.getElementById('srvLocationInput').value.trim();
+    const dateInput = document.getElementById('srvPaidUntilInput').value;
+
+    if (!locationInput) { showToast('Укажите локацию сервера!'); return; }
+    if (!dateInput) { showToast('Выберите начальную дату окончания оплаты!'); return; }
+
+    closeSrvModals();
+
+    try {
+        const response = await fetch(SERVERS_TABLE_URL, {
+            method: 'POST',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ location: locationInput, paid_until: dateInput })
+        });
+
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        showToast('Сервер добавлен', 'success');
+        fetchServersData();
+
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка сохранения сервера.');
+    }
+}
+
+async function submitRenewServer() {
+    const serverId = document.getElementById('srvRenewSelect').value;
+    const daysInput = parseInt(document.getElementById('srvRenewDaysInput').value);
+
+    if (!serverId) return;
+    if (isNaN(daysInput) || daysInput <= 0) {
+        showToast('Укажите корректное количество дней больше 0!');
+        return;
+    }
+
+    const targetServer = localServersCache.find(s => s.id == serverId);
+    if (!targetServer) return;
+
+    const baseDate = new Date(targetServer.paid_until);
+    baseDate.setDate(baseDate.getDate() + daysInput);
+    const newPaidUntilString = baseDate.toISOString().split('T')[0];
+
+    closeSrvModals();
+
+    try {
+        const response = await fetch(`${SERVERS_TABLE_URL}?id=eq.${serverId}`, {
+            method: 'PATCH',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ paid_until: newPaidUntilString })
+        });
+
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        showToast('Дата обновлена', 'success');
+        fetchServersData();
+
+    } catch (err) {
+        console.error(err);
+        showToast('Не удалось обновить дату на сервере.');
+    }
+}
+
+/* ============================================================
+   СТРАНИЦА: ОТЗЫВЫ (модерация)
+   Доступ регулируется общей авторизацией сайта (access_reviews).
+   Собственная авторизация и кнопка "Выйти" удалены по требованию.
+   ============================================================ */
+let allReviews = [];
+let activeStarsEditing = {};
+
+function getStarSvg(isFilled) {
+    return `<svg class="brutal-star ${isFilled ? 'filled' : 'empty'}" viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>`;
+}
+
+function getStarsRowHtml(starsCount) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) html += getStarSvg(i <= starsCount);
+    return html;
+}
+
+function getStarsEditButtons(reviewId, currentStars) {
+    let html = `<div class="stars-edit-row" id="stars-container-${reviewId}">`;
+    for (let i = 1; i <= 5; i++) {
+        html += `
+        <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
+            ${getStarSvg(i <= currentStars)}
+        </button>`;
+    }
+    html += `</div>`;
+    return html;
+}
+
+function setStarsEditing(reviewId, starsCount) {
+    activeStarsEditing[reviewId] = starsCount;
+    const container = document.getElementById(`stars-container-${reviewId}`);
+    if (container) {
+        let buttonsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            buttonsHtml += `
+            <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
+                ${getStarSvg(i <= starsCount)}
+            </button>`;
+        }
+        container.innerHTML = buttonsHtml;
+    }
+}
+
+function updateReviewStatsCounters() {
+    const countPublished = allReviews.filter(r => r.proverka === 1 || r.proverka === 2).length;
+    const countPending = allReviews.filter(r => r.proverka === 0).length;
+    document.getElementById('revStatPublished').textContent = countPublished;
+    document.getElementById('revStatPending').textContent = countPending;
+}
+
+async function fetchAllReviews() {
+    try {
+        let { data: reviews, error } = await supabaseClient
+            .from('reviews')
+            .select('id, name, contact, msg, stars, created_at, admin, proverka')
+            .order('created_at', { ascending: false });
+        if (!error && reviews) {
+            allReviews = reviews;
+            updateReviewStatsCounters();
+            renderFilteredReviews();
+        } else if (error) {
+            console.error(error);
+            showToast('Ошибка загрузки отзывов');
+        }
+    } catch (e) {
+        showToast('Ошибка загрузки данных');
+    }
+}
+
+function toggleReviewCard(event, cardId) {
+    const card = document.getElementById(`card-${cardId}`);
+    if (event.target.closest('input') || event.target.closest('textarea') || event.target.closest('select') || event.target.closest('button')) {
+        return;
+    }
+    card.classList.toggle('expanded');
+}
+
+function renderFilteredReviews() {
+    const statusFilter = document.getElementById('revStatusFilter');
+    const searchInput = document.getElementById('revSearchInput');
+    const grid = document.getElementById('revGrid');
+
+    const filterValue = statusFilter.value;
+    const query = searchInput.value.trim().toLowerCase();
+
+    let filteredData = filterValue === 'all'
+        ? allReviews
+        : allReviews.filter(r => r.proverka.toString() === filterValue);
+
+    if (query) {
+        filteredData = filteredData.filter(r => {
+            const nameMatch = r.name ? r.name.toLowerCase().includes(query) : false;
+            const msgMatch = r.msg ? r.msg.toLowerCase().includes(query) : false;
+            return nameMatch || msgMatch;
+        });
+    }
+
+    const statusLabels = { 0: 'Проверка', 1: 'Опубликован', 2: 'Опубликован (Оценка НЕ учитывается)' };
+
+    if (filteredData.length === 0) {
+        grid.innerHTML = `<div class="empty-state">Ничего не найдено</div>`;
+        return;
+    }
+
+    grid.innerHTML = filteredData.map((r) => {
+        const dateObj = new Date(r.created_at);
+        const displayDate = `${String(dateObj.getDate()).padStart(2, '0')}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${dateObj.getFullYear()}`;
+
+        const tzOffset = dateObj.getTimezoneOffset() * 60000;
+        const localISODate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+
+        if (activeStarsEditing[r.id] === undefined) {
+            activeStarsEditing[r.id] = r.stars;
+        }
+
+        return `
+        <div class="review-card" id="card-${r.id}" onclick="toggleReviewCard(event, '${r.id}')">
+            <div class="card-header-clickable">
+                <span class="status-badge status-${r.proverka}">${statusLabels[r.proverka] || r.proverka}</span>
+                <div class="user-meta">
+                    <div class="avatar">${r.name ? escapeHtml(r.name[0].toUpperCase()) : '?'}</div>
+                    <div class="username">
+                        <span>${escapeHtml(r.name || 'Аноним')} ${r.contact ? `<span style="color:var(--text-sub); font-size:10px; font-weight:500;">(${escapeHtml(r.contact)})</span>` : ''}</span>
+                        <span class="review-date">${displayDate}</span>
+                    </div>
+                </div>
+                <div class="stars-row">${getStarsRowHtml(r.stars)}</div>
+            </div>
+
+            <svg class="fold-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+
+            <div class="actions-area">
+                <span class="filter-label">Дата написания отзыва:</span>
+                <input type="datetime-local" id="date-${r.id}" value="${localISODate}" style="margin-bottom:4px;">
+
+                <span class="filter-label">Количество звёзд (оценка):</span>
+                ${getStarsEditButtons(r.id, activeStarsEditing[r.id])}
+
+                <span class="filter-label">Текст отзыва:</span>
+                <textarea id="msg-${r.id}" rows="3">${escapeHtml(r.msg || '')}</textarea>
+
+                <span class="filter-label">Комментарий администратора (admin):</span>
+                <textarea id="admin-${r.id}" rows="2" placeholder="Ваш ответ под отзывом...">${escapeHtml(r.admin || '')}</textarea>
+
+                <span class="filter-label">Статус (proverka):</span>
+                <select id="proverka-${r.id}" style="margin-bottom:12px;">
+                    <option value="0" ${r.proverka === 0 ? 'selected' : ''}>Не опубликован</option>
+                    <option value="1" ${r.proverka === 1 ? 'selected' : ''}>Опубликован</option>
+                    <option value="2" ${r.proverka === 2 ? 'selected' : ''}>Опубликован (Оценка НЕ учитывается)</option>
+                </select>
+
+                <div class="btn-group">
+                    <button class="btn btn-save" onclick="updateReview('${r.id}')">Сохранить</button>
+                    <button class="btn btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function updateReview(id) {
+    const stars = activeStarsEditing[id] || 5;
+    const msg = document.getElementById(`msg-${id}`).value.trim();
+    const admin = document.getElementById(`admin-${id}`).value.trim();
+    const proverka = parseInt(document.getElementById(`proverka-${id}`).value);
+    const inputDate = document.getElementById(`date-${id}`).value;
+
+    if (!msg) { showToast('Поле отзыва не должно быть пустым'); return; }
+    if (!inputDate) { showToast('Выберите корректную дату'); return; }
+
+    const isoDate = new Date(inputDate).toISOString();
+
+    const { error } = await supabaseClient
+        .from('reviews')
+        .update({
+            stars: stars > 5 ? 5 : (stars < 1 ? 1 : stars),
+            msg,
+            admin: admin || null,
+            proverka,
+            created_at: isoDate
+        })
+        .eq('id', id);
+
+    if (!error) {
+        showToast('Сохранено успешно!', 'success');
+        delete activeStarsEditing[id];
+        fetchAllReviews();
+    } else {
+        showToast('Ошибка RLS или сервера Supabase');
+    }
+}
+
+async function deleteReview(id) {
+    if (!confirm('Вы уверены, что хотите навсегда удалить этот отзыв из базы данных?')) return;
+
+    const { error } = await supabaseClient
+        .from('reviews')
+        .delete()
+        .eq('id', id);
+
+    if (!error) {
+        showToast('Запись удалена!', 'success');
+        delete activeStarsEditing[id];
+        fetchAllReviews();
+    } else {
+        showToast('Ошибка удаления');
+    }
+}
+
+/* ============================================================
+   СТРАНИЦА: РОЗЫГРЫШ
+   ============================================================ */
+let rafParticipants = [];
+
+function openRaffleModal() {
+    if (rafParticipants.length === 0) {
+        showToast('Сначала загрузите участников или список пуст!');
+        return;
+    }
+    document.getElementById('rafWinnersCountInput').max = rafParticipants.length;
+    document.getElementById('rafWinnersResultSection').style.display = 'none';
+    document.getElementById('rafWinnersListContainer').innerHTML = '';
+    document.getElementById('rafModal').classList.add('show');
+}
+
+function closeRaffleModal() {
+    document.getElementById('rafModal').classList.remove('show');
+}
+
+function rollRaffle() {
+    const countInput = document.getElementById('rafWinnersCountInput');
+    let requestedCount = parseInt(countInput.value);
+
+    if (isNaN(requestedCount) || requestedCount < 1) {
+        showToast('Укажите корректное число победителей!');
+        return;
+    }
+    if (requestedCount > rafParticipants.length) {
+        showToast(`Запрошено ${requestedCount} мест, а участников всего ${rafParticipants.length}!`);
+        return;
+    }
+
+    let pool = [...rafParticipants];
+
+    // Алгоритм тасования Фишера-Йетса с Web Crypto API для честного рандома
+    for (let i = pool.length - 1; i > 0; i--) {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        const randomIdx = array[0] % (i + 1);
+        let temp = pool[i];
+        pool[i] = pool[randomIdx];
+        pool[randomIdx] = temp;
+    }
+
+    const winners = pool.slice(0, requestedCount);
+
+    const resultContainer = document.getElementById('rafWinnersListContainer');
+    resultContainer.innerHTML = winners.map((w, idx) => {
+        const username = w.username ? `@${escapeHtml(w.username)}` : `ID: ${escapeHtml(w.telegram_id)}`;
+        const name = w.first_name ? escapeHtml(w.first_name) : 'Без имени';
+        return `
+            <div class="winner-item">
+                <span>#${idx + 1} ${name}</span>
+                <span style="color: var(--btn-primary-bg); font-weight:800;">${username}</span>
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('rafWinnersResultSection').style.display = 'block';
+    showToast('Победители определены успешно!', 'success');
+}
+
+async function loadParticipants() {
+    try {
+        const response = await fetch(`${RAFFLE_TABLE_URL}?select=*&order=id.desc`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error(`Статус: ${response.status}`);
+        rafParticipants = await response.json();
+
+        document.getElementById('rafTotalCount').innerText = rafParticipants.length;
+        renderRaffleParticipants();
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка загрузки данных из БД');
+    }
+}
+
+function renderRaffleParticipants() {
+    const container = document.getElementById('rafParticipantsContainer');
+    if (rafParticipants.length === 0) {
+        container.innerHTML = `<div class="empty-state">Нет зарегистрированных участников</div>`;
+        return;
+    }
+
+    container.innerHTML = rafParticipants.map(p => {
+        const usernameDisplay = p.username ? `<span style="color:var(--btn-primary-bg); font-size:13px;">@${escapeHtml(p.username)}</span>` : '<span style="color:var(--text-sub); font-size:12px;">(нет username)</span>';
+        const nameDisplay = p.first_name ? escapeHtml(p.first_name) : 'Без имени';
+
+        return `
+            <div class="user-card">
+                <div class="user-info">
+                    <div class="user-name">${nameDisplay} ${usernameDisplay}</div>
+                    <div class="user-details">Telegram ID: ${escapeHtml(p.telegram_id || '—')}</div>
+                    <div class="user-details" style="font-size:10px; margin-top:2px;">ID записи: ${escapeHtml(p.id)}</div>
+                </div>
+                <div>
+                    <button class="btn-mini del" onclick="deleteRaffleParticipant('${escapeAttr(p.telegram_id)}', '${escapeAttr(nameDisplay)}')" title="Исключить">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function deleteRaffleParticipant(telegramId, name) {
+    if (!confirm(`Исключить участника ${name} (ID: ${telegramId}) из розыгрыша?`)) return;
+
+    try {
+        const response = await fetch(`${RAFFLE_TABLE_URL}?telegram_id=eq.${encodeURIComponent(telegramId)}`, {
+            method: 'DELETE',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error();
+        showToast('Участник исключен', 'success');
+        loadParticipants();
+    } catch (err) {
+        showToast('Ошибка при удалении');
+    }
+}
+
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
+   ============================================================ */
+function init() {
+    // Восстанавливаем приветствие, если пользователь уже авторизован (обновление страницы)
+    if (isLoggedIn()) {
+        const userName = localStorage.getItem('auth_user_name');
+        const userRole = localStorage.getItem('auth_user_role');
+        document.getElementById('helloName').innerText = `Добро пожаловать, ${userName}!`;
+        document.getElementById('helloRole').innerText = `Вы авторизовались как ${userRole}`;
+    }
+
+    // Подписка на фильтры отзывов (элементы существуют в DOM всегда)
+    document.getElementById('revStatusFilter').addEventListener('change', renderFilteredReviews);
+    document.getElementById('revSearchInput').addEventListener('input', renderFilteredReviews);
+
+    router();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
