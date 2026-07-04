@@ -7,6 +7,12 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>ON1X — Панель управления</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f17">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ON1X">
 <link rel="icon" type="image/png" href="https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png">
 <link rel="apple-touch-icon" href="https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -538,6 +544,35 @@ select.modal-input, select.form-input {
 }
 .ava-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* ============ УВЕДОМЛЕНИЯ (колокольчик + центр уведомлений) ============ */
+.notif-bell-btn {
+    position: absolute; top: 14px; right: 14px; width: 42px; height: 42px;
+    background: var(--btn-secondary-bg); border: 2px solid var(--card-border);
+    box-shadow: 3px 3px 0px var(--shadow-color); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.notif-bell-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
+.notif-bell-btn svg { width: 20px; height: 20px; fill: none; stroke: var(--text-title); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.notif-badge {
+    position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px;
+    background: var(--admin-red); color: #ffffff; border: 2px solid var(--card-border);
+    font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; line-height: 1;
+}
+.notif-list { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
+.notif-item {
+    display: flex; flex-direction: column; gap: 4px;
+    background: rgba(0, 0, 0, 0.15); border: 2px solid var(--card-border);
+    border-left: 5px solid var(--text-sub);
+    padding: 10px 12px; box-shadow: 2px 2px 0px var(--shadow-color); cursor: pointer;
+}
+.notif-item.unread { border-left-color: var(--btn-primary-bg); background: var(--btn-secondary-bg); }
+.notif-item-title { font-size: 13px; font-weight: 900; text-transform: uppercase; color: var(--text-title); display: flex; align-items: center; gap: 6px; }
+.notif-item.unread .notif-item-title::before { content: ''; width: 8px; height: 8px; background: var(--btn-primary-bg); border: 1px solid var(--card-border); flex-shrink: 0; }
+.notif-item-text { font-size: 13px; font-weight: 600; color: var(--text-body); }
+.notif-item-date { font-size: 10px; font-weight: 700; color: var(--text-sub); }
+.notif-perm-hint { font-size: 11px; font-weight: 700; color: var(--text-sub); text-align: center; }
+
 /* ============ КНОПКИ В АДМИНКЕ (упрощённые карточки) ============ */
 .btn-chip {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -674,6 +709,10 @@ select.modal-input, select.form-input {
                 </header>
 
                 <div class="brutal-box profile-box">
+                    <button class="notif-bell-btn" onclick="openNotifModal()" title="Уведомления">
+                        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="notif-badge hidden" id="notifBadge">0</span>
+                    </button>
                     <div class="profile-avatar-wrap">
                         <div class="profile-avatar" id="profileAvatar">?</div>
                         <button class="avatar-edit-btn" onclick="openAvatarModal()" title="Сменить аватарку">
@@ -719,6 +758,13 @@ select.modal-input, select.form-input {
                     <div class="btn-left">
                         <svg width="20" height="20" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         <span>Добавить администратора</span>
+                    </div>
+                </button>
+
+                <button class="btn btn-secondary" onclick="openCustomNotifModal()">
+                    <div class="btn-left">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span>Отправить уведомление</span>
                     </div>
                 </button>
 
@@ -982,6 +1028,44 @@ select.modal-input, select.form-input {
     </div>
 </div>
 
+<!-- ============ МОДАЛКА: ОТПРАВКА КАСТОМНОГО УВЕДОМЛЕНИЯ ============ -->
+<div class="modal-overlay" id="customNotifModal" onclick="if(event.target.id === 'customNotifModal') closeCustomNotifModal()">
+    <div class="modal-box">
+        <div class="modal-title">Новое уведомление</div>
+        <input type="text" class="modal-input" id="customNotifTitleInput" placeholder="Заголовок" maxlength="80">
+        <textarea class="modal-input" id="customNotifTextInput" rows="4" placeholder="Текст уведомления" maxlength="500"></textarea>
+        <span class="notif-perm-hint">Уведомление получат все администраторы при открытии панели</span>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="closeCustomNotifModal()">ОТМЕНА</button>
+            <button class="btn btn-primary btn-small" onclick="submitCustomNotif()">ОТПРАВИТЬ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ МОДАЛКА: УВЕДОМЛЕНИЯ ============ -->
+<div class="modal-overlay" id="notifModal" onclick="if(event.target.id === 'notifModal') closeNotifModal()">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeNotifModal()">×</button>
+        <div class="section-title">Уведомления</div>
+
+        <div id="notifPermRow" class="hidden" style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-primary btn-small" onclick="requestNotifPermission()">
+                <svg width="16" height="16" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Включить уведомления на телефоне</span>
+            </button>
+            <span class="notif-perm-hint">Разрешите уведомления, чтобы телефон предупреждал об истекающих серверах</span>
+        </div>
+        <div id="notifPermDenied" class="hidden notif-perm-hint">Уведомления заблокированы в настройках браузера. Разрешите их для этого сайта в настройках телефона.</div>
+
+        <div class="notif-list" id="notifList"></div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="clearNotifications()">ОЧИСТИТЬ</button>
+            <button class="btn btn-primary btn-small" onclick="markAllNotifsRead()">ПРОЧИТАТЬ ВСЕ</button>
+        </div>
+    </div>
+</div>
+
 <!-- ============ МОДАЛКА: СМЕНА ПАРОЛЯ ============ -->
 <div class="modal-overlay" id="pwdModal" onclick="if(event.target.id === 'pwdModal') closePasswordModal()">
     <div class="modal-box">
@@ -1068,6 +1152,7 @@ const USERS_AUTH_URL = `${SUPABASE_PROJECT_URL}/rest/v1/users_auth`;
 const BALANCE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/user_balances`;
 const SERVERS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/servers`;
 const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
+const ADMIN_NOTIF_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_notifications`;
 
 const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false }
@@ -1138,6 +1223,366 @@ async function forceRefreshSite() {
     const url = new URL(window.location.href);
     url.searchParams.set('v', Date.now());
     window.location.replace(url.toString());
+}
+
+/* Прямая ссылка на логотип (иконка вкладки/приложения/уведомлений) */
+const APP_ICON_URL = 'https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png';
+
+/* ============================================================
+   PWA: РЕГИСТРАЦИЯ SERVICE WORKER
+   ============================================================ */
+function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW не зарегистрирован:', err));
+}
+
+/* ============================================================
+   ЦЕНТР УВЕДОМЛЕНИЙ (колокольчик на главной)
+   Уведомления хранятся локально на устройстве.
+   ============================================================ */
+const NOTIF_STORE_KEY = 'onix_notifications';
+const NOTIF_MAX = 50;
+
+function getNotifications() {
+    try {
+        const raw = localStorage.getItem(NOTIF_STORE_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+}
+
+function saveNotifications(list) {
+    try { localStorage.setItem(NOTIF_STORE_KEY, JSON.stringify(list.slice(0, NOTIF_MAX))); } catch (e) {}
+}
+
+function getUnreadNotifCount() {
+    return getNotifications().filter(n => !n.read).length;
+}
+
+function updateNotifBadge() {
+    const badge = document.getElementById('notifBadge');
+    if (!badge) return;
+    const count = getUnreadNotifCount();
+    badge.innerText = count > 9 ? '9+' : String(count);
+    badge.classList.toggle('hidden', count === 0);
+}
+
+/* Добавить уведомление. key — уникальный ключ против дублей.
+   Возвращает true, если уведомление действительно новое. */
+function addNotification(key, title, text) {
+    const list = getNotifications();
+    if (list.some(n => n.key === key)) return false;
+    list.unshift({
+        id: 'n' + Date.now() + Math.random().toString(36).slice(2, 7),
+        key: key,
+        title: title,
+        text: text,
+        date: Date.now(),
+        read: false
+    });
+    saveNotifications(list);
+    updateNotifBadge();
+    return true;
+}
+
+function openNotifModal() {
+    renderNotifList();
+    renderNotifPermissionRow();
+    document.getElementById('notifModal').classList.add('show');
+}
+function closeNotifModal() {
+    document.getElementById('notifModal').classList.remove('show');
+}
+
+function renderNotifPermissionRow() {
+    const row = document.getElementById('notifPermRow');
+    const denied = document.getElementById('notifPermDenied');
+    row.classList.add('hidden');
+    denied.classList.add('hidden');
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') row.classList.remove('hidden');
+    if (Notification.permission === 'denied') denied.classList.remove('hidden');
+}
+
+function renderNotifList() {
+    const container = document.getElementById('notifList');
+    const list = getNotifications();
+
+    if (list.length === 0) {
+        container.innerHTML = '<div class="empty-state">Уведомлений пока нет</div>';
+        return;
+    }
+
+    container.innerHTML = list.map(n => {
+        const d = new Date(n.date);
+        const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return `
+            <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
+                <span class="notif-item-title">${escapeHtml(n.title)}</span>
+                <span class="notif-item-text">${escapeHtml(n.text)}</span>
+                <span class="notif-item-date">${dateStr}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function markNotifRead(id) {
+    const list = getNotifications();
+    const item = list.find(n => n.id === id);
+    if (item && !item.read) {
+        item.read = true;
+        saveNotifications(list);
+        updateNotifBadge();
+        renderNotifList();
+    }
+}
+
+function markAllNotifsRead() {
+    const list = getNotifications();
+    list.forEach(n => n.read = true);
+    saveNotifications(list);
+    updateNotifBadge();
+    renderNotifList();
+}
+
+function clearNotifications() {
+    if (getNotifications().length === 0) return;
+    if (!confirm('Удалить все уведомления?')) return;
+    saveNotifications([]);
+    updateNotifBadge();
+    renderNotifList();
+}
+
+/* ---------- Системные уведомления на телефон ---------- */
+async function requestNotifPermission() {
+    if (!('Notification' in window)) {
+        showToast('Браузер не поддерживает уведомления');
+        return;
+    }
+    try {
+        const result = await Notification.requestPermission();
+        renderNotifPermissionRow();
+        if (result === 'granted') {
+            showToast('Уведомления включены!', 'success');
+            checkServerNotifications();
+        } else if (result === 'denied') {
+            showToast('Уведомления запрещены в браузере');
+        }
+    } catch (e) { console.warn(e); }
+}
+
+function showSystemNotification(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg && reg.showNotification) {
+                reg.showNotification(title, { body: body, icon: APP_ICON_URL, badge: APP_ICON_URL });
+            } else {
+                try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
+            }
+        }).catch(() => {
+            try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
+        });
+    } else {
+        try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
+    }
+}
+
+/* ---------- Проверка истекающих серверов при открытии ----------
+   Для каждого сервера с оплатой <= 3 дней создаётся уведомление
+   (не чаще одного раза в день на сервер). */
+async function checkServerNotifications() {
+    if (!isLoggedIn() || !hasAccess('access_servers')) return;
+
+    try {
+        const response = await fetch(`${SERVERS_TABLE_URL}?select=id,location,paid_until`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) return;
+        const servers = await response.json();
+        if (!Array.isArray(servers)) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+
+        /* --- Продления: сравниваем с последним увиденным состоянием --- */
+        const SNAP_KEY = 'onix_servers_snapshot';
+        let snapshot = null;
+        try { snapshot = JSON.parse(localStorage.getItem(SNAP_KEY)); } catch (e) {}
+        const hasSnapshot = snapshot && typeof snapshot === 'object';
+
+        servers.forEach(server => {
+            const location = server.location || 'Неизвестно';
+
+            /* Сервер продлили (нами или другим админом)? */
+            if (hasSnapshot && snapshot[server.id]) {
+                const prevDate = new Date(snapshot[server.id]);
+                const newDate = new Date(server.paid_until);
+                prevDate.setHours(0, 0, 0, 0);
+                newDate.setHours(0, 0, 0, 0);
+                const addedDays = Math.round((newDate - prevDate) / 86400000);
+                if (addedDays > 0) {
+                    const dateStr = new Date(server.paid_until).toLocaleDateString('ru-RU');
+                    const title = '🔄 Сервер продлён';
+                    const text = `«${location}» продлён на ${addedDays} дн. — теперь оплачен до ${dateStr}.`;
+                    const isNew = addNotification(`renew-${server.id}-${server.paid_until}`, title, text);
+                    if (isNew) showSystemNotification(title, text);
+                }
+            }
+
+            /* Скорое окончание оплаты */
+            const paidDay = new Date(server.paid_until);
+            paidDay.setHours(0, 0, 0, 0);
+            const daysLeft = Math.round((paidDay - today) / 86400000);
+            if (daysLeft > 3) return;
+
+            const dateStr = new Date(server.paid_until).toLocaleDateString('ru-RU');
+            let title, text;
+            if (daysLeft < 0) {
+                title = '🔴 Сервер просрочен!';
+                text = `«${location}» — оплата закончилась ${dateStr}. Срочно продлите!`;
+            } else if (daysLeft === 0) {
+                title = '🔴 Сервер истекает сегодня!';
+                text = `«${location}» — последний оплаченный день (${dateStr}).`;
+            } else {
+                title = '⚠️ Сервер скоро истечёт';
+                text = `«${location}» — оплачен до ${dateStr} (осталось ${daysLeft} дн.).`;
+            }
+
+            const isNew = addNotification(`srv-${server.id}-${todayStr}`, title, text);
+            if (isNew) showSystemNotification(title, text);
+        });
+
+        /* Сохраняем свежее состояние серверов */
+        const newSnapshot = {};
+        servers.forEach(s => { newSnapshot[s.id] = s.paid_until; });
+        try { localStorage.setItem(SNAP_KEY, JSON.stringify(newSnapshot)); } catch (e) {}
+    } catch (e) { console.warn('Проверка серверов не удалась:', e); }
+}
+
+/* ---------- Кастомные уведомления (раздел "Админка") ----------
+   Отправленное уведомление сохраняется в таблицу admin_notifications
+   и доставляется ВСЕМ администраторам при открытии панели. */
+function openCustomNotifModal() {
+    document.getElementById('customNotifTitleInput').value = '';
+    document.getElementById('customNotifTextInput').value = '';
+    document.getElementById('customNotifModal').classList.add('show');
+}
+function closeCustomNotifModal() {
+    document.getElementById('customNotifModal').classList.remove('show');
+}
+
+async function submitCustomNotif() {
+    const title = document.getElementById('customNotifTitleInput').value.trim();
+    const message = document.getElementById('customNotifTextInput').value.trim();
+
+    if (!title || !message) {
+        showToast('Заполните заголовок и текст!');
+        return;
+    }
+
+    try {
+        const response = await fetch(ADMIN_NOTIF_TABLE_URL, {
+            method: 'POST',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({
+                title: title,
+                message: message,
+                author: authGet('auth_user_name') || null
+            })
+        });
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+        closeCustomNotifModal();
+        showToast('Уведомление отправлено!', 'success');
+        checkCustomNotifications();
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка отправки. Создана ли таблица admin_notifications?');
+    }
+}
+
+async function checkCustomNotifications() {
+    if (!isLoggedIn()) return;
+
+    try {
+        const response = await fetch(`${ADMIN_NOTIF_TABLE_URL}?select=id,title,message,author,created_at&order=created_at.desc&limit=20`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) return; // таблица ещё не создана — тихо выходим
+        const rows = await response.json();
+        if (!Array.isArray(rows) || rows.length === 0) return;
+
+        const LAST_TS_KEY = 'onix_last_custom_ts';
+        const lastSeenTs = localStorage.getItem(LAST_TS_KEY);
+        const newestTs = rows[0].created_at;
+
+        let newRows;
+        if (lastSeenTs) {
+            newRows = rows.filter(r => new Date(r.created_at) > new Date(lastSeenTs));
+        } else {
+            // Первый запуск на устройстве: показываем только за последние 3 дня
+            const threshold = Date.now() - 3 * 86400000;
+            newRows = rows.filter(r => new Date(r.created_at).getTime() > threshold);
+        }
+
+        /* От старых к новым, чтобы порядок в списке был верный */
+        newRows.reverse().forEach(row => {
+            const title = `📢 ${row.title || 'Уведомление'}`;
+            const text = row.author ? `${row.message} — ${row.author}` : row.message;
+
+            const isNew = addNotification(`custom-${row.id}`, title, text);
+            if (isNew) showSystemNotification(title, text);
+        });
+
+        try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
+    } catch (e) { console.warn('Проверка уведомлений не удалась:', e); }
+}
+
+/* ---------- Уведомления об изменениях баланса ----------
+   При открытии сайта (и после каждой операции) сравниваем историю
+   с последней увиденной записью: новые пополнения и списания —
+   в том числе сделанные другими админами — станут уведомлениями. */
+async function checkBalanceNotifications() {
+    if (!isLoggedIn() || !hasAccess('access_balance')) return;
+
+    try {
+        const response = await fetch(`${BALANCE_TABLE_URL}?select=balance,history_comments,created_at&order=created_at.desc&limit=20`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) return;
+        const rows = await response.json();
+        if (!Array.isArray(rows) || rows.length === 0) return;
+
+        const LAST_TS_KEY = 'onix_last_balance_ts';
+        const lastSeenTs = localStorage.getItem(LAST_TS_KEY);
+        const newestTs = rows[0].created_at;
+
+        /* Первый запуск на устройстве — запоминаем точку отсчёта без спама */
+        if (!lastSeenTs) {
+            try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
+            return;
+        }
+
+        const newRows = rows.filter(r => new Date(r.created_at) > new Date(lastSeenTs));
+        /* От старых к новым, чтобы в списке уведомлений порядок был верный */
+        newRows.reverse().forEach(row => {
+            const amount = Number(row.balance);
+            const isPlus = amount >= 0;
+            const title = isPlus ? '💰 Пополнение баланса' : '💸 Списание с баланса';
+            const comment = row.history_comments || 'Без комментария';
+            const text = `${isPlus ? '+' : ''}${amount.toFixed(2)} ₽ — ${comment}`;
+
+            const isNew = addNotification(`bal-${row.created_at}`, title, text);
+            if (isNew) showSystemNotification(title, text);
+        });
+
+        try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
+    } catch (e) { console.warn('Проверка баланса не удалась:', e); }
 }
 
 /* ============================================================
@@ -1346,6 +1791,14 @@ async function handleLogin() {
 
             window.location.hash = '#home';
             router();
+
+            // Просим разрешение на уведомления (клик по "Войти" — жест пользователя)
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().catch(() => {});
+            }
+            checkServerNotifications();
+            checkBalanceNotifications();
+            checkCustomNotifications();
         } else {
             showToast('Неверный логин или пароль!');
         }
@@ -1381,6 +1834,8 @@ function renderHomeProfile() {
     avatarEl.innerHTML = ava
         ? `<img src="${escapeAttr(ava)}" alt="avatar" onerror="this.parentElement.innerHTML='${escapeAttr(initial)}'">`
         : escapeHtml(initial);
+
+    updateNotifBadge();
 }
 
 /* ---------- Смена пароля ---------- */
@@ -1784,6 +2239,7 @@ async function submitBalanceModal() {
         if (!response.ok) throw new Error(`Ошибка добавления строки: ${response.status}`);
         showToast('Операция сохранена', 'success');
         fetchBalanceData();
+        checkBalanceNotifications();
 
     } catch (err) {
         console.error(err);
@@ -1958,6 +2414,7 @@ async function submitRenewServer() {
         if (!response.ok) throw new Error(`Status: ${response.status}`);
         showToast('Дата обновлена', 'success');
         fetchServersData();
+        checkServerNotifications();
 
     } catch (err) {
         console.error(err);
@@ -2353,7 +2810,13 @@ function init() {
     document.getElementById('revStatusFilter').addEventListener('change', renderFilteredReviews);
     document.getElementById('revSearchInput').addEventListener('input', renderFilteredReviews);
 
+    registerServiceWorker();
     router();
+
+    // При каждом открытии сайта проверяем сервера, баланс и новые уведомления
+    checkServerNotifications();
+    checkBalanceNotifications();
+    checkCustomNotifications();
 }
 
 document.addEventListener('DOMContentLoaded', init);
