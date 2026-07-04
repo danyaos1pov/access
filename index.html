@@ -70,7 +70,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-html, body { overflow-x: hidden; }
+html, body { overflow-x: hidden; touch-action: manipulation; }
 
 body {
     background-color: var(--bg-main);
@@ -176,7 +176,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     z-index: 1001;
     display: flex; flex-direction: column;
     transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto;
+    overflow: hidden;
 }
 .sidebar-overlay.active .sidebar-menu { left: 0; }
 
@@ -184,13 +184,11 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     display: flex; justify-content: space-between; align-items: center;
     padding: 24px 20px 16px 20px;
     border-bottom: 2px dashed var(--card-border);
+    flex-shrink: 0;
 }
-.sidebar-logo { display: flex; align-items: center; gap: 10px; }
-.sidebar-logo-badge {
-    width: 34px; height: 34px; background: var(--btn-primary-bg);
-    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
-    font-weight: 900; color: var(--btn-primary-text); font-size: 15px;
-    box-shadow: 2px 2px 0px var(--shadow-color);
+.sidebar-scroll {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    display: flex; flex-direction: column;
 }
 .sidebar-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; }
 .sidebar-close { background: none; border: none; cursor: pointer; font-size: 24px; font-weight: 900; color: var(--text-title); line-height: 1; }
@@ -202,12 +200,14 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     box-shadow: 3px 3px 0px var(--shadow-color);
     padding: 14px;
     display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
 }
 .sidebar-avatar {
     width: 40px; height: 40px; min-width: 40px; background: var(--btn-primary-bg);
     border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 16px; color: var(--btn-primary-text);
+    font-weight: 900; font-size: 16px; color: var(--btn-primary-text); overflow: hidden;
 }
+.sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sidebar-profile-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
 .sidebar-profile-name { font-size: 14px; font-weight: 800; color: var(--text-title); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-profile-role { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.3px; }
@@ -233,7 +233,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 .sidebar-item-link:hover { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
 .sidebar-item-link.active { background: var(--btn-primary-bg); color: var(--btn-primary-text); box-shadow: 1px 1px 0px var(--shadow-color); transform: translate(2px, 2px); }
 
-.sidebar-footer { margin-top: auto; padding: 16px; border-top: 2px dashed var(--card-border); }
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 2px dashed var(--card-border); flex-shrink: 0; }
 .sidebar-logout-btn {
     width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
     padding: 12px 14px; font-size: 13px; font-weight: 800; text-transform: uppercase;
@@ -329,6 +329,14 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
     background: var(--btn-secondary-bg); border: 2px solid var(--card-border); padding: 16px;
     display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 4px 4px 0px var(--shadow-color);
 }
+.user-card-avatar {
+    width: 44px; height: 44px; min-width: 44px; background: var(--btn-primary-bg);
+    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 17px; color: var(--btn-primary-text); overflow: hidden;
+    box-shadow: 2px 2px 0px var(--shadow-color);
+}
+.user-card-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.user-card-top { display: flex; align-items: center; gap: 12px; }
 .user-info { display: flex; flex-direction: column; gap: 4px; }
 .user-name { font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--text-title); }
 .user-details { font-size: 12px; color: var(--text-sub); font-weight: 600; }
@@ -355,12 +363,14 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 /* ============ МОДАЛЬНЫЕ ОКНА ============ */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--modal-overlay); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 24px;
+    background: var(--modal-overlay); z-index: 5000; display: none; align-items: flex-start; justify-content: center;
+    padding: 40px 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .modal-overlay.show { display: flex; }
 .modal-content, .modal-box {
     background: var(--card-bg); border: 3px solid var(--card-border); box-shadow: 8px 8px 0px var(--shadow-color);
     width: 100%; max-width: 380px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; position: relative;
+    margin: auto 0;
 }
 .modal-close-x { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; font-weight: 900; color: var(--text-title); cursor: pointer; line-height: 1; }
 .modal-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: 0.5px; }
@@ -380,7 +390,8 @@ select.modal-input, select.form-input {
 /* ============ БАЛАНС ============ */
 .crypto-balance-box { text-align: center; padding: 16px 16px; }
 .balance-value { font-size: 38px; font-weight: 900; color: var(--text-title); letter-spacing: -0.5px; margin-top: 4px; }
-.history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; padding-right: 4px; width: 100%; }
+.history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.history-more-btn { margin-top: 4px; }
 .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); }
 .history-meta { display: flex; flex-direction: column; gap: 2px; }
 .history-comment { font-size: 14px; font-weight: 700; color: var(--text-body); }
@@ -408,8 +419,7 @@ select.modal-input, select.form-input {
 .stats-value { font-size: 24px; font-weight: 900; color: var(--text-title); }
 .btn-action { background: var(--success-color); color: var(--btn-primary-text); }
 [data-theme="dark"] .btn-action, :root .btn-action { color: #000000; }
-.btn-refresh { background: var(--btn-secondary-bg); color: var(--text-body); box-shadow: none; }
-.btn-refresh:active { transform: none; box-shadow: none; }
+.btn-refresh { background: var(--btn-secondary-bg); color: var(--text-body); }
 .winners-list { background: rgba(0,0,0,0.2); border: 2px solid var(--card-border); padding: 10px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
 .winner-item { background: var(--btn-secondary-bg); border: 1px solid var(--success-color); padding: 8px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
 
@@ -427,12 +437,17 @@ select.modal-input, select.form-input {
 .review-card { background: var(--card-bg); border: 3px solid var(--card-border); padding: 12px; box-shadow: 4px 4px 0px var(--shadow-color); display: flex; flex-direction: column; position: relative; cursor: pointer; transition: transform 0.1s ease; }
 .review-card:active { transform: translate(1px, 1px); box-shadow: 3px 3px 0px var(--shadow-color); }
 .card-header-clickable { display: flex; flex-direction: column; gap: 8px; padding-right: 24px; }
-.fold-arrow { position: absolute; right: 14px; top: 18px; width: 14px; height: 14px; fill: none; stroke: var(--text-title); stroke-width: 3; transition: transform 0.2s ease; }
-.actions-area { max-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 10px; transition: max-height 0.25s ease-out, margin-top 0.15s ease, padding-top 0.15s ease; }
-.review-card.expanded { cursor: default; }
-.review-card.expanded:active { transform: none; box-shadow: 4px 4px 0px var(--shadow-color); }
-.review-card.expanded .fold-arrow { transform: rotate(180deg); }
-.review-card.expanded .actions-area { max-height: 1000px; border-top: 2px dashed var(--card-border); margin-top: 14px; padding-top: 14px; overflow: visible; }
+.fold-arrow { position: absolute; right: 14px; top: 18px; width: 14px; height: 14px; fill: none; stroke: var(--text-title); stroke-width: 3; }
+
+.source-badge { display: inline-block; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); align-self: flex-start; }
+.source-badge.telegram { background: #0088cc; color: #ffffff; }
+.source-badge.vk { background: #0077ff; color: #ffffff; }
+.source-badge.website { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+
+.tg-id-field { display: flex; align-items: center; gap: 8px; background: var(--input-bg); border: 2px solid var(--card-border); padding: 8px 10px; font-size: 13px; font-weight: 700; color: var(--text-body); }
+.tg-id-label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: var(--text-sub); white-space: nowrap; }
+.tg-id-value { font-size: 13px; font-weight: 800; color: #0088cc; word-break: break-all; }
+.btn-tg { background: #0088cc; color: #ffffff; }
 
 .status-badge { align-self: flex-start; font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); letter-spacing: 0.5px; margin-bottom: 2px; }
 .status-0 { background: var(--pending-orange); color: #000; }
@@ -460,8 +475,8 @@ select.modal-input, select.form-input {
 .hidden { display: none !important; }
 
 /* Скроллбар для длинных списков */
-.history-list::-webkit-scrollbar, .server-list::-webkit-scrollbar, .winners-list::-webkit-scrollbar { width: 6px; }
-.history-list::-webkit-scrollbar-thumb, .server-list::-webkit-scrollbar-thumb, .winners-list::-webkit-scrollbar-thumb { background: var(--text-sub); }
+.server-list::-webkit-scrollbar, .winners-list::-webkit-scrollbar { width: 6px; }
+.server-list::-webkit-scrollbar-thumb, .winners-list::-webkit-scrollbar-thumb { background: var(--text-sub); }
 </style>
 </head>
 <body>
@@ -472,10 +487,7 @@ select.modal-input, select.form-input {
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenuOnOverlay(event)">
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <div class="sidebar-logo-badge">ON1X</div>
-                <span class="sidebar-title">Навигация</span>
-            </div>
+            <span class="sidebar-title">Навигация</span>
             <button class="sidebar-close" onclick="toggleMenu()">×</button>
         </div>
 
@@ -487,8 +499,10 @@ select.modal-input, select.form-input {
             </div>
         </div>
 
-        <div class="sidebar-section-label">Разделы</div>
-        <ul class="sidebar-links" id="menuList"></ul>
+        <div class="sidebar-scroll">
+            <div class="sidebar-section-label">Разделы</div>
+            <ul class="sidebar-links" id="menuList"></ul>
+        </div>
 
         <div class="sidebar-footer" id="sidebarFooter" style="display:none;">
             <button class="sidebar-logout-btn" onclick="handleLogout()">
@@ -614,6 +628,7 @@ select.modal-input, select.form-input {
                     <ul class="history-list" id="historyDisplay">
                         <li class="history-item" style="justify-content: center; font-weight: 700;">Получение данных...</li>
                     </ul>
+                    <button class="btn btn-secondary history-more-btn hidden" id="historyMoreBtn" onclick="showMoreHistory()">Показать ещё</button>
                 </section>
             </div>
         </section>
@@ -698,15 +713,16 @@ select.modal-input, select.form-input {
                     <span class="stats-value" id="rafTotalCount">0</span>
                 </div>
 
-                <button class="btn btn-action" onclick="openRaffleModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span>Определить победителей</span>
-                </button>
-
-                <button class="btn btn-refresh" onclick="loadParticipants()">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                    <span>Обновить список</span>
-                </button>
+                <div class="actions-grid">
+                    <button class="btn btn-refresh" onclick="loadParticipants()">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        <span>Обновить</span>
+                    </button>
+                    <button class="btn btn-action" onclick="openRaffleModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Победитель</span>
+                    </button>
+                </div>
 
                 <section class="section-box">
                     <div class="section-title">Записи в таблице 'raffle'</div>
@@ -743,6 +759,10 @@ select.modal-input, select.form-input {
         <div class="form-group">
             <span class="form-label">Роль (Пояснение)</span>
             <input type="text" class="form-input" id="admRoleInput" placeholder="Напр: Разработчик">
+        </div>
+        <div class="form-group">
+            <span class="form-label">Аватарка (прямая ссылка на картинку)</span>
+            <input type="text" class="form-input" id="admAvaInput" placeholder="https://.../avatar.jpg">
         </div>
         <div class="form-group">
             <span class="form-label">Доступы к панелям:</span>
@@ -821,7 +841,64 @@ select.modal-input, select.form-input {
     </div>
 </div>
 
+<!-- ============ МОДАЛКА: РЕДАКТИРОВАНИЕ ОТЗЫВА ============ -->
+<div class="modal-overlay" id="revEditModalOverlay" onclick="if(event.target.id === 'revEditModalOverlay') closeReviewEditModal()">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeReviewEditModal()">×</button>
+        <div class="section-title" id="revEditModalTitle">Отзыв</div>
+        <div id="revEditModalContent" style="display:flex; flex-direction:column; gap:14px;"></div>
+    </div>
+</div>
+
 <script>
+/* ============================================================
+   ЗАЩИТА СТРАНИЦЫ (правый клик, копирование, масштабирование)
+   ============================================================ */
+(function protectPage() {
+    // Запрет контекстного меню (правая кнопка мыши / долгое нажатие)
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Запрет копирования, кроме полей ввода (там текст можно выделять и копировать)
+    document.addEventListener('copy', e => {
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') e.preventDefault();
+    });
+    document.addEventListener('cut', e => {
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') e.preventDefault();
+    });
+
+    // Блокировка популярных сочетаний клавиш для просмотра/копирования исходного кода
+    document.addEventListener('keydown', e => {
+        const key = (e.key || '').toLowerCase();
+        if (key === 'f12') { e.preventDefault(); return; }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key)) { e.preventDefault(); return; }
+        if ((e.ctrlKey || e.metaKey) && ['u', 's'].includes(key)) { e.preventDefault(); return; }
+    });
+
+    // Запрет pinch-zoom (жест сведения/разведения пальцев в Safari)
+    document.addEventListener('gesturestart', e => e.preventDefault());
+    document.addEventListener('gesturechange', e => e.preventDefault());
+
+    // Запрет масштабирования через колесо мыши с зажатым Ctrl
+    document.addEventListener('wheel', e => {
+        if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+
+    // Запрет зума через двойной тап на мобильных
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', e => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 350) e.preventDefault();
+        lastTouchEnd = now;
+    }, { passive: false });
+
+    // Запрет масштабирования жестом двух пальцев вне Safari
+    document.addEventListener('touchmove', e => {
+        if (e.touches && e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+})();
+
 /* ============================================================
    ГЛОБАЛЬНАЯ КОНФИГУРАЦИЯ
    ============================================================ */
@@ -940,9 +1017,13 @@ function renderSidebar() {
 
     const userName = localStorage.getItem('auth_user_name') || '';
     const userRole = localStorage.getItem('auth_user_role') || '';
+    const userAva = localStorage.getItem('auth_user_ava') || '';
     document.getElementById('sidebarProfileName').innerText = userName;
     document.getElementById('sidebarProfileRole').innerText = userRole;
-    document.getElementById('sidebarAvatar').innerText = userName ? userName[0].toUpperCase() : '?';
+    const sidebarAvatarEl = document.getElementById('sidebarAvatar');
+    sidebarAvatarEl.innerHTML = userAva
+        ? `<img src="${escapeAttr(userAva)}" alt="avatar" onerror="this.parentElement.innerHTML='${userName ? escapeAttr(userName[0].toUpperCase()) : '?'}'">`
+        : (userName ? escapeHtml(userName[0].toUpperCase()) : '?');
 
     const currentRoute = getCurrentRoute();
     let html = navLinkHtml('home', currentRoute);
@@ -1019,7 +1100,7 @@ async function handleLogin() {
     }
 
     try {
-        const selectColumns = 'name,role,access_admin,access_balance,access_servers,access_reviews,access_giveaway';
+        const selectColumns = 'name,role,ava,access_admin,access_balance,access_servers,access_reviews,access_giveaway';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -1032,6 +1113,7 @@ async function handleLogin() {
             const u = users[0];
             localStorage.setItem('auth_user_name', u.name);
             localStorage.setItem('auth_user_role', u.role);
+            localStorage.setItem('auth_user_ava', u.ava || '');
             localStorage.setItem('access_admin', String(u.access_admin));
             localStorage.setItem('access_balance', String(u.access_balance));
             localStorage.setItem('access_servers', String(u.access_servers));
@@ -1058,6 +1140,7 @@ async function handleLogin() {
 function handleLogout() {
     localStorage.removeItem('auth_user_name');
     localStorage.removeItem('auth_user_role');
+    localStorage.removeItem('auth_user_ava');
     localStorage.removeItem('access_admin');
     localStorage.removeItem('access_balance');
     localStorage.removeItem('access_servers');
@@ -1102,17 +1185,24 @@ function renderAdminUserList() {
         const hasReviews = Number(user.access_reviews) === 1 || user.access_reviews === true;
         const hasGiveaway = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
 
+        const avaHtml = user.ava
+            ? `<img src="${escapeAttr(user.ava)}" alt="avatar" onerror="this.parentElement.innerText='${user.name ? escapeAttr(user.name[0].toUpperCase()) : '?'}'">`
+            : escapeHtml(user.name ? user.name[0].toUpperCase() : '?');
+
         return `
             <div class="user-card">
-                <div class="user-info">
-                    <div class="user-name">${escapeHtml(user.name)} <span style="color:var(--btn-primary-bg); font-size:13px;">@${escapeHtml(user.username)}</span></div>
-                    <div class="user-details">Роль: ${escapeHtml(user.role || '—')} | Pass: ${escapeHtml(user.password)}</div>
-                    <div class="user-badges">
-                        <span class="badge ${hasAdmin ? 'active' : ''}">ADM</span>
-                        <span class="badge ${hasBalance ? 'active' : ''}">BAL</span>
-                        <span class="badge ${hasServers ? 'active' : ''}">SRV</span>
-                        <span class="badge ${hasReviews ? 'active' : ''}">REV</span>
-                        <span class="badge ${hasGiveaway ? 'active' : ''}">GIV</span>
+                <div class="user-card-top">
+                    <div class="user-card-avatar">${avaHtml}</div>
+                    <div class="user-info">
+                        <div class="user-name">${escapeHtml(user.name)} <span style="color:var(--btn-primary-bg); font-size:13px;">@${escapeHtml(user.username)}</span></div>
+                        <div class="user-details">Роль: ${escapeHtml(user.role || '—')} | Pass: ${escapeHtml(user.password)}</div>
+                        <div class="user-badges">
+                            <span class="badge ${hasAdmin ? 'active' : ''}">ADM</span>
+                            <span class="badge ${hasBalance ? 'active' : ''}">BAL</span>
+                            <span class="badge ${hasServers ? 'active' : ''}">SRV</span>
+                            <span class="badge ${hasReviews ? 'active' : ''}">REV</span>
+                            <span class="badge ${hasGiveaway ? 'active' : ''}">GIV</span>
+                        </div>
                     </div>
                 </div>
                 <div class="actions-group">
@@ -1147,6 +1237,7 @@ function openAdminModalForEdit(username) {
     document.getElementById('admNameInput').value = user.name;
     document.getElementById('admPasswordInput').value = user.password;
     document.getElementById('admRoleInput').value = user.role || '';
+    document.getElementById('admAvaInput').value = user.ava || '';
 
     document.getElementById('accAdmin').checked = Number(user.access_admin) === 1 || user.access_admin === true;
     document.getElementById('accBalance').checked = Number(user.access_balance) === 1 || user.access_balance === true;
@@ -1169,6 +1260,7 @@ function resetAdminForm() {
     document.getElementById('admNameInput').value = '';
     document.getElementById('admPasswordInput').value = '';
     document.getElementById('admRoleInput').value = '';
+    document.getElementById('admAvaInput').value = '';
     document.getElementById('accAdmin').checked = false;
     document.getElementById('accBalance').checked = false;
     document.getElementById('accServers').checked = false;
@@ -1182,6 +1274,7 @@ async function saveAdminUser() {
     const name = document.getElementById('admNameInput').value.trim();
     const password = document.getElementById('admPasswordInput').value;
     const role = document.getElementById('admRoleInput').value.trim();
+    const ava = document.getElementById('admAvaInput').value.trim();
 
     if (!username || !name || !password) {
         showToast('Заполните обязательные поля!');
@@ -1193,6 +1286,7 @@ async function saveAdminUser() {
         username: username,
         password: password,
         role: role,
+        ava: ava || null,
         access_admin: document.getElementById('accAdmin').checked ? 1 : 0,
         access_balance: document.getElementById('accBalance').checked ? 1 : 0,
         access_servers: document.getElementById('accServers').checked ? 1 : 0,
@@ -1257,6 +1351,9 @@ function escapeAttr(str) {
    СТРАНИЦА: БАЛАНС
    ============================================================ */
 let currentBalanceActionType = 'add';
+let allBalanceHistoryRows = [];
+let balanceVisibleCount = 10;
+const BALANCE_PAGE_SIZE = 10;
 
 async function fetchBalanceData() {
     try {
@@ -1268,46 +1365,68 @@ async function fetchBalanceData() {
         if (!response.ok) throw new Error(`Status: ${response.status}`);
         const rows = await response.json();
 
-        const historyList = document.getElementById('historyDisplay');
+        allBalanceHistoryRows = rows || [];
+        balanceVisibleCount = BALANCE_PAGE_SIZE;
 
-        if (!rows || rows.length === 0) {
+        if (allBalanceHistoryRows.length === 0) {
             document.getElementById('balanceDisplay').innerText = '0 ₽';
-            historyList.innerHTML = '<li class="history-item" style="justify-content: center; font-weight:700;">История пуста</li>';
+            document.getElementById('historyDisplay').innerHTML = '<li class="history-item" style="justify-content: center; font-weight:700;">История пуста</li>';
+            document.getElementById('historyMoreBtn').classList.add('hidden');
             return;
         }
 
-        const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance), 0);
+        const totalBalance = allBalanceHistoryRows.reduce((sum, row) => sum + Number(row.balance), 0);
         document.getElementById('balanceDisplay').innerText = `${Math.round(totalBalance)} ₽`;
 
-        historyList.innerHTML = '';
-        rows.forEach(row => {
-            const amount = Number(row.balance);
-            const comment = row.history_comments || 'Без комментария';
-
-            const dateObj = new Date(row.created_at);
-            const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-
-            const isPlus = amount >= 0;
-
-            const li = document.createElement('li');
-            li.className = 'history-item';
-            li.innerHTML = `
-                <div class="history-meta">
-                    <span class="history-comment">${escapeHtml(comment)}</span>
-                    <span class="history-date">${formattedDate}</span>
-                </div>
-                <span class="history-amount ${isPlus ? 'amount-plus' : 'amount-minus'}">
-                    ${isPlus ? '+' : ''}${amount.toFixed(2)} ₽
-                </span>
-            `;
-            historyList.appendChild(li);
-        });
+        renderHistoryList();
 
     } catch (err) {
         console.error(err);
         document.getElementById('balanceDisplay').innerText = 'Ошибка';
         document.getElementById('historyDisplay').innerHTML = `<li class="history-item" style="color:red; justify-content:center;">Ошибка соединения.</li>`;
+        document.getElementById('historyMoreBtn').classList.add('hidden');
     }
+}
+
+function renderHistoryList() {
+    const historyList = document.getElementById('historyDisplay');
+    const moreBtn = document.getElementById('historyMoreBtn');
+    const visibleRows = allBalanceHistoryRows.slice(0, balanceVisibleCount);
+
+    historyList.innerHTML = '';
+    visibleRows.forEach(row => {
+        const amount = Number(row.balance);
+        const comment = row.history_comments || 'Без комментария';
+
+        const dateObj = new Date(row.created_at);
+        const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+
+        const isPlus = amount >= 0;
+
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerHTML = `
+            <div class="history-meta">
+                <span class="history-comment">${escapeHtml(comment)}</span>
+                <span class="history-date">${formattedDate}</span>
+            </div>
+            <span class="history-amount ${isPlus ? 'amount-plus' : 'amount-minus'}">
+                ${isPlus ? '+' : ''}${amount.toFixed(2)} ₽
+            </span>
+        `;
+        historyList.appendChild(li);
+    });
+
+    if (balanceVisibleCount < allBalanceHistoryRows.length) {
+        moreBtn.classList.remove('hidden');
+    } else {
+        moreBtn.classList.add('hidden');
+    }
+}
+
+function showMoreHistory() {
+    balanceVisibleCount += BALANCE_PAGE_SIZE;
+    renderHistoryList();
 }
 
 function openBalanceModal(type) {
@@ -1559,7 +1678,7 @@ async function fetchAllReviews() {
     try {
         let { data: reviews, error } = await supabaseClient
             .from('reviews')
-            .select('id, name, contact, msg, stars, created_at, admin, proverka')
+            .select('id, name, contact, msg, stars, created_at, admin, proverka, source')
             .order('created_at', { ascending: false });
         if (!error && reviews) {
             allReviews = reviews;
@@ -1574,12 +1693,84 @@ async function fetchAllReviews() {
     }
 }
 
-function toggleReviewCard(event, cardId) {
-    const card = document.getElementById(`card-${cardId}`);
-    if (event.target.closest('input') || event.target.closest('textarea') || event.target.closest('select') || event.target.closest('button')) {
-        return;
+function getSourceBadgeHtml(source) {
+    if (!source) return '';
+    const map = { telegram: ['Telegram', 'telegram'], vk: ['ВКонтакте', 'vk'], website: ['Сайт', 'website'] };
+    const entry = map[source];
+    if (!entry) return '';
+    return `<span class="source-badge ${entry[1]}">${entry[0]}</span>`;
+}
+
+function openReviewEditModal(reviewId) {
+    const r = allReviews.find(item => String(item.id) === String(reviewId));
+    if (!r) return;
+
+    const dateObj = new Date(r.created_at);
+    const tzOffset = dateObj.getTimezoneOffset() * 60000;
+    const localISODate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+
+    if (activeStarsEditing[r.id] === undefined) {
+        activeStarsEditing[r.id] = r.stars;
     }
-    card.classList.toggle('expanded');
+
+    document.getElementById('revEditModalTitle').innerText = `Отзыв — ${r.name || 'Аноним'}`;
+
+    const contactBlock = r.contact ? `
+        <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
+        <div class="tg-id-field">
+            <span class="tg-id-label">ID:</span>
+            <span class="tg-id-value">${escapeHtml(r.contact)}</span>
+        </div>
+        <button class="btn btn-tg" onclick="window.open('https://t.me/on1xVPN_bot?start=user_${encodeURIComponent(r.contact)}', '_blank')">Открыть в боте</button>
+    ` : `
+        <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
+        <div class="tg-id-field">
+            <span class="tg-id-value" style="color:var(--text-sub);">— не указан</span>
+        </div>
+    `;
+
+    document.getElementById('revEditModalContent').innerHTML = `
+        <span class="filter-label">Дата написания отзыва:</span>
+        <input type="datetime-local" id="date-${r.id}" value="${localISODate}">
+
+        <span class="filter-label">Источник публикации:</span>
+        <select id="source-${r.id}">
+            <option value="" ${!r.source ? 'selected' : ''}>— не указан</option>
+            <option value="website" ${r.source === 'website' ? 'selected' : ''}>🌐 Сайт</option>
+            <option value="telegram" ${r.source === 'telegram' ? 'selected' : ''}>📱 Telegram</option>
+            <option value="vk" ${r.source === 'vk' ? 'selected' : ''}>💙 ВКонтакте</option>
+        </select>
+
+        ${contactBlock}
+
+        <span class="filter-label">Количество звёзд (оценка):</span>
+        ${getStarsEditButtons(r.id, activeStarsEditing[r.id])}
+
+        <span class="filter-label">Текст отзыва:</span>
+        <textarea id="msg-${r.id}" rows="3">${escapeHtml(r.msg || '')}</textarea>
+
+        <span class="filter-label">Комментарий администратора (admin):</span>
+        <textarea id="admin-${r.id}" rows="2" placeholder="Ваш ответ под отзывом...">${escapeHtml(r.admin || '')}</textarea>
+
+        <span class="filter-label">Статус (proverka):</span>
+        <select id="proverka-${r.id}">
+            <option value="0" ${r.proverka === 0 ? 'selected' : ''}>Не опубликован</option>
+            <option value="1" ${r.proverka === 1 ? 'selected' : ''}>Опубликован</option>
+            <option value="2" ${r.proverka === 2 ? 'selected' : ''}>Опубликован (Оценка НЕ учитывается)</option>
+        </select>
+
+        <div class="btn-group">
+            <button class="btn btn-save" onclick="updateReview('${r.id}')">Сохранить</button>
+            <button class="btn btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
+        </div>
+    `;
+
+    document.getElementById('revEditModalOverlay').classList.add('show');
+}
+
+function closeReviewEditModal() {
+    document.getElementById('revEditModalOverlay').classList.remove('show');
+    document.getElementById('revEditModalContent').innerHTML = '';
 }
 
 function renderFilteredReviews() {
@@ -1613,17 +1804,13 @@ function renderFilteredReviews() {
         const dateObj = new Date(r.created_at);
         const displayDate = `${String(dateObj.getDate()).padStart(2, '0')}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${dateObj.getFullYear()}`;
 
-        const tzOffset = dateObj.getTimezoneOffset() * 60000;
-        const localISODate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
-
-        if (activeStarsEditing[r.id] === undefined) {
-            activeStarsEditing[r.id] = r.stars;
-        }
-
         return `
-        <div class="review-card" id="card-${r.id}" onclick="toggleReviewCard(event, '${r.id}')">
+        <div class="review-card" id="card-${r.id}" onclick="openReviewEditModal('${r.id}')">
             <div class="card-header-clickable">
-                <span class="status-badge status-${r.proverka}">${statusLabels[r.proverka] || r.proverka}</span>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <span class="status-badge status-${r.proverka}">${statusLabels[r.proverka] || r.proverka}</span>
+                    ${getSourceBadgeHtml(r.source)}
+                </div>
                 <div class="user-meta">
                     <div class="avatar">${r.name ? escapeHtml(r.name[0].toUpperCase()) : '?'}</div>
                     <div class="username">
@@ -1633,34 +1820,7 @@ function renderFilteredReviews() {
                 </div>
                 <div class="stars-row">${getStarsRowHtml(r.stars)}</div>
             </div>
-
             <svg class="fold-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-
-            <div class="actions-area">
-                <span class="filter-label">Дата написания отзыва:</span>
-                <input type="datetime-local" id="date-${r.id}" value="${localISODate}" style="margin-bottom:4px;">
-
-                <span class="filter-label">Количество звёзд (оценка):</span>
-                ${getStarsEditButtons(r.id, activeStarsEditing[r.id])}
-
-                <span class="filter-label">Текст отзыва:</span>
-                <textarea id="msg-${r.id}" rows="3">${escapeHtml(r.msg || '')}</textarea>
-
-                <span class="filter-label">Комментарий администратора (admin):</span>
-                <textarea id="admin-${r.id}" rows="2" placeholder="Ваш ответ под отзывом...">${escapeHtml(r.admin || '')}</textarea>
-
-                <span class="filter-label">Статус (proverka):</span>
-                <select id="proverka-${r.id}" style="margin-bottom:12px;">
-                    <option value="0" ${r.proverka === 0 ? 'selected' : ''}>Не опубликован</option>
-                    <option value="1" ${r.proverka === 1 ? 'selected' : ''}>Опубликован</option>
-                    <option value="2" ${r.proverka === 2 ? 'selected' : ''}>Опубликован (Оценка НЕ учитывается)</option>
-                </select>
-
-                <div class="btn-group">
-                    <button class="btn btn-save" onclick="updateReview('${r.id}')">Сохранить</button>
-                    <button class="btn btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
-                </div>
-            </div>
         </div>`;
     }).join('');
 }
@@ -1671,6 +1831,8 @@ async function updateReview(id) {
     const admin = document.getElementById(`admin-${id}`).value.trim();
     const proverka = parseInt(document.getElementById(`proverka-${id}`).value);
     const inputDate = document.getElementById(`date-${id}`).value;
+    const sourceEl = document.getElementById(`source-${id}`);
+    const source = sourceEl ? sourceEl.value : null;
 
     if (!msg) { showToast('Поле отзыва не должно быть пустым'); return; }
     if (!inputDate) { showToast('Выберите корректную дату'); return; }
@@ -1684,13 +1846,15 @@ async function updateReview(id) {
             msg,
             admin: admin || null,
             proverka,
-            created_at: isoDate
+            created_at: isoDate,
+            source: source || null
         })
         .eq('id', id);
 
     if (!error) {
         showToast('Сохранено успешно!', 'success');
         delete activeStarsEditing[id];
+        closeReviewEditModal();
         fetchAllReviews();
     } else {
         showToast('Ошибка RLS или сервера Supabase');
@@ -1708,6 +1872,7 @@ async function deleteReview(id) {
     if (!error) {
         showToast('Запись удалена!', 'success');
         delete activeStarsEditing[id];
+        closeReviewEditModal();
         fetchAllReviews();
     } else {
         showToast('Ошибка удаления');
