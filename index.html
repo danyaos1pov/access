@@ -1,3003 +1,912 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>ON1X — Панель управления</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b0f17">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ON1X">
-<link rel="icon" type="image/png" href="https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png">
-<link rel="apple-touch-icon" href="https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root {
-    --bg-main: #0b0f17;
-    --card-bg: #1e293b;
-    --card-border: #000000;
-    --shadow-color: #000000;
-    --text-title: #ffffff;
-    --text-body: #f8fafc;
-    --text-sub: #94a3b8;
-    --btn-primary-bg: #ccff00;
-    --btn-primary-text: #000000;
-    --btn-secondary-bg: #0f172a;
-    --btn-secondary-border: #000000;
-    --slider-bg: #1e293b;
-    --slider-thumb: #ccff00;
-    --icon-color: #ffffff;
-    --danger-bg: #ff3333;
-    --danger-text: #ffffff;
-    --btn-danger-bg: #ff3333;
-    --btn-danger-text: #ffffff;
-    --modal-overlay: rgba(11, 15, 23, 0.85);
-    --success-color: #ccff00;
-    --danger-color: #ff3333;
-    --star-filled: #ccff00;
-    --star-empty: transparent;
-    --input-bg: #0f172a;
-    --admin-red: #ff4d4d;
-    --success-green: #2ecc71;
-    --pending-orange: #ffa500;
-    --sidebar-width: 300px;
-    --server-date-ok: #16a34a;
-    --server-date-danger: #ff2222;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ON1X VPN — Админ-панель</title>
+    <style>
+        :root {
+            --bg-main: #0b0f17;
+            --card-bg: #1e293b;
+            --card-border: #000000;
+            --shadow-color: #000000;
+            --text-title: #ffffff;
+            --text-body: #f8fafc;
+            --text-sub: #94a3b8;
+            
+            --btn-primary-bg: #ccff00;
+            --btn-primary-text: #000000;
+            --btn-secondary-bg: #0f172a;
+            --btn-secondary-border: #000000;
+            
+            --slider-bg: #1e293b;
+            --slider-thumb: #ccff00;
+            --icon-color: #ffffff;
+            
+            --star-filled: #ccff00;
+            --star-empty: transparent;
+            --input-bg: #0f172a;
+            --admin-red: #ff4d4d;
+            --success-green: #2ecc71;
+            --pending-orange: #ffa500;
+        }
 
-[data-theme="light"] {
-    --bg-main: #f1f5f9;
-    --card-bg: #ffffff;
-    --card-border: #000000;
-    --shadow-color: #000000;
-    --text-title: #000000;
-    --text-body: #0f172a;
-    --text-sub: #64748b;
-    --btn-primary-bg: #000000;
-    --btn-primary-text: #ffffff;
-    --btn-secondary-bg: #f8fafc;
-    --btn-secondary-border: #000000;
-    --slider-bg: #ffffff;
-    --slider-thumb: #000000;
-    --icon-color: #000000;
-    --success-color: #008800;
-    --danger-color: #cc0000;
-    --star-filled: #000000;
-    --star-empty: transparent;
-    --input-bg: #f8fafc;
-    --admin-red: #d32f2f;
-    --success-green: #27ae60;
-    --pending-orange: #e67e22;
-}
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-border: #000000;
+            --shadow-color: #000000;
+            --text-title: #000000;
+            --text-body: #0f172a;
+            --text-sub: #64748b;
+            
+            --btn-primary-bg: #000000;
+            --btn-primary-text: #ffffff;
+            --btn-secondary-bg: #f8fafc;
+            --btn-secondary-border: #000000;
+            --slider-bg: #ffffff;
+            --slider-thumb: #000000;
+            --icon-color: #000000;
+            
+            --star-filled: #000000;
+            --star-empty: transparent;
+            --input-bg: #f8fafc;
+            --admin-red: #d32f2f;
+            --success-green: #27ae60;
+            --pending-orange: #e67e22;
+        }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 24px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease;
+        }
 
-html, body { overflow-x: hidden; touch-action: manipulation; }
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
 
-body {
-    background-color: var(--bg-main);
-    color: var(--text-body);
-    min-height: 100vh;
-    transition: background 0.3s ease;
-    position: relative;
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-}
-input, textarea, select { user-select: text !important; -webkit-user-select: text !important; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* ============ TOAST ============ */
-.toast-notification {
-    position: fixed;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 48px);
-    max-width: 360px;
-    background: var(--danger-bg);
-    color: var(--danger-text);
-    border: 3px solid var(--card-border);
-    box-shadow: 4px 4px 0px var(--shadow-color);
-    padding: 14px 16px;
-    font-size: 14px;
-    font-weight: 800;
-    text-transform: uppercase;
-    text-align: center;
-    z-index: 9999;
-    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    word-break: break-word;
-}
-.toast-notification.show { top: 24px; }
-.toast-notification.success { background: var(--success-green); color: #fff; }
+        .theme-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 40px;
+        }
 
-/* ============ TOP BAR ============ */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 24px 24px 0 24px;
-}
+        .theme-switch {
+            position: relative;
+            width: 76px;
+            height: 38px;
+            background: var(--slider-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 0px; 
+            box-shadow: 3px 3px 0px var(--shadow-color);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s ease;
+        }
 
-.menu-burger-btn {
-    background: var(--card-bg);
-    border: 2px solid var(--card-border);
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    padding: 8px 12px;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-.menu-burger-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.menu-burger-btn svg { stroke: var(--icon-color); stroke-width: 3; stroke-linecap: round; }
-.menu-burger-btn.visible { display: flex; }
+        .theme-checkbox { display: none; }
 
-.theme-container { margin-left: auto; }
+        .switch-icon {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: var(--icon-color);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            z-index: 1;
+            transition: stroke 0.3s ease;
+            margin: 0 4px;
+        }
 
-.theme-switch {
-    position: relative;
-    width: 76px;
-    height: 38px;
-    background: var(--slider-bg);
-    border: 2px solid var(--card-border);
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: background 0.3s ease;
-}
-.theme-checkbox { display: none; }
-.switch-icon {
-    width: 18px; height: 18px; fill: none; stroke: var(--icon-color);
-    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
-    z-index: 1; transition: stroke 0.3s ease; margin: 0 4px;
-}
-.theme-handle {
-    position: absolute; left: 4px; width: 26px; height: 26px;
-    background-color: var(--slider-thumb); border: 2px solid var(--card-border);
-    transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 2;
-}
-.theme-checkbox:checked + .theme-switch .theme-handle { transform: translateX(38px); }
+        .theme-handle {
+            position: absolute;
+            left: 4px;
+            width: 26px;
+            height: 26px;
+            background-color: var(--slider-thumb);
+            border: 2px solid var(--card-border);
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            z-index: 2;
+        }
 
-/* ============ SIDEBAR (улучшенное меню) ============ */
-.sidebar-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1000; opacity: 0; visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .theme-checkbox:checked + .theme-switch .theme-handle {
+            transform: translateX(38px);
+        }
 
-.sidebar-menu {
-    position: fixed; top: 0; left: -300px; width: var(--sidebar-width); height: 100%;
-    background: var(--card-bg);
-    border-right: 4px solid var(--card-border);
-    z-index: 1001;
-    display: flex; flex-direction: column;
-    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden;
-}
-.sidebar-overlay.active .sidebar-menu { left: 0; }
+        .container {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
 
-.sidebar-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 24px 20px 16px 20px;
-    border-bottom: 2px dashed var(--card-border);
-    flex-shrink: 0;
-}
-.sidebar-scroll {
-    flex: 1 1 auto; min-height: 0; overflow-y: auto;
-    display: flex; flex-direction: column;
-}
-.sidebar-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; }
-.sidebar-close { background: none; border: none; cursor: pointer; font-size: 24px; font-weight: 900; color: var(--text-title); line-height: 1; }
+        /* Окно авторизации */
+        .auth-box {
+            background: var(--card-bg);
+            border: 3px solid var(--card-border);
+            padding: 24px 16px;
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
 
-.sidebar-profile {
-    margin: 16px 20px;
-    background: var(--btn-secondary-bg);
-    border: 2px solid var(--card-border);
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    padding: 14px;
-    display: flex; align-items: center; gap: 12px;
-    flex-shrink: 0;
-}
-.sidebar-avatar {
-    width: 40px; height: 40px; min-width: 40px; background: var(--btn-primary-bg);
-    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 16px; color: var(--btn-primary-text); overflow: hidden;
-}
-.sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sidebar-profile-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
-.sidebar-profile-name { font-size: 14px; font-weight: 800; color: var(--text-title); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sidebar-profile-role { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.3px; }
+        .brand-header { text-align: center; }
 
-.sidebar-section-label {
-    font-size: 10px; font-weight: 800; color: var(--text-sub);
-    text-transform: uppercase; letter-spacing: 1px;
-    padding: 0 20px; margin: 6px 0 8px 0;
-}
+        .brand-title {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-title);
+            text-transform: uppercase;
+            -webkit-text-stroke: 1px var(--card-border);
+        }
 
-.sidebar-links { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+        .brand-slogan {
+            display: inline-block;
+            font-size: 12px;
+            background: var(--admin-red);
+            color: #ffffff;
+            border: 2px solid var(--card-border);
+            padding: 2px 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            box-shadow: 2px 2px 0px var(--shadow-color);
+        }
 
-.sidebar-item-link {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px; font-size: 14px; font-weight: 800;
-    color: var(--text-body); text-decoration: none; text-transform: uppercase;
-    border: 2px solid var(--card-border); background: var(--bg-main);
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease;
-}
-.sidebar-item-link svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
-.sidebar-item-link:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.sidebar-item-link:hover { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
-.sidebar-item-link.active { background: var(--btn-primary-bg); color: var(--btn-primary-text); box-shadow: 1px 1px 0px var(--shadow-color); transform: translate(2px, 2px); }
+        /* Блок статистики */
+        .stats-box {
+            background: var(--card-bg);
+            border: 3px solid var(--card-border);
+            padding: 12px;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            text-align: center;
+        }
 
-.sidebar-footer { margin-top: auto; padding: 16px; border-top: 2px dashed var(--card-border); flex-shrink: 0; }
-.sidebar-logout-btn {
-    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 12px 14px; font-size: 13px; font-weight: 800; text-transform: uppercase;
-    background: var(--btn-danger-bg); color: var(--btn-danger-text);
-    border: 2px solid var(--card-border); box-shadow: 3px 3px 0px var(--shadow-color);
-    cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-.sidebar-logout-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.sidebar-logout-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
-/* ============ ГЛОБАЛЬНЫЙ ЛЭЙАУТ / АДАПТИВ ПОД ДЕСКТОП ============ */
-.app-shell { width: 100%; }
-.page-wrap {
-    width: 100%; max-width: 1180px; margin: 0 auto;
-    padding: 32px 24px 60px 24px;
-    display: flex; justify-content: center;
-}
-.page { display: none; width: 100%; }
-.page.active { display: flex; flex-direction: column; align-items: center; }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 900;
+        }
+        .stat-value.published { color: var(--success-green); }
+        .stat-value.pending { color: var(--pending-orange); }
 
-@media (min-width: 960px) {
-    body.authed .sidebar-overlay {
-        position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); height: 100%;
-        background: transparent; opacity: 1; visibility: visible; pointer-events: none;
-    }
-    body.authed .sidebar-menu { left: 0; position: fixed; top: 0; height: 100vh; pointer-events: auto; }
-    body.authed .top-bar { padding-left: calc(var(--sidebar-width) + 24px); }
-    body.authed .page-wrap { padding-left: calc(var(--sidebar-width) + 24px); }
-    body.authed .menu-burger-btn { display: none !important; }
-    body.authed .sidebar-close { display: none; }
-}
+        .filter-box {
+            background: var(--card-bg);
+            border: 3px solid var(--card-border);
+            padding: 14px;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-/* ============ ОБЩИЕ КОНТЕЙНЕРЫ ============ */
-.container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
-.container-wide { max-width: 560px; }
+        .filter-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            letter-spacing: 0.5px;
+        }
 
-.brand-header { text-align: center; }
-.brand-title { font-size: 40px; font-weight: 900; letter-spacing: -1px; color: var(--text-title); text-transform: uppercase; -webkit-text-stroke: 1px var(--card-border); }
-.brand-slogan {
-    display: inline-block; font-size: 12px; background: var(--btn-primary-bg); color: var(--btn-primary-text);
-    border: 2px solid var(--card-border); padding: 2px 8px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; margin-top: 6px; box-shadow: 2px 2px 0px var(--shadow-color); transition: background 0.3s ease, color 0.3s ease;
-}
-.brand-slogan.tag-danger { background: var(--admin-red); color: #fff; }
+        select, input[type="text"].search-input, input[type="email"], input[type="password"], input[type="datetime-local"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 2px solid var(--card-border);
+            padding: 10px;
+            color: var(--text-body);
+            font-weight: 700;
+            outline: none;
+            font-size: 14px;
+            border-radius: 0px;
+        }
 
-.brutal-box, .section-box {
-    background: var(--card-bg); border: 3px solid var(--card-border);
-    box-shadow: 8px 8px 0px var(--shadow-color); padding: 24px 20px;
-    display: flex; flex-direction: column; gap: 16px; position: relative; width: 100%;
-}
-.box-title { font-size: 22px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; text-align: center; }
-.section-title { font-size: 12px; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 1px; }
+        select, input[type="datetime-local"] { cursor: pointer; }
 
-.input-group, .form-group { display: flex; flex-direction: column; gap: 6px; }
-.input-label, .form-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-title); }
-.login-input, .form-input, .modal-input,
-select, input[type="text"], input[type="password"], input[type="email"], input[type="number"],
-input[type="date"], input[type="datetime-local"], textarea {
-    width: 100%; padding: 13px; font-size: 15px; font-weight: 700;
-    background: var(--input-bg); color: var(--text-body); border: 2px solid var(--card-border);
-    outline: none; border-radius: 0; font-family: inherit; transition: border-color 0.2s ease;
-}
-.login-input:focus, .form-input:focus, .modal-input:focus,
-select:focus, input:focus, textarea:focus { border-color: var(--btn-primary-bg); }
-select, input[type="date"], input[type="datetime-local"] { cursor: pointer; }
-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
+        .reviews-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-/* ============ КНОПКИ ============ */
-.btn {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    width: 100%; padding: 15px 18px; font-size: 15px; font-weight: 800;
-    text-decoration: none; border: 2px solid var(--card-border); position: relative;
-    box-shadow: 4px 4px 0px var(--shadow-color); transition: transform 0.1s ease, box-shadow 0.1s ease;
-    cursor: pointer; text-transform: uppercase;
-}
-.btn-left { display: flex; align-items: center; gap: 12px; }
-.btn svg { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-.btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
-.btn-secondary { background: var(--btn-secondary-bg); color: var(--text-body); }
-.btn-danger { background: var(--btn-danger-bg); color: var(--btn-danger-text); }
-.btn-small { padding: 10px; font-size: 13px; }
-.actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .section-box {
+            background: var(--card-bg);
+            border: 3px solid var(--card-border);
+            padding: 12px;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
 
-.welcome-role {
-    font-size: 15px; font-weight: 700; color: var(--text-body); background: rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--card-border); padding: 14px; text-align: center; box-shadow: 2px 2px 0px var(--shadow-color);
-}
+        .section-box:active {
+            transform: translate(1px, 1px);
+            box-shadow: 3px 3px 0px var(--shadow-color);
+        }
 
-/* ============ КАРТОЧКИ ПОЛЬЗОВАТЕЛЕЙ / СПИСКИ ============ */
-.user-card {
-    background: var(--btn-secondary-bg); border: 2px solid var(--card-border); padding: 16px;
-    display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 4px 4px 0px var(--shadow-color);
-}
-.user-card-avatar {
-    width: 44px; height: 44px; min-width: 44px; background: var(--btn-primary-bg);
-    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 17px; color: var(--btn-primary-text); overflow: hidden;
-    box-shadow: 2px 2px 0px var(--shadow-color);
-}
-.user-card-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.user-card-top { display: flex; align-items: center; gap: 12px; }
-.user-info { display: flex; flex-direction: column; gap: 4px; }
-.user-name { font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--text-title); }
-.user-details { font-size: 12px; color: var(--text-sub); font-weight: 600; }
-.user-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
-.badge { font-size: 10px; padding: 2px 6px; border: 1px solid var(--card-border); background: #334155; color: #ffffff; font-weight: 800; }
-.badge.active { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+        .card-header-clickable {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 24px;
+        }
 
-.actions-group { display: flex; gap: 8px; }
-.btn-mini {
-    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-    border: 2px solid var(--card-border); background: var(--card-bg); cursor: pointer; box-shadow: 2px 2px 0px var(--shadow-color);
-}
-.btn-mini:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
-.btn-mini svg { fill: none; stroke: var(--text-title); stroke-width: 2.5; }
-.btn-mini.del:hover { background: var(--btn-danger-bg); }
-.btn-mini.del:hover svg { stroke: var(--btn-danger-text); }
-.btn-mini.edit:hover { background: var(--btn-primary-bg); }
-.btn-mini.edit:hover svg { stroke: var(--btn-primary-text); }
+        /* Модальное окно редактирования */
+        .edit-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 15, 23, 0.88);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 1000;
+            padding: 24px;
+            overflow-y: auto;
+        }
 
-.checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.15); padding: 12px; border: 2px solid var(--card-border); margin-top: 4px; }
-.checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; cursor: pointer; color: var(--text-body); }
-.checkbox-item input { width: 16px; height: 16px; accent-color: var(--btn-primary-bg); cursor: pointer; }
+        .edit-modal-overlay.active {
+            display: flex;
+        }
 
-/* ============ МОДАЛЬНЫЕ ОКНА ============ */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--modal-overlay); z-index: 5000; display: none; align-items: flex-start; justify-content: center;
-    padding: 40px 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-}
-.modal-overlay.show { display: flex; }
-.modal-content, .modal-box {
-    background: var(--card-bg); border: 3px solid var(--card-border); box-shadow: 8px 8px 0px var(--shadow-color);
-    width: 100%; max-width: 380px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; position: relative;
-    margin: auto 0;
-}
-.modal-close-x { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; font-weight: 900; color: var(--text-title); cursor: pointer; line-height: 1; }
-.modal-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: 0.5px; }
-.modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+        .edit-modal {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 340px;
+            padding: 24px;
+            border: 3px solid var(--card-border);
+            position: relative;
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: auto;
+        }
 
-select.modal-input, select.form-input {
-    cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-    background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;
-}
-[data-theme="light"] select.modal-input, [data-theme="light"] select.form-input {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-}
+        .edit-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-sub);
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+        }
 
-.empty-state { text-align: center; color: var(--text-sub); padding: 16px; font-weight: 700; }
+        .edit-modal-title {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-title);
+            margin-bottom: 4px;
+            padding-right: 24px;
+        }
 
-/* ============ БАЛАНС ============ */
-.crypto-balance-box { text-align: center; padding: 16px 16px; }
-.balance-value { font-size: 38px; font-weight: 900; color: var(--text-title); letter-spacing: -0.5px; margin-top: 4px; }
-.history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%; }
-.history-more-btn { margin-top: 4px; }
-.history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); }
-.history-meta { display: flex; flex-direction: column; gap: 2px; }
-.history-comment { font-size: 14px; font-weight: 700; color: var(--text-body); }
-.history-date { font-size: 11px; color: var(--text-sub); }
-.history-amount { font-size: 15px; font-weight: 900; }
-.amount-plus { color: var(--success-color); }
-.amount-minus { color: var(--danger-color); }
+        .btn-tg {
+            background: #0088cc;
+            color: #ffffff;
+        }
 
-/* ============ СЕРВЕРА ============ */
-.server-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%; }
-.server-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); }
-.server-info { display: flex; flex-direction: column; gap: 2px; }
-.server-location { font-size: 15px; font-weight: 700; color: var(--text-body); }
-.server-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-.server-date-box { text-align: right; }
-.server-date { font-size: 14px; font-weight: 900; color: var(--server-date-ok); }
-.server-date.expiring { color: var(--server-date-danger); }
-.server-right { display: flex; align-items: center; gap: 10px; }
+        .status-badge {
+            align-self: flex-start;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border: 2px solid var(--card-border);
+            box-shadow: 2px 2px 0px var(--shadow-color);
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .status-0 { background: var(--pending-orange); color: #000; }
+        .status-1 { background: var(--success-green); color: #fff; }
+        .status-2 { background: var(--text-sub); color: #000; }
 
-/* ============ РОЗЫГРЫШ ============ */
-.stats-box-simple {
-    background: var(--card-bg); border: 3px solid var(--card-border); padding: 16px;
-    box-shadow: 8px 8px 0px var(--shadow-color); display: flex; align-items: center; justify-content: space-between; width: 100%;
-}
-.stats-title { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sub); }
-.stats-value { font-size: 24px; font-weight: 900; color: var(--text-title); }
-.btn-action { background: var(--success-color); color: var(--btn-primary-text); }
-[data-theme="dark"] .btn-action, :root .btn-action { color: #000000; }
-.btn-refresh { background: var(--btn-secondary-bg); color: var(--text-body); }
-.winners-list { background: rgba(0,0,0,0.2); border: 2px solid var(--card-border); padding: 10px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-.winner-item { background: var(--btn-secondary-bg); border: 1px solid var(--success-color); padding: 8px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
+        .stars-row { display: flex; gap: 4px; align-items: center; }
+        
+        /* Интерактивный ряд звезд для редактирования */
+        .stars-edit-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .star-btn {
+            background: var(--input-bg);
+            border: 2px solid var(--card-border);
+            padding: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0px var(--shadow-color);
+            transition: transform 0.05s ease;
+        }
+        .star-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--shadow-color);
+        }
 
-/* ============ ОТЗЫВЫ (АДМИНКА) ============ */
-.stats-box { background: var(--card-bg); border: 3px solid var(--card-border); padding: 14px; box-shadow: 4px 4px 0px var(--shadow-color); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center; width: 100%; }
-.stat-item { display: flex; flex-direction: column; gap: 4px; }
-.stat-value { font-size: 22px; font-weight: 900; }
-.stat-value.published { color: var(--success-green); }
-.stat-value.pending { color: var(--pending-orange); }
+        .brutal-star { width: 18px; height: 18px; pointer-events: none; }
+        .brutal-star path { stroke: #000000; stroke-width: 2.5px; stroke-linejoin: miter; }
+        .brutal-star.filled path { fill: var(--star-filled); }
+        .brutal-star.empty path { fill: var(--star-empty); }
 
-.filter-box { background: var(--card-bg); border: 3px solid var(--card-border); padding: 14px; box-shadow: 4px 4px 0px var(--shadow-color); display: flex; flex-direction: column; gap: 12px; width: 100%; }
-.filter-label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-sub); letter-spacing: 0.5px; }
+        .user-meta { display: flex; align-items: center; gap: 10px; }
+        .avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--btn-primary-bg);
+            border: 2px solid var(--card-border);
+            color: var(--btn-primary-text);
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            font-size: 12px;
+        }
 
-.reviews-grid { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-.review-card { background: var(--card-bg); border: 3px solid var(--card-border); padding: 12px; box-shadow: 4px 4px 0px var(--shadow-color); display: flex; flex-direction: column; position: relative; cursor: pointer; transition: transform 0.1s ease; }
-.review-card:active { transform: translate(1px, 1px); box-shadow: 3px 3px 0px var(--shadow-color); }
-.card-header-clickable { display: flex; flex-direction: column; gap: 8px; }
+        .username { display: flex; flex-direction: column; font-weight: 800; font-size: 13px; color: var(--text-title); }
+        .review-date { font-size: 10px; color: var(--text-sub); font-weight: 500; }
 
-.source-badge { display: inline-block; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); align-self: flex-start; }
-.source-badge.telegram { background: #0088cc; color: #ffffff; }
-.source-badge.vk { background: #0077ff; color: #ffffff; }
-.source-badge.website { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 2px solid var(--card-border);
+            padding: 10px;
+            color: var(--text-body);
+            outline: none;
+            font-size: 13px;
+            border-radius: 0px;
+            font-family: inherit;
+        }
+        
+        textarea:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="datetime-local"]:focus, select:focus {
+            border-color: var(--btn-primary-bg);
+        }
 
-.tg-id-field { display: flex; align-items: center; gap: 8px; background: var(--input-bg); border: 2px solid var(--card-border); padding: 8px 10px; font-size: 13px; font-weight: 700; color: var(--text-body); }
-.tg-id-label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: var(--text-sub); white-space: nowrap; }
-.tg-id-value { font-size: 13px; font-weight: 800; color: #0088cc; word-break: break-all; }
-.btn-tg { background: #0088cc; color: #ffffff; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid var(--card-border);
+            box-shadow: 3px 3px 0px var(--shadow-color);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
+        .btn-save { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+        .btn-delete { background: var(--admin-red); color: #fff; }
+        .btn-full { grid-column: span 2; background: var(--btn-primary-bg); color: var(--btn-primary-text); }
 
-.status-badge { align-self: flex-start; font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color); letter-spacing: 0.5px; margin-bottom: 2px; }
-.status-0 { background: var(--pending-orange); color: #000; }
-.status-1 { background: var(--success-green); color: #fff; }
-.status-2 { background: var(--text-sub); color: #000; }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 24px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            border: 3px solid #000;
+            z-index: 9999;
+            display: none;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            text-align: center;
+        }
+        .toast.show { display: block; }
+        .toast.error { background: var(--admin-red); color: #fff; }
+        .toast.success { background: var(--success-green); color: #fff; }
+        
+        .hidden { display: none !important; }
 
-.stars-row { display: flex; gap: 4px; align-items: center; }
-.stars-edit-row { display: flex; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
-.star-btn { background: var(--input-bg); border: 2px solid var(--card-border); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0px var(--shadow-color); transition: transform 0.05s ease; }
-.star-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
-.brutal-star { width: 18px; height: 18px; pointer-events: none; }
-.brutal-star path { stroke: #000000; stroke-width: 2.5px; stroke-linejoin: miter; }
-.brutal-star.filled path { fill: var(--star-filled); }
-.brutal-star.empty path { fill: var(--star-empty); }
+        .source-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border: 2px solid var(--card-border);
+            box-shadow: 2px 2px 0px var(--shadow-color);
+            align-self: flex-start;
+        }
 
-.user-meta { display: flex; align-items: center; gap: 10px; }
-.avatar { width: 28px; height: 28px; background: var(--btn-primary-bg); border: 2px solid var(--card-border); color: var(--btn-primary-text); display: grid; place-items: center; font-weight: 900; font-size: 12px; }
-.username { display: flex; flex-direction: column; font-weight: 800; font-size: 13px; color: var(--text-title); }
-.review-date { font-size: 10px; color: var(--text-sub); font-weight: 500; }
+        .source-badge.telegram {
+            background: #0088cc;
+            color: #ffffff;
+        }
 
-.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
-.btn-save { background: var(--btn-primary-bg); color: var(--btn-primary-text); padding: 10px 12px; font-size: 12px; }
-.btn-delete { background: var(--admin-red); color: #fff; padding: 10px 12px; font-size: 12px; }
+        .source-badge.vk {
+            background: #0077ff;
+            color: #ffffff;
+        }
 
-.hidden { display: none !important; }
+        .source-badge.website {
+            background: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+        }
 
-/* Скроллбар для длинных списков */
-.winners-list::-webkit-scrollbar { width: 6px; }
-.winners-list::-webkit-scrollbar-thumb { background: var(--text-sub); }
+        .tg-id-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--input-bg);
+            border: 2px solid var(--card-border);
+            padding: 8px 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-body);
+            margin-bottom: 0;
+        }
 
-/* ============ КНОПКА ОБНОВЛЕНИЯ САЙТА ============ */
-.refresh-btn {
-    background: var(--card-bg); border: 2px solid var(--card-border);
-    box-shadow: 3px 3px 0px var(--shadow-color); padding: 8px 12px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    margin-left: auto; margin-right: 12px;
-}
-.refresh-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.refresh-btn svg { width: 18px; height: 18px; fill: none; stroke: var(--icon-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-.theme-container { margin-left: 0; }
+        .tg-id-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            white-space: nowrap;
+        }
 
-/* ============ ЛИЧНЫЙ КАБИНЕТ (ГЛАВНАЯ) ============ */
-.profile-box { align-items: center; text-align: center; gap: 10px; }
-.profile-avatar-wrap { position: relative; width: 96px; height: 96px; margin: 4px auto 8px auto; }
-.profile-avatar {
-    width: 96px; height: 96px; background: var(--btn-primary-bg);
-    border: 3px solid var(--card-border); box-shadow: 4px 4px 0px var(--shadow-color);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 36px; color: var(--btn-primary-text); overflow: hidden;
-}
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.avatar-edit-btn {
-    position: absolute; right: -12px; bottom: -12px; width: 36px; height: 36px;
-    background: var(--card-bg); border: 2px solid var(--card-border);
-    box-shadow: 2px 2px 0px var(--shadow-color); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-}
-.avatar-edit-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
-.avatar-edit-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--text-title); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-.profile-name { font-size: 22px; font-weight: 900; text-transform: uppercase; color: var(--text-title); letter-spacing: -0.5px; word-break: break-word; }
-.profile-username { font-size: 13px; font-weight: 800; color: var(--text-sub); }
-.profile-role-chip {
-    display: inline-block; font-size: 11px; font-weight: 800; text-transform: uppercase;
-    background: var(--btn-primary-bg); color: var(--btn-primary-text);
-    border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color);
-    padding: 5px 12px; letter-spacing: 0.5px;
-}
-.profile-field {
-    display: flex; justify-content: space-between; align-items: center; gap: 12px;
-    background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border);
-    padding: 12px 14px; box-shadow: 2px 2px 0px var(--shadow-color);
-}
-.profile-field-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.profile-field-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); }
-.password-dots { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: var(--text-title); line-height: 1; }
-.profile-field .btn { width: auto; padding: 10px 16px; font-size: 12px; flex-shrink: 0; }
-.ava-preview {
-    width: 72px; height: 72px; margin: 0 auto; background: var(--input-bg);
-    border: 2px solid var(--card-border); display: flex; align-items: center;
-    justify-content: center; overflow: hidden; color: var(--text-sub); font-size: 11px; font-weight: 700;
-}
-.ava-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-/* ============ УВЕДОМЛЕНИЯ (колокольчик + центр уведомлений) ============ */
-.notif-bell-btn {
-    position: absolute; top: 14px; right: 14px; width: 42px; height: 42px;
-    background: var(--btn-secondary-bg); border: 2px solid var(--card-border);
-    box-shadow: 3px 3px 0px var(--shadow-color); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-}
-.notif-bell-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px var(--shadow-color); }
-.notif-bell-btn svg { width: 20px; height: 20px; fill: none; stroke: var(--text-title); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
-.notif-badge {
-    position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px;
-    background: var(--admin-red); color: #ffffff; border: 2px solid var(--card-border);
-    font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center;
-    padding: 0 4px; line-height: 1;
-}
-.notif-list { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
-.notif-item {
-    display: flex; flex-direction: column; gap: 4px;
-    background: rgba(0, 0, 0, 0.15); border: 2px solid var(--card-border);
-    border-left: 5px solid var(--text-sub);
-    padding: 10px 12px; box-shadow: 2px 2px 0px var(--shadow-color); cursor: pointer;
-}
-.notif-item.unread { border-left-color: var(--btn-primary-bg); background: var(--btn-secondary-bg); }
-.notif-item-title { font-size: 13px; font-weight: 900; text-transform: uppercase; color: var(--text-title); display: flex; align-items: center; gap: 6px; }
-.notif-item.unread .notif-item-title::before { content: ''; width: 8px; height: 8px; background: var(--btn-primary-bg); border: 1px solid var(--card-border); flex-shrink: 0; }
-.notif-item-text { font-size: 13px; font-weight: 600; color: var(--text-body); }
-.notif-item-date { font-size: 10px; font-weight: 700; color: var(--text-sub); }
-.notif-perm-hint { font-size: 11px; font-weight: 700; color: var(--text-sub); text-align: center; }
-
-/* ============ ЖУРНАЛ ДЕЙСТВИЙ (ИСТОРИЯ) ============ */
-.log-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-.log-item {
-    background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border);
-    box-shadow: 2px 2px 0px var(--shadow-color); padding: 10px 12px;
-    display: flex; flex-direction: column; gap: 5px;
-}
-.log-item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-.log-badge {
-    font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color);
-}
-.log-badge.auth { background: var(--text-sub); color: #000000; }
-.log-badge.balance { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
-.log-badge.server { background: #0088cc; color: #ffffff; }
-.log-badge.admin { background: var(--admin-red); color: #ffffff; }
-.log-badge.review { background: var(--pending-orange); color: #000000; }
-.log-badge.raffle { background: var(--success-green); color: #ffffff; }
-.log-badge.notify { background: #8b5cf6; color: #ffffff; }
-.log-badge.profile { background: var(--btn-secondary-bg); color: var(--text-body); }
-.log-date { font-size: 10px; color: var(--text-sub); font-weight: 700; }
-.log-admin { font-size: 12px; font-weight: 800; color: var(--text-title); text-transform: uppercase; }
-.log-desc { font-size: 13px; font-weight: 600; color: var(--text-body); word-break: break-word; }
-
-/* ============ КНОПКИ В АДМИНКЕ (упрощённые карточки) ============ */
-.btn-chip {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 10px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase;
-    border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color);
-    cursor: pointer; white-space: nowrap;
-}
-.btn-chip:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--shadow-color); }
-.btn-chip.edit { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
-.btn-chip.del { background: var(--btn-danger-bg); color: var(--btn-danger-text); }
-.user-card .actions-group { flex-direction: column; gap: 6px; }
-
-/* ============ АДАПТАЦИЯ: ТЕЛЕФОНЫ (основной сценарий) ============ */
-@media (max-width: 600px) {
-    .top-bar { padding: 16px 16px 0 16px; }
-    .page-wrap { padding: 20px 14px 48px 14px; }
-    .brand-title { font-size: 32px; }
-    .brutal-box, .section-box { padding: 18px 14px; box-shadow: 5px 5px 0px var(--shadow-color); }
-    .btn { padding: 14px; font-size: 14px; min-height: 50px; }
-    .btn-small { min-height: 44px; padding: 10px; font-size: 12px; }
-    .btn-mini { width: 44px; height: 44px; }
-    .modal-content, .modal-box { padding: 20px 14px; }
-    .modal-overlay { padding: 24px 12px; }
-    input, select, textarea { font-size: 16px !important; } /* без авто-зума на iOS */
-    .balance-value { font-size: 32px; }
-    .box-title { font-size: 19px; }
-    .profile-field { flex-wrap: wrap; }
-    .profile-field .btn { width: 100%; }
-    .server-item { flex-wrap: wrap; gap: 10px; }
-}
-
-/* ============ АДАПТАЦИЯ: ПК ============ */
-@media (min-width: 960px) {
-    .container { max-width: 480px; }
-    .container-wide { max-width: 660px; }
-    .reviews-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-    .user-card .actions-group { flex-direction: row; }
-    .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px var(--shadow-color); }
-    .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
-    .review-card:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px var(--shadow-color); }
-    .server-item { padding: 14px 18px; }
-}
-</style>
+        .tg-id-value {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0088cc;
+            word-break: break-all;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<div class="toast-notification" id="globalToast">Уведомление</div>
+    <div class="theme-container">
+        <input type="checkbox" id="themeInput" class="theme-checkbox">
+        <label for="themeInput" class="theme-switch">
+            <svg class="switch-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <div class="theme-handle"></div>
+            <svg class="switch-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </label>
+    </div>
 
-<!-- ============ SIDEBAR ============ -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenuOnOverlay(event)">
-    <div class="sidebar-menu" id="sidebarMenu">
-        <div class="sidebar-header">
-            <span class="sidebar-title">Навигация</span>
-            <button class="sidebar-close" onclick="toggleMenu()">×</button>
+    <div id="toast" class="toast"></div>
+
+    <div class="container" id="authContainer">
+        <header class="brand-header">
+            <h1 class="brand-title">ON1X Auth</h1>
+            <p class="brand-slogan">Вход в панель</p>
+        </header>
+        <div class="auth-box">
+            <div>
+                <span class="filter-label">Email:</span>
+                <input type="email" id="authEmail" placeholder="admin@on1x.vpn">
+            </div>
+            <div>
+                <span class="filter-label">Пароль:</span>
+                <input type="password" id="authPassword" placeholder="••••••••">
+            </div>
+            <button class="btn btn-full" onclick="handleLogin()">Войти</button>
         </div>
+    </div>
 
-        <div class="sidebar-profile" id="sidebarProfile" style="display:none;">
-            <div class="sidebar-avatar" id="sidebarAvatar">?</div>
-            <div class="sidebar-profile-info">
-                <span class="sidebar-profile-name" id="sidebarProfileName">—</span>
-                <span class="sidebar-profile-role" id="sidebarProfileRole">—</span>
+    <div class="container hidden" id="adminContainer">
+        <header class="brand-header">
+            <h1 class="brand-title">ON1X Admin</h1>
+            <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                <p class="brand-slogan">Модерация</p>
+                <button class="btn" style="padding: 2px 6px; font-size: 10px; margin-top:6px; box-shadow: 2px 2px 0px var(--shadow-color);" onclick="handleLogout()">Выйти</button>
+            </div>
+        </header>
+
+        <div class="stats-box">
+            <div class="stat-item">
+                <span class="filter-label" style="margin-bottom:0;">Опубликовано</span>
+                <span class="stat-value published" id="statPublished">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="filter-label" style="margin-bottom:0;">На проверке</span>
+                <span class="stat-value pending" id="statPending">0</span>
             </div>
         </div>
 
-        <div class="sidebar-scroll">
-            <div class="sidebar-section-label">Разделы</div>
-            <ul class="sidebar-links" id="menuList"></ul>
-        </div>
-
-        <div class="sidebar-footer" id="sidebarFooter" style="display:none;">
-            <button class="sidebar-logout-btn" onclick="handleLogout()">
-                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                <span>Выйти из системы</span>
-            </button>
-        </div>
-    </div>
-</div>
-
-<div class="app-shell">
-    <div class="top-bar">
-        <button class="menu-burger-btn" id="burgerBtn" onclick="toggleMenu()">
-            <svg width="22" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <line x1="2" y1="4" x2="22" y2="4"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <line x1="2" y1="20" x2="22" y2="20"/>
-            </svg>
-        </button>
-        <button class="refresh-btn" onclick="forceRefreshSite()" title="Обновить сайт (сбросить кэш)">
-            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        </button>
-        <div class="theme-container">
-            <input type="checkbox" id="themeInput" class="theme-checkbox">
-            <label for="themeInput" class="theme-switch">
-                <svg class="switch-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                <div class="theme-handle"></div>
-                <svg class="switch-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            </label>
-        </div>
-    </div>
-
-    <div class="page-wrap">
-        <!-- ============ СТРАНИЦА: АВТОРИЗАЦИЯ ============ -->
-        <section class="page" id="page-login">
-            <div class="container">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X VPN</h1>
-                    <p class="brand-slogan">Вход в систему</p>
-                </header>
-
-                <div class="brutal-box">
-                    <h1 class="box-title">Авторизация</h1>
-
-                    <div class="input-group">
-                        <span class="input-label">Логин</span>
-                        <input type="text" class="login-input" id="loginUsername" placeholder="Введите логин">
-                    </div>
-
-                    <div class="input-group">
-                        <span class="input-label">Пароль</span>
-                        <input type="password" class="login-input" id="loginPassword" placeholder="Введите пароль">
-                    </div>
-
-                    <button class="btn btn-primary" onclick="handleLogin()">Войти в аккаунт</button>
-                </div>
+        <div class="filter-box">
+            <div>
+                <span class="filter-label">Фильтр по статусу</span>
+                <select id="statusFilter">
+                    <option value="all">Все отзывы</option>
+                    <option value="0">0 — Ожидает проверки</option>
+                    <option value="1">1 — Опубликован (Учитывается)</option>
+                    <option value="2">2 — Опубликован (НЕ учитывается)</option>
+                </select>
             </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: ГЛАВНАЯ (ЛИЧНЫЙ КАБИНЕТ) ============ -->
-        <section class="page" id="page-home">
-            <div class="container">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X VPN</h1>
-                    <p class="brand-slogan">Личный кабинет</p>
-                </header>
-
-                <div class="brutal-box profile-box">
-                    <button class="notif-bell-btn" onclick="openNotifModal()" title="Уведомления">
-                        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                        <span class="notif-badge hidden" id="notifBadge">0</span>
-                    </button>
-                    <div class="profile-avatar-wrap">
-                        <div class="profile-avatar" id="profileAvatar">?</div>
-                        <button class="avatar-edit-btn" onclick="openAvatarModal()" title="Сменить аватарку">
-                            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                        </button>
-                    </div>
-                    <div class="profile-name" id="profileName">—</div>
-                    <div class="profile-username" id="profileUsername">—</div>
-                    <div class="profile-role-chip" id="profileRole">—</div>
-                </div>
-
-                <section class="section-box">
-                    <div class="section-title">Безопасность</div>
-                    <div class="profile-field">
-                        <div class="profile-field-info">
-                            <span class="profile-field-label">Пароль</span>
-                            <span class="password-dots">••••••••</span>
-                        </div>
-                        <button class="btn btn-primary" onclick="openPasswordModal()">Изменить</button>
-                    </div>
-                    <div class="profile-field">
-                        <div class="profile-field-info">
-                            <span class="profile-field-label">Аватарка</span>
-                            <span style="font-size:13px; font-weight:700; color:var(--text-body);">Изображение профиля</span>
-                        </div>
-                        <button class="btn btn-secondary" onclick="openAvatarModal()">Сменить</button>
-                    </div>
-                </section>
-
-                <button class="btn btn-secondary" onclick="handleLogout()">Выйти из системы</button>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: АДМИНКА ============ -->
-        <section class="page" id="page-admin">
-            <div class="container container-wide">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X CORE</h1>
-                    <p class="brand-slogan">Управление персоналом</p>
-                </header>
-
-                <button class="btn btn-primary" onclick="openAdminModalForCreate()">
-                    <div class="btn-left">
-                        <svg width="20" height="20" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        <span>Добавить администратора</span>
-                    </div>
-                </button>
-
-                <button class="btn btn-secondary" onclick="openCustomNotifModal()">
-                    <div class="btn-left">
-                        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                        <span>Отправить уведомление</span>
-                    </div>
-                </button>
-
-                <section class="section-box">
-                    <div class="section-title">База данных персонала</div>
-                    <div id="admUserListContainer" style="display: flex; flex-direction: column; gap: 14px;">
-                        <div class="empty-state">Синхронизация...</div>
-                    </div>
-                </section>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: БАЛАНС ============ -->
-        <section class="page" id="page-balance">
-            <div class="container">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X VPN</h1>
-                    <p class="brand-slogan">Баланс</p>
-                </header>
-
-                <section class="section-box crypto-balance-box">
-                    <div class="section-title" style="text-align: center; width: 100%;">Текущий баланс</div>
-                    <div class="balance-value" id="balanceDisplay">0 ₽</div>
-                </section>
-
-                <div class="actions-grid">
-                    <button class="btn btn-primary" onclick="openBalanceModal('add')">
-                        <svg width="18" height="18" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        <span>ПОПОЛНИТЬ</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="openBalanceModal('subtract')">
-                        <svg width="18" height="18" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        <span>СПИСАТЬ</span>
-                    </button>
-                </div>
-
-                <section class="section-box">
-                    <div class="section-title">История изменений</div>
-                    <ul class="history-list" id="historyDisplay">
-                        <li class="history-item" style="justify-content: center; font-weight: 700;">Получение данных...</li>
-                    </ul>
-                    <button class="btn btn-secondary history-more-btn hidden" id="historyMoreBtn" onclick="showMoreHistory()">Показать ещё</button>
-                </section>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: СЕРВЕРА ============ -->
-        <section class="page" id="page-servers">
-            <div class="container">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X VPN</h1>
-                    <p class="brand-slogan">Сервера</p>
-                </header>
-
-                <div class="actions-grid">
-                    <button class="btn btn-primary" onclick="openSrvAddModal()">
-                        <svg width="16" height="16" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        <span>Добавить</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="openSrvRenewModal()">
-                        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span>Продлить</span>
-                    </button>
-                </div>
-
-                <section class="section-box">
-                    <div class="section-title">Список серверов VPN</div>
-                    <ul class="server-list" id="srvServerDisplay">
-                        <li class="server-item" style="justify-content: center; font-weight: 700;">Получение данных...</li>
-                    </ul>
-                </section>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: ОТЗЫВЫ (админ-модерация) ============ -->
-        <section class="page" id="page-reviews">
-            <div class="container">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X Admin</h1>
-                    <p class="brand-slogan">Модерация отзывов</p>
-                </header>
-
-                <div class="stats-box">
-                    <div class="stat-item">
-                        <span class="filter-label" style="margin-bottom:0;">Опубликовано</span>
-                        <span class="stat-value published" id="revStatPublished">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="filter-label" style="margin-bottom:0;">На проверке</span>
-                        <span class="stat-value pending" id="revStatPending">0</span>
-                    </div>
-                </div>
-
-                <div class="filter-box">
-                    <div>
-                        <span class="filter-label">Фильтр по статусу</span>
-                        <select id="revStatusFilter">
-                            <option value="all">Все отзывы</option>
-                            <option value="0">0 — Ожидает проверки</option>
-                            <option value="1">1 — Опубликован (Учитывается)</option>
-                            <option value="2">2 — Опубликован (НЕ учитывается)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <span class="filter-label">Поиск</span>
-                        <input type="text" id="revSearchInput" placeholder="Имя автора или текст...">
-                    </div>
-                </div>
-
-                <div class="reviews-grid" id="revGrid"></div>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: ИСТОРИЯ ДЕЙСТВИЙ ============ -->
-        <section class="page" id="page-logs">
-            <div class="container container-wide">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X CORE</h1>
-                    <p class="brand-slogan">История действий</p>
-                </header>
-
-                <div class="filter-box">
-                    <div>
-                        <span class="filter-label">Поиск по истории</span>
-                        <input type="text" id="logsSearchInput" placeholder="Имя админа или действие...">
-                    </div>
-                </div>
-
-                <section class="section-box">
-                    <div class="section-title">Журнал действий администраторов</div>
-                    <div class="log-list" id="logsListContainer">
-                        <div class="empty-state">Загрузка...</div>
-                    </div>
-                    <button class="btn btn-secondary history-more-btn hidden" id="logsMoreBtn" onclick="showMoreLogs()">Показать ещё</button>
-                </section>
-            </div>
-        </section>
-
-        <!-- ============ СТРАНИЦА: РОЗЫГРЫШ ============ -->
-        <section class="page" id="page-giveaway">
-            <div class="container container-wide">
-                <header class="brand-header">
-                    <h1 class="brand-title">ON1X CORE</h1>
-                    <p class="brand-slogan">Панель Розыгрышей</p>
-                </header>
-
-                <div class="stats-box-simple">
-                    <span class="stats-title">Всего участников:</span>
-                    <span class="stats-value" id="rafTotalCount">0</span>
-                </div>
-
-                <div class="actions-grid">
-                    <button class="btn btn-refresh" onclick="loadParticipants()">
-                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                        <span>Обновить</span>
-                    </button>
-                    <button class="btn btn-action" onclick="openRaffleModal()">
-                        <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <span>Победитель</span>
-                    </button>
-                </div>
-
-                <section class="section-box">
-                    <div class="section-title">Записи в таблице 'raffle'</div>
-                    <div id="rafParticipantsContainer" style="display: flex; flex-direction: column; gap: 14px;">
-                        <div class="empty-state">Загрузка данных...</div>
-                    </div>
-                </section>
-            </div>
-        </section>
-
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: АДМИНКА ============ -->
-<div class="modal-overlay" id="admModalOverlay" onclick="if(event.target.id === 'admModalOverlay') closeAdminModal()">
-    <div class="modal-content">
-        <button class="modal-close-x" onclick="closeAdminModal()">×</button>
-        <div class="section-title" id="admModalTitle">Добавить профиль</div>
-
-        <input type="hidden" id="admUserId">
-
-        <div class="form-group">
-            <span class="form-label">Имя (Отображение)</span>
-            <input type="text" class="form-input" id="admNameInput" placeholder="Имя">
-        </div>
-        <div class="form-group">
-            <span class="form-label">Логин (Username)</span>
-            <input type="text" class="form-input" id="admUsernameInput" placeholder="Логин">
-        </div>
-        <div class="form-group">
-            <span class="form-label">Пароль</span>
-            <input type="text" class="form-input" id="admPasswordInput" placeholder="Пароль">
-        </div>
-        <div class="form-group">
-            <span class="form-label">Роль (Пояснение)</span>
-            <input type="text" class="form-input" id="admRoleInput" placeholder="Напр: Разработчик">
-        </div>
-        <div class="form-group">
-            <span class="form-label">Аватарка (прямая ссылка на картинку)</span>
-            <input type="text" class="form-input" id="admAvaInput" placeholder="https://.../avatar.jpg">
-        </div>
-        <div class="form-group">
-            <span class="form-label">Доступы к панелям:</span>
-            <div class="checkbox-grid">
-                <label class="checkbox-item"><input type="checkbox" id="accAdmin"> Админка</label>
-                <label class="checkbox-item"><input type="checkbox" id="accBalance"> Баланс</label>
-                <label class="checkbox-item"><input type="checkbox" id="accServers"> Сервера</label>
-                <label class="checkbox-item"><input type="checkbox" id="accReviews"> Отзывы</label>
-                <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
+            <div>
+                <span class="filter-label">Поиск</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Имя автора или текст...">
             </div>
         </div>
 
-        <button class="btn btn-primary" id="admSaveBtn" onclick="saveAdminUser()" style="margin-top: 6px;">Сохранить</button>
-        <button class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
+        <div class="reviews-grid" id="grid"></div>
     </div>
-</div>
 
-<!-- ============ МОДАЛКА: БАЛАНС ============ -->
-<div class="modal-overlay" id="balModal" onclick="if(event.target.id === 'balModal') closeBalanceModal()">
-    <div class="modal-box">
-        <div class="modal-title" id="balModalTitle">Пополнение</div>
-        <input type="number" class="modal-input" id="balModalAmount" placeholder="Сумма (₽)" min="0" step="any">
-        <input type="text" class="modal-input" id="balModalComment" placeholder="Комментарий (Обязательно)">
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closeBalanceModal()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitBalanceModal()">ОК</button>
+    <div class="edit-modal-overlay" id="editModalOverlay">
+        <div class="edit-modal" id="editModal">
+            <button class="edit-modal-close" id="editModalClose">&times;</button>
+            <div class="edit-modal-title" id="editModalTitle">Редактирование отзыва</div>
+            <div id="editModalContent"></div>
         </div>
     </div>
-</div>
 
-<!-- ============ МОДАЛКИ: СЕРВЕРА ============ -->
-<div class="modal-overlay" id="srvAddModal" onclick="if(event.target.id === 'srvAddModal') closeSrvModals()">
-    <div class="modal-box">
-        <div class="modal-title">Новый сервер</div>
-        <input type="text" class="modal-input" id="srvLocationInput" placeholder="Локация (например, Швеция 🇸🇪)">
-        <input type="date" class="modal-input" id="srvPaidUntilInput" placeholder="Оплачен до">
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closeSrvModals()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitAddServer()">ДОБАВИТЬ</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="srvRenewModal" onclick="if(event.target.id === 'srvRenewModal') closeSrvModals()">
-    <div class="modal-box">
-        <div class="modal-title">Продлить сервер</div>
-        <select class="modal-input" id="srvRenewSelect"></select>
-        <input type="number" class="modal-input" id="srvRenewDaysInput" placeholder="Количество дней продления" min="1">
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closeSrvModals()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitRenewServer()">ПРОДЛИТЬ</button>
-        </div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: РОЗЫГРЫШ ============ -->
-<div class="modal-overlay" id="rafModal" onclick="if(event.target.id === 'rafModal') closeRaffleModal()">
-    <div class="modal-content">
-        <button class="modal-close-x" onclick="closeRaffleModal()">×</button>
-        <div class="section-title" style="color: var(--success-color);">Выбор победителей</div>
-
-        <div class="form-group">
-            <span class="form-label">Укажите количество победителей:</span>
-            <input type="number" class="form-input" id="rafWinnersCountInput" value="1" min="1">
-        </div>
-
-        <button class="btn btn-action" onclick="rollRaffle()" style="margin-top: 6px;">
-            <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            <span>Запустить рандом</span>
-        </button>
-
-        <div class="form-group" id="rafWinnersResultSection" style="display: none; margin-top: 10px;">
-            <span class="form-label" style="color: var(--success-color);">🎉 Результаты рандома:</span>
-            <div class="winners-list" id="rafWinnersListContainer"></div>
-        </div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: РЕДАКТИРОВАНИЕ ОТЗЫВА ============ -->
-<div class="modal-overlay" id="revEditModalOverlay" onclick="if(event.target.id === 'revEditModalOverlay') closeReviewEditModal()">
-    <div class="modal-content">
-        <button class="modal-close-x" onclick="closeReviewEditModal()">×</button>
-        <div class="section-title" id="revEditModalTitle">Отзыв</div>
-        <div id="revEditModalContent" style="display:flex; flex-direction:column; gap:14px;"></div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: ОТПРАВКА КАСТОМНОГО УВЕДОМЛЕНИЯ ============ -->
-<div class="modal-overlay" id="customNotifModal" onclick="if(event.target.id === 'customNotifModal') closeCustomNotifModal()">
-    <div class="modal-box">
-        <div class="modal-title">Новое уведомление</div>
-        <input type="text" class="modal-input" id="customNotifTitleInput" placeholder="Заголовок" maxlength="80">
-        <textarea class="modal-input" id="customNotifTextInput" rows="4" placeholder="Текст уведомления" maxlength="500"></textarea>
-        <span class="notif-perm-hint">Уведомление получат все администраторы при открытии панели</span>
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closeCustomNotifModal()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitCustomNotif()">ОТПРАВИТЬ</button>
-        </div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: УВЕДОМЛЕНИЯ ============ -->
-<div class="modal-overlay" id="notifModal" onclick="if(event.target.id === 'notifModal') closeNotifModal()">
-    <div class="modal-content">
-        <button class="modal-close-x" onclick="closeNotifModal()">×</button>
-        <div class="section-title">Уведомления</div>
-
-        <div id="notifPermRow" class="hidden" style="display:flex; flex-direction:column; gap:8px;">
-            <button class="btn btn-primary btn-small" onclick="requestNotifPermission()">
-                <svg width="16" height="16" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                <span>Включить уведомления на телефоне</span>
-            </button>
-            <span class="notif-perm-hint">Разрешите уведомления, чтобы телефон предупреждал об истекающих серверах</span>
-        </div>
-        <div id="notifPermDenied" class="hidden notif-perm-hint">Уведомления заблокированы в настройках браузера. Разрешите их для этого сайта в настройках телефона.</div>
-
-        <div class="notif-list" id="notifList"></div>
-
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="clearNotifications()">ОЧИСТИТЬ</button>
-            <button class="btn btn-primary btn-small" onclick="markAllNotifsRead()">ПРОЧИТАТЬ ВСЕ</button>
-        </div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: СМЕНА ПАРОЛЯ ============ -->
-<div class="modal-overlay" id="pwdModal" onclick="if(event.target.id === 'pwdModal') closePasswordModal()">
-    <div class="modal-box">
-        <div class="modal-title">Смена пароля</div>
-        <input type="password" class="modal-input" id="pwdCurrentInput" placeholder="Текущий пароль">
-        <input type="password" class="modal-input" id="pwdNewInput" placeholder="Новый пароль">
-        <input type="password" class="modal-input" id="pwdNewRepeatInput" placeholder="Повторите новый пароль">
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closePasswordModal()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitPasswordChange()">СОХРАНИТЬ</button>
-        </div>
-    </div>
-</div>
-
-<!-- ============ МОДАЛКА: СМЕНА АВАТАРКИ ============ -->
-<div class="modal-overlay" id="avaModal" onclick="if(event.target.id === 'avaModal') closeAvatarModal()">
-    <div class="modal-box">
-        <div class="modal-title">Смена аватарки</div>
-        <div class="ava-preview" id="avaPreview">Нет фото</div>
-        <input type="text" class="modal-input" id="avaUrlInput" placeholder="Прямая ссылка на картинку" oninput="updateAvaPreview()">
-        <div class="modal-buttons">
-            <button class="btn btn-secondary btn-small" onclick="closeAvatarModal()">ОТМЕНА</button>
-            <button class="btn btn-primary btn-small" onclick="submitAvatarChange()">СОХРАНИТЬ</button>
-        </div>
-    </div>
-</div>
-
-<script>
-/* ============================================================
-   ЗАЩИТА СТРАНИЦЫ (правый клик, копирование, масштабирование)
-   ============================================================ */
-(function protectPage() {
-    // Запрет контекстного меню (правая кнопка мыши / долгое нажатие)
-    document.addEventListener('contextmenu', e => e.preventDefault());
-
-    // Запрет копирования, кроме полей ввода (там текст можно выделять и копировать)
-    document.addEventListener('copy', e => {
-        const tag = (e.target.tagName || '').toLowerCase();
-        if (tag !== 'input' && tag !== 'textarea') e.preventDefault();
-    });
-    document.addEventListener('cut', e => {
-        const tag = (e.target.tagName || '').toLowerCase();
-        if (tag !== 'input' && tag !== 'textarea') e.preventDefault();
-    });
-
-    // Блокировка популярных сочетаний клавиш для просмотра/копирования исходного кода
-    document.addEventListener('keydown', e => {
-        const key = (e.key || '').toLowerCase();
-        if (key === 'f12') { e.preventDefault(); return; }
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key)) { e.preventDefault(); return; }
-        if ((e.ctrlKey || e.metaKey) && ['u', 's'].includes(key)) { e.preventDefault(); return; }
-    });
-
-    // Запрет pinch-zoom (жест сведения/разведения пальцев в Safari)
-    document.addEventListener('gesturestart', e => e.preventDefault());
-    document.addEventListener('gesturechange', e => e.preventDefault());
-
-    // Запрет масштабирования через колесо мыши с зажатым Ctrl
-    document.addEventListener('wheel', e => {
-        if (e.ctrlKey) e.preventDefault();
-    }, { passive: false });
-
-    // Запрет зума через двойной тап на мобильных
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', e => {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 350) e.preventDefault();
-        lastTouchEnd = now;
-    }, { passive: false });
-
-    // Запрет масштабирования жестом двух пальцев вне Safari
-    document.addEventListener('touchmove', e => {
-        if (e.touches && e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
-})();
-
-/* ============================================================
-   ГЛОБАЛЬНАЯ КОНФИГУРАЦИЯ
-   ============================================================ */
-const SUPABASE_PROJECT_URL = "https://yvnnngfzzjdbeiscwluy.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bm5uZ2Z6empkYmVpc2N3bHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NzY2ODYsImV4cCI6MjA5MDA1MjY4Nn0.SesGG2QhbJKfAklZDiL8oolWQ6qaTtBwRL_tvigpd9A";
-
-const USERS_AUTH_URL = `${SUPABASE_PROJECT_URL}/rest/v1/users_auth`;
-const BALANCE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/user_balances`;
-const SERVERS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/servers`;
-const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
-const ADMIN_NOTIF_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_notifications`;
-const ADMIN_LOGS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_logs`;
-
-const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false }
-});
-
-const REST_HEADERS = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${SUPABASE_KEY}`,
-    'Content-Type': 'application/json'
-};
-
-/* ============================================================
-   НАДЁЖНОЕ ХРАНЕНИЕ АВТОРИЗАЦИИ
-   Данные дублируются в localStorage И в cookie (срок — 1 год).
-   Если браузер очистил localStorage, сессия восстановится из cookie,
-   поэтому авторизация больше не будет "вылетать".
-   ============================================================ */
-const AUTH_KEYS = [
-    'auth_user_name', 'auth_user_role', 'auth_user_ava', 'auth_user_username',
-    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway'
-];
-
-function setCookie(name, value, days = 365) {
-    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${days * 86400}; path=/; SameSite=Lax`;
-}
-function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match[1]) : null;
-}
-function deleteCookie(name) {
-    document.cookie = `${name}=; max-age=0; path=/`;
-}
-function authSet(key, value) {
-    try { localStorage.setItem(key, value); } catch (e) {}
-    setCookie(key, value);
-}
-function authGet(key) {
-    let value = null;
-    try { value = localStorage.getItem(key); } catch (e) {}
-    if (value === null || value === undefined) {
-        value = getCookie(key);
-        if (value !== null) {
-            try { localStorage.setItem(key, value); } catch (e) {}
-        }
-    }
-    return value;
-}
-function authRemove(key) {
-    try { localStorage.removeItem(key); } catch (e) {}
-    deleteCookie(key);
-}
-
-/* ============================================================
-   ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ САЙТА (сброс кэша)
-   ============================================================ */
-async function forceRefreshSite() {
-    try {
-        if ('caches' in window) {
-            const cacheKeys = await caches.keys();
-            await Promise.all(cacheKeys.map(key => caches.delete(key)));
-        }
-        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(reg => reg.unregister()));
-        }
-    } catch (e) { console.warn(e); }
-
-    const url = new URL(window.location.href);
-    url.searchParams.set('v', Date.now());
-    window.location.replace(url.toString());
-}
-
-/* Прямая ссылка на логотип (иконка вкладки/приложения/уведомлений) */
-const APP_ICON_URL = 'https://psv4.userapi.com/s/v1/d2/L4N4qKZoVzUVMZeLRFoGHyyousTn47_BZCEtgm1kqowZoPjDMQ6rb4E31yf2aDdLHePZ3-_Ig82ikFK3vNEcxtljr5LkoUUlM-3sZMX0SYBwpQWURh4eolvElwcA9m5Ewf9xnCBmdoDB/sayt.png';
-
-/* ============================================================
-   PWA: РЕГИСТРАЦИЯ SERVICE WORKER
-   ============================================================ */
-function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW не зарегистрирован:', err));
-}
-
-/* ============================================================
-   ЦЕНТР УВЕДОМЛЕНИЙ (колокольчик на главной)
-   Уведомления хранятся локально на устройстве.
-   ============================================================ */
-const NOTIF_STORE_KEY = 'onix_notifications';
-const NOTIF_MAX = 50;
-
-function getNotifications() {
-    try {
-        const raw = localStorage.getItem(NOTIF_STORE_KEY);
-        const list = raw ? JSON.parse(raw) : [];
-        return Array.isArray(list) ? list : [];
-    } catch (e) { return []; }
-}
-
-function saveNotifications(list) {
-    try { localStorage.setItem(NOTIF_STORE_KEY, JSON.stringify(list.slice(0, NOTIF_MAX))); } catch (e) {}
-}
-
-function getUnreadNotifCount() {
-    return getNotifications().filter(n => !n.read).length;
-}
-
-function updateNotifBadge() {
-    const badge = document.getElementById('notifBadge');
-    if (!badge) return;
-    const count = getUnreadNotifCount();
-    badge.innerText = count > 9 ? '9+' : String(count);
-    badge.classList.toggle('hidden', count === 0);
-}
-
-/* Добавить уведомление. key — уникальный ключ против дублей.
-   Возвращает true, если уведомление действительно новое. */
-function addNotification(key, title, text) {
-    const list = getNotifications();
-    if (list.some(n => n.key === key)) return false;
-    list.unshift({
-        id: 'n' + Date.now() + Math.random().toString(36).slice(2, 7),
-        key: key,
-        title: title,
-        text: text,
-        date: Date.now(),
-        read: false
-    });
-    saveNotifications(list);
-    updateNotifBadge();
-    return true;
-}
-
-function openNotifModal() {
-    renderNotifList();
-    renderNotifPermissionRow();
-    document.getElementById('notifModal').classList.add('show');
-}
-function closeNotifModal() {
-    document.getElementById('notifModal').classList.remove('show');
-}
-
-function renderNotifPermissionRow() {
-    const row = document.getElementById('notifPermRow');
-    const denied = document.getElementById('notifPermDenied');
-    row.classList.add('hidden');
-    denied.classList.add('hidden');
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'default') row.classList.remove('hidden');
-    if (Notification.permission === 'denied') denied.classList.remove('hidden');
-}
-
-function renderNotifList() {
-    const container = document.getElementById('notifList');
-    const list = getNotifications();
-
-    if (list.length === 0) {
-        container.innerHTML = '<div class="empty-state">Уведомлений пока нет</div>';
-        return;
-    }
-
-    container.innerHTML = list.map(n => {
-        const d = new Date(n.date);
-        const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        return `
-            <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
-                <span class="notif-item-title">${escapeHtml(n.title)}</span>
-                <span class="notif-item-text">${escapeHtml(n.text)}</span>
-                <span class="notif-item-date">${dateStr}</span>
-            </div>
-        `;
-    }).join('');
-}
-
-function markNotifRead(id) {
-    const list = getNotifications();
-    const item = list.find(n => n.id === id);
-    if (item && !item.read) {
-        item.read = true;
-        saveNotifications(list);
-        updateNotifBadge();
-        renderNotifList();
-    }
-}
-
-function markAllNotifsRead() {
-    const list = getNotifications();
-    list.forEach(n => n.read = true);
-    saveNotifications(list);
-    updateNotifBadge();
-    renderNotifList();
-}
-
-function clearNotifications() {
-    if (getNotifications().length === 0) return;
-    if (!confirm('Удалить все уведомления?')) return;
-    saveNotifications([]);
-    updateNotifBadge();
-    renderNotifList();
-}
-
-/* ---------- Системные уведомления на телефон ---------- */
-async function requestNotifPermission() {
-    if (!('Notification' in window)) {
-        showToast('Браузер не поддерживает уведомления');
-        return;
-    }
-    try {
-        const result = await Notification.requestPermission();
-        renderNotifPermissionRow();
-        if (result === 'granted') {
-            showToast('Уведомления включены!', 'success');
-            checkServerNotifications();
-        } else if (result === 'denied') {
-            showToast('Уведомления запрещены в браузере');
-        }
-    } catch (e) { console.warn(e); }
-}
-
-function showSystemNotification(title, body) {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg && reg.showNotification) {
-                reg.showNotification(title, { body: body, icon: APP_ICON_URL, badge: APP_ICON_URL });
-            } else {
-                try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
+    <script>
+        const SB_URL = 'https://yvnnngfzzjdbeiscwluy.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bm5uZ2Z6empkYmVpc2N3bHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NzY2ODYsImV4cCI6MjA5MDA1MjY4Nn0.SesGG2QhbJKfAklZDiL8oolWQ6qaTtBwRL_tvigpd9A';
+        
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true
             }
-        }).catch(() => {
-            try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
         });
-    } else {
-        try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
-    }
-}
 
-/* ---------- Проверка истекающих серверов при открытии ----------
-   Для каждого сервера с оплатой <= 3 дней создаётся уведомление
-   (не чаще одного раза в день на сервер). */
-async function checkServerNotifications() {
-    if (!isLoggedIn() || !hasAccess('access_servers')) return;
+        const authContainer = document.getElementById('authContainer');
+        const adminContainer = document.getElementById('adminContainer');
+        const grid = document.getElementById('grid');
+        const toast = document.getElementById('toast');
+        const statusFilter = document.getElementById('statusFilter');
+        const searchInput = document.getElementById('searchInput');
+        
+        const statPublished = document.getElementById('statPublished');
+        const statPending = document.getElementById('statPending');
+        
+        let allReviews = [];
+        // Временный объект для отслеживания текущих выбранных звезд в открытых карточках до их сохранения
+        let activeStarsEditing = {};
 
-    try {
-        const response = await fetch(`${SERVERS_TABLE_URL}?select=id,location,paid_until`, {
-            method: 'GET',
-            headers: REST_HEADERS
+        const themeInput = document.getElementById('themeInput');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') { document.documentElement.setAttribute('data-theme', 'light'); themeInput.checked = true; }
+        themeInput.addEventListener('change', () => {
+            const currentTheme = themeInput.checked ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
         });
-        if (!response.ok) return;
-        const servers = await response.json();
-        if (!Array.isArray(servers)) return;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
+        function showNotification(text, type) {
+            toast.textContent = text;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
 
-        /* --- Продления: сравниваем с последним увиденным состоянием --- */
-        const SNAP_KEY = 'onix_servers_snapshot';
-        let snapshot = null;
-        try { snapshot = JSON.parse(localStorage.getItem(SNAP_KEY)); } catch (e) {}
-        const hasSnapshot = snapshot && typeof snapshot === 'object';
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                showAdminPanel();
+            } else {
+                showAuthForm();
+            }
+        }
 
-        servers.forEach(server => {
-            const location = server.location || 'Неизвестно';
+        function showAdminPanel() {
+            authContainer.classList.add('hidden');
+            adminContainer.classList.remove('hidden');
+            fetchAllReviews();
+        }
 
-            /* Сервер продлили (нами или другим админом)? */
-            if (hasSnapshot && snapshot[server.id]) {
-                const prevDate = new Date(snapshot[server.id]);
-                const newDate = new Date(server.paid_until);
-                prevDate.setHours(0, 0, 0, 0);
-                newDate.setHours(0, 0, 0, 0);
-                const addedDays = Math.round((newDate - prevDate) / 86400000);
-                if (addedDays > 0) {
-                    const dateStr = new Date(server.paid_until).toLocaleDateString('ru-RU');
-                    const title = '🔄 Сервер продлён';
-                    const text = `«${location}» продлён на ${addedDays} дн. — теперь оплачен до ${dateStr}.`;
-                    const isNew = addNotification(`renew-${server.id}-${server.paid_until}`, title, text);
-                    if (isNew) showSystemNotification(title, text);
+        function showAuthForm() {
+            adminContainer.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+
+            if (!email || !password) { showNotification("Заполните поля!", "error"); return; }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.error("ОШИБКА АВТОРИЗАЦИИ:", error);
+                showNotification("Неверный логин или пароль", "error");
+            } else {
+                showNotification("Успешный вход!", "success");
+                showAdminPanel();
+            }
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            showAuthForm();
+        }
+
+        function getStarSvg(isFilled) {
+            return `<svg class="brutal-star ${isFilled ? 'filled' : 'empty'}" viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>`;
+        }
+
+        function getStarsRowHtml(starsCount) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) html += getStarSvg(i <= starsCount);
+            return html;
+        }
+
+        // Генерация кнопок-звёзд для редактирования внутри раскрытой карточки
+        function getStarsEditButtons(reviewId, currentStars) {
+            let html = `<div class="stars-edit-row" id="stars-container-${reviewId}">`;
+            for (let i = 1; i <= 5; i++) {
+                html += `
+                <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
+                    ${getStarSvg(i <= currentStars)}
+                </button>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        // Функция изменения звезд при клике на кнопки (без перезагрузки списка)
+        function setStarsEditing(reviewId, starsCount) {
+            activeStarsEditing[reviewId] = starsCount;
+            const container = document.getElementById(`stars-container-${reviewId}`);
+            if (container) {
+                let buttonsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    buttonsHtml += `
+                    <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
+                        ${getStarSvg(i <= starsCount)}
+                    </button>`;
                 }
+                container.innerHTML = buttonsHtml;
+            }
+        }
+
+        function updateStatsCounters() {
+            const countPublished = allReviews.filter(r => r.proverka === 1 || r.proverka === 2).length;
+            const countPending = allReviews.filter(r => r.proverka === 0).length;
+            
+            statPublished.textContent = countPublished;
+            statPending.textContent = countPending;
+        }
+
+        async function fetchAllReviews() {
+            try {
+                let { data: reviews, error } = await supabaseClient
+                    .from('reviews')
+                    .select('id, name, contact, msg, stars, created_at, admin, proverka, source')
+                    .order('created_at', { ascending: false });
+                if (!error && reviews) {
+                    allReviews = reviews;
+                    updateStatsCounters();
+                    renderFiltered();
+                } else if (error && error.status === 401) {
+                    handleLogout();
+                }
+            } catch (e) {
+                showNotification("Ошибка загрузки данных", "error");
+            }
+        }
+
+        const editModalOverlay = document.getElementById('editModalOverlay');
+        const editModalClose = document.getElementById('editModalClose');
+        const editModalTitle = document.getElementById('editModalTitle');
+        const editModalContent = document.getElementById('editModalContent');
+
+        editModalClose.addEventListener('pointerdown', closeEditModal);
+        editModalOverlay.addEventListener('pointerdown', (e) => { if (e.target === editModalOverlay) closeEditModal(); });
+
+        function openEditModal(r) {
+            const dateObj = new Date(r.created_at);
+            const tzOffset = dateObj.getTimezoneOffset() * 60000;
+            const localISODate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+
+            if (activeStarsEditing[r.id] === undefined) {
+                activeStarsEditing[r.id] = r.stars;
             }
 
-            /* Скорое окончание оплаты */
-            const paidDay = new Date(server.paid_until);
-            paidDay.setHours(0, 0, 0, 0);
-            const daysLeft = Math.round((paidDay - today) / 86400000);
-            if (daysLeft > 3) return;
+            editModalTitle.textContent = `Отзыв — ${r.name || 'Аноним'}`;
 
-            const dateStr = new Date(server.paid_until).toLocaleDateString('ru-RU');
-            let title, text;
-            if (daysLeft < 0) {
-                title = '🔴 Сервер просрочен!';
-                text = `«${location}» — оплата закончилась ${dateStr}. Срочно продлите!`;
-            } else if (daysLeft === 0) {
-                title = '🔴 Сервер истекает сегодня!';
-                text = `«${location}» — последний оплаченный день (${dateStr}).`;
-            } else {
-                title = '⚠️ Сервер скоро истечёт';
-                text = `«${location}» — оплачен до ${dateStr} (осталось ${daysLeft} дн.).`;
-            }
+            editModalContent.innerHTML = `
+                <span class="filter-label">Дата написания отзыва:</span>
+                <input type="datetime-local" id="date-${r.id}" value="${localISODate}" style="margin-bottom:4px;">
 
-            const isNew = addNotification(`srv-${server.id}-${todayStr}`, title, text);
-            if (isNew) showSystemNotification(title, text);
-        });
+                <span class="filter-label">Источник публикации:</span>
+                <select id="source-${r.id}" style="margin-bottom:4px;">
+                    <option value="" ${!r.source ? 'selected' : ''}>— не указан</option>
+                    <option value="website" ${r.source === 'website' ? 'selected' : ''}>🌐 Сайт</option>
+                    <option value="telegram" ${r.source === 'telegram' ? 'selected' : ''}>📱 Telegram</option>
+                    <option value="vk" ${r.source === 'vk' ? 'selected' : ''}>💙 ВКонтакте</option>
+                </select>
 
-        /* Сохраняем свежее состояние серверов */
-        const newSnapshot = {};
-        servers.forEach(s => { newSnapshot[s.id] = s.paid_until; });
-        try { localStorage.setItem(SNAP_KEY, JSON.stringify(newSnapshot)); } catch (e) {}
-    } catch (e) { console.warn('Проверка серверов не удалась:', e); }
-}
-
-/* ---------- Кастомные уведомления (раздел "Админка") ----------
-   Отправленное уведомление сохраняется в таблицу admin_notifications
-   и доставляется ВСЕМ администраторам при открытии панели. */
-function openCustomNotifModal() {
-    document.getElementById('customNotifTitleInput').value = '';
-    document.getElementById('customNotifTextInput').value = '';
-    document.getElementById('customNotifModal').classList.add('show');
-}
-function closeCustomNotifModal() {
-    document.getElementById('customNotifModal').classList.remove('show');
-}
-
-async function submitCustomNotif() {
-    const title = document.getElementById('customNotifTitleInput').value.trim();
-    const message = document.getElementById('customNotifTextInput').value.trim();
-
-    if (!title || !message) {
-        showToast('Заполните заголовок и текст!');
-        return;
-    }
-
-    try {
-        const response = await fetch(ADMIN_NOTIF_TABLE_URL, {
-            method: 'POST',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({
-                title: title,
-                message: message,
-                author: authGet('auth_user_name') || null
-            })
-        });
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-
-        closeCustomNotifModal();
-        logAction('notify', `Отправка уведомления «${title}»`);
-        showToast('Уведомление отправлено!', 'success');
-        checkCustomNotifications();
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка отправки. Создана ли таблица admin_notifications?');
-    }
-}
-
-async function checkCustomNotifications() {
-    if (!isLoggedIn()) return;
-
-    try {
-        const response = await fetch(`${ADMIN_NOTIF_TABLE_URL}?select=id,title,message,author,created_at&order=created_at.desc&limit=20`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) return; // таблица ещё не создана — тихо выходим
-        const rows = await response.json();
-        if (!Array.isArray(rows) || rows.length === 0) return;
-
-        const LAST_TS_KEY = 'onix_last_custom_ts';
-        const lastSeenTs = localStorage.getItem(LAST_TS_KEY);
-        const newestTs = rows[0].created_at;
-
-        let newRows;
-        if (lastSeenTs) {
-            newRows = rows.filter(r => new Date(r.created_at) > new Date(lastSeenTs));
-        } else {
-            // Первый запуск на устройстве: показываем только за последние 3 дня
-            const threshold = Date.now() - 3 * 86400000;
-            newRows = rows.filter(r => new Date(r.created_at).getTime() > threshold);
-        }
-
-        /* От старых к новым, чтобы порядок в списке был верный */
-        newRows.reverse().forEach(row => {
-            const title = `📢 ${row.title || 'Уведомление'}`;
-            const text = row.author ? `${row.message} — ${row.author}` : row.message;
-
-            const isNew = addNotification(`custom-${row.id}`, title, text);
-            if (isNew) showSystemNotification(title, text);
-        });
-
-        try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
-    } catch (e) { console.warn('Проверка уведомлений не удалась:', e); }
-}
-
-/* ---------- Уведомления об изменениях баланса ----------
-   При открытии сайта (и после каждой операции) сравниваем историю
-   с последней увиденной записью: новые пополнения и списания —
-   в том числе сделанные другими админами — станут уведомлениями. */
-async function checkBalanceNotifications() {
-    if (!isLoggedIn() || !hasAccess('access_balance')) return;
-
-    try {
-        const response = await fetch(`${BALANCE_TABLE_URL}?select=balance,history_comments,created_at&order=created_at.desc&limit=20`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) return;
-        const rows = await response.json();
-        if (!Array.isArray(rows) || rows.length === 0) return;
-
-        const LAST_TS_KEY = 'onix_last_balance_ts';
-        const lastSeenTs = localStorage.getItem(LAST_TS_KEY);
-        const newestTs = rows[0].created_at;
-
-        /* Первый запуск на устройстве — запоминаем точку отсчёта без спама */
-        if (!lastSeenTs) {
-            try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
-            return;
-        }
-
-        const newRows = rows.filter(r => new Date(r.created_at) > new Date(lastSeenTs));
-        /* От старых к новым, чтобы в списке уведомлений порядок был верный */
-        newRows.reverse().forEach(row => {
-            const amount = Number(row.balance);
-            const isPlus = amount >= 0;
-            const title = isPlus ? '💰 Пополнение баланса' : '💸 Списание с баланса';
-            const comment = row.history_comments || 'Без комментария';
-            const text = `${isPlus ? '+' : ''}${amount.toFixed(2)} ₽ — ${comment}`;
-
-            const isNew = addNotification(`bal-${row.created_at}`, title, text);
-            if (isNew) showSystemNotification(title, text);
-        });
-
-        try { localStorage.setItem(LAST_TS_KEY, newestTs); } catch (e) {}
-    } catch (e) { console.warn('Проверка баланса не удалась:', e); }
-}
-
-/* ============================================================
-   ЖУРНАЛ ДЕЙСТВИЙ АДМИНИСТРАТОРОВ
-   Каждое действие записывается в таблицу admin_logs в Supabase.
-   ============================================================ */
-let allAdminLogs = [];
-let logsVisibleCount = 15;
-const LOGS_PAGE_SIZE = 15;
-
-/* Записать действие в журнал (в фоне, не мешает работе) */
-function logAction(actionType, description) {
-    try {
-        fetch(ADMIN_LOGS_TABLE_URL, {
-            method: 'POST',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({
-                admin_name: authGet('auth_user_name') || 'Неизвестно',
-                admin_username: authGet('auth_user_username') || null,
-                action_type: actionType,
-                description: String(description).slice(0, 500)
-            })
-        }).catch(() => {});
-    } catch (e) {}
-}
-
-async function fetchAdminLogs() {
-    try {
-        const response = await fetch(`${ADMIN_LOGS_TABLE_URL}?select=admin_name,admin_username,action_type,description,created_at&order=created_at.desc&limit=300`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        allAdminLogs = await response.json();
-        logsVisibleCount = LOGS_PAGE_SIZE;
-        renderLogsList();
-    } catch (err) {
-        console.error(err);
-        document.getElementById('logsListContainer').innerHTML =
-            '<div class="empty-state">Не удалось загрузить журнал. Создана ли таблица admin_logs?</div>';
-        document.getElementById('logsMoreBtn').classList.add('hidden');
-    }
-}
-
-const LOG_BADGE_LABELS = {
-    auth: 'Вход', balance: 'Баланс', server: 'Сервер', admin: 'Админка',
-    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль'
-};
-
-function renderLogsList() {
-    const container = document.getElementById('logsListContainer');
-    const moreBtn = document.getElementById('logsMoreBtn');
-    const query = document.getElementById('logsSearchInput').value.trim().toLowerCase();
-
-    let filtered = allAdminLogs;
-    if (query) {
-        filtered = allAdminLogs.filter(log => {
-            const nameMatch = log.admin_name ? log.admin_name.toLowerCase().includes(query) : false;
-            const userMatch = log.admin_username ? log.admin_username.toLowerCase().includes(query) : false;
-            const descMatch = log.description ? log.description.toLowerCase().includes(query) : false;
-            return nameMatch || userMatch || descMatch;
-        });
-    }
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state">Записей не найдено</div>';
-        moreBtn.classList.add('hidden');
-        return;
-    }
-
-    const visible = filtered.slice(0, logsVisibleCount);
-    container.innerHTML = visible.map(log => {
-        const d = new Date(log.created_at);
-        const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        const badgeType = LOG_BADGE_LABELS[log.action_type] ? log.action_type : 'auth';
-        const badgeLabel = LOG_BADGE_LABELS[log.action_type] || log.action_type;
-        const who = log.admin_username
-            ? `${escapeHtml(log.admin_name)} <span style="color:var(--text-sub); font-size:10px; font-weight:600;">@${escapeHtml(log.admin_username)}</span>`
-            : escapeHtml(log.admin_name || '—');
-
-        return `
-            <div class="log-item">
-                <div class="log-item-top">
-                    <span class="log-badge ${badgeType}">${escapeHtml(badgeLabel)}</span>
-                    <span class="log-date">${dateStr}</span>
+                ${r.contact ? `
+                <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
+                <div class="tg-id-field">
+                    <span class="tg-id-label">ID:</span>
+                    <span class="tg-id-value" style="user-select:text !important; -webkit-user-select:text !important;">${r.contact}</span>
                 </div>
-                <span class="log-admin">${who}</span>
-                <span class="log-desc">${escapeHtml(log.description || '')}</span>
-            </div>
-        `;
-    }).join('');
-
-    moreBtn.classList.toggle('hidden', logsVisibleCount >= filtered.length);
-}
-
-function showMoreLogs() {
-    logsVisibleCount += LOGS_PAGE_SIZE;
-    renderLogsList();
-}
-
-/* ============================================================
-   МАРШРУТЫ И ИКОНКИ БОКОВОГО МЕНЮ
-   ============================================================ */
-const ICONS = {
-    home: '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-    admin: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-    balance: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
-    servers: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>',
-    reviews: '<svg viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>',
-    logs: '<svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
-    giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
-};
-
-const ROUTES = {
-    home:     { label: 'Главная',   access: null,              onEnter: renderHomeProfile },
-    admin:    { label: 'Админка',   access: 'access_admin',    onEnter: loadAdminUsers },
-    logs:     { label: 'История',   access: 'access_admin',    onEnter: fetchAdminLogs },
-    balance:  { label: 'Баланс',    access: 'access_balance',  onEnter: fetchBalanceData },
-    servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
-    reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
-    giveaway: { label: 'Розыгрыш',  access: 'access_giveaway', onEnter: loadParticipants }
-};
-
-/* ============================================================
-   ТЕМА ОФОРМЛЕНИЯ
-   ============================================================ */
-(function initTheme() {
-    const themeInput = document.getElementById('themeInput');
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeInput.checked = (savedTheme === 'light');
-
-    themeInput.addEventListener('change', () => {
-        const targetTheme = themeInput.checked ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', targetTheme);
-        localStorage.setItem('theme', targetTheme);
-    });
-})();
-
-/* ============================================================
-   ГЛОБАЛЬНЫЙ TOAST
-   ============================================================ */
-let toastTimer = null;
-function showToast(message, type = 'error') {
-    const toast = document.getElementById('globalToast');
-    toast.innerText = message;
-    toast.classList.remove('success');
-    if (type === 'success') toast.classList.add('success');
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-/* ============================================================
-   БОКОВОЕ МЕНЮ
-   ============================================================ */
-function toggleMenu() {
-    if (!isLoggedIn()) return;
-    document.getElementById('sidebarOverlay').classList.toggle('active');
-}
-function closeMenuOnOverlay(event) {
-    if (window.innerWidth >= 960) return;
-    if (event.target.id === 'sidebarOverlay') toggleMenu();
-}
-function closeMenuIfMobile() {
-    if (window.innerWidth < 960) document.getElementById('sidebarOverlay').classList.remove('active');
-}
-
-function hasAccess(key) {
-    const val = authGet(key);
-    return val === '1' || val === 'true';
-}
-
-function isLoggedIn() {
-    return !!(authGet('auth_user_name') && authGet('auth_user_role'));
-}
-
-function renderSidebar() {
-    const menuList = document.getElementById('menuList');
-    const burgerBtn = document.getElementById('burgerBtn');
-    const profileBox = document.getElementById('sidebarProfile');
-    const footerBox = document.getElementById('sidebarFooter');
-
-    if (!isLoggedIn()) {
-        burgerBtn.classList.remove('visible');
-        profileBox.style.display = 'none';
-        footerBox.style.display = 'none';
-        menuList.innerHTML = '';
-        document.body.classList.remove('authed');
-        return;
-    }
-
-    document.body.classList.add('authed');
-    burgerBtn.classList.add('visible');
-    profileBox.style.display = 'flex';
-    footerBox.style.display = 'block';
-
-    const userName = authGet('auth_user_name') || '';
-    const userRole = authGet('auth_user_role') || '';
-    const userAva = authGet('auth_user_ava') || '';
-    document.getElementById('sidebarProfileName').innerText = userName;
-    document.getElementById('sidebarProfileRole').innerText = userRole;
-    const sidebarAvatarEl = document.getElementById('sidebarAvatar');
-    sidebarAvatarEl.innerHTML = userAva
-        ? `<img src="${escapeAttr(userAva)}" alt="avatar" onerror="this.parentElement.innerHTML='${userName ? escapeAttr(userName[0].toUpperCase()) : '?'}'">`
-        : (userName ? escapeHtml(userName[0].toUpperCase()) : '?');
-
-    const currentRoute = getCurrentRoute();
-    let html = navLinkHtml('home', currentRoute);
-
-    if (hasAccess('access_admin'))    html += navLinkHtml('admin', currentRoute);
-    if (hasAccess('access_admin'))    html += navLinkHtml('logs', currentRoute);
-    if (hasAccess('access_balance'))  html += navLinkHtml('balance', currentRoute);
-    if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
-    if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
-    if (hasAccess('access_giveaway')) html += navLinkHtml('giveaway', currentRoute);
-
-    menuList.innerHTML = html;
-}
-
-function navLinkHtml(route, currentRoute) {
-    const active = route === currentRoute ? ' active' : '';
-    return `<li><a href="#${route}" class="sidebar-item-link${active}" onclick="closeMenuIfMobile()">${ICONS[route]}<span>${ROUTES[route].label}</span></a></li>`;
-}
-
-/* ============================================================
-   РОУТЕР
-   ============================================================ */
-function getCurrentRoute() {
-    const hash = (window.location.hash || '').replace('#', '');
-    return ROUTES[hash] ? hash : null;
-}
-
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const target = document.getElementById('page-' + pageId);
-    if (target) target.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-function router() {
-    if (!isLoggedIn()) {
-        showPage('login');
-        renderSidebar();
-        return;
-    }
-
-    let route = getCurrentRoute();
-
-    // Нет хэша, либо ссылка на 'login' — уходим на главную
-    if (!route) route = 'home';
-
-    // Проверка прав доступа к разделу
-    if (route !== 'home' && !hasAccess(ROUTES[route].access)) {
-        showToast('Нет доступа к этому разделу!');
-        route = 'home';
-        window.location.hash = '#home';
-        return; // hashchange вызовет router() повторно
-    }
-
-    showPage(route);
-    renderSidebar();
-
-    if (typeof ROUTES[route].onEnter === 'function') {
-        ROUTES[route].onEnter();
-    }
-}
-
-window.addEventListener('hashchange', router);
-
-/* ============================================================
-   АВТОРИЗАЦИЯ
-   ============================================================ */
-async function handleLogin() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    if (!username || !password) {
-        showToast('Заполните все поля!');
-        return;
-    }
-
-    try {
-        const selectColumns = 'name,role,ava,access_admin,access_balance,access_servers,access_reviews,access_giveaway';
-        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-
-        if (!response.ok) throw new Error('Ошибка сервера');
-        const users = await response.json();
-
-        if (users && users.length > 0) {
-            const u = users[0];
-            authSet('auth_user_name', u.name);
-            authSet('auth_user_role', u.role);
-            authSet('auth_user_ava', u.ava || '');
-            authSet('auth_user_username', username);
-            authSet('access_admin', String(u.access_admin));
-            authSet('access_balance', String(u.access_balance));
-            authSet('access_servers', String(u.access_servers));
-            authSet('access_reviews', String(u.access_reviews));
-            authSet('access_giveaway', String(u.access_giveaway));
-
-            document.getElementById('loginUsername').value = '';
-            document.getElementById('loginPassword').value = '';
-
-            window.location.hash = '#home';
-            router();
-
-            // Просим разрешение на уведомления (клик по "Войти" — жест пользователя)
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission().catch(() => {});
-            }
-            checkServerNotifications();
-            checkBalanceNotifications();
-            checkCustomNotifications();
-            logAction('auth', 'Вход в систему');
-        } else {
-            showToast('Неверный логин или пароль!');
-        }
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка подключения!');
-    }
-}
-
-function handleLogout() {
-    if (isLoggedIn()) logAction('auth', 'Выход из системы');
-    AUTH_KEYS.forEach(authRemove);
-
-    document.getElementById('sidebarOverlay').classList.remove('active');
-    window.location.hash = '';
-    router();
-}
-
-/* ============================================================
-   СТРАНИЦА: ЛИЧНЫЙ КАБИНЕТ (ГЛАВНАЯ)
-   ============================================================ */
-function renderHomeProfile() {
-    const name = authGet('auth_user_name') || '—';
-    const username = authGet('auth_user_username') || '';
-    const role = authGet('auth_user_role') || '—';
-    const ava = authGet('auth_user_ava') || '';
-
-    document.getElementById('profileName').innerText = name;
-    document.getElementById('profileUsername').innerText = username ? `@${username}` : 'Логин не сохранён — перезайдите';
-    document.getElementById('profileRole').innerText = `Вы авторизовались как ${role}`;
-
-    const avatarEl = document.getElementById('profileAvatar');
-    const initial = name && name !== '—' ? name[0].toUpperCase() : '?';
-    avatarEl.innerHTML = ava
-        ? `<img src="${escapeAttr(ava)}" alt="avatar" onerror="this.parentElement.innerHTML='${escapeAttr(initial)}'">`
-        : escapeHtml(initial);
-
-    updateNotifBadge();
-}
-
-/* ---------- Смена пароля ---------- */
-function openPasswordModal() {
-    if (!authGet('auth_user_username')) {
-        showToast('Перезайдите в аккаунт, чтобы менять пароль');
-        return;
-    }
-    document.getElementById('pwdCurrentInput').value = '';
-    document.getElementById('pwdNewInput').value = '';
-    document.getElementById('pwdNewRepeatInput').value = '';
-    document.getElementById('pwdModal').classList.add('show');
-}
-function closePasswordModal() {
-    document.getElementById('pwdModal').classList.remove('show');
-}
-
-async function submitPasswordChange() {
-    const username = authGet('auth_user_username');
-    const currentPwd = document.getElementById('pwdCurrentInput').value;
-    const newPwd = document.getElementById('pwdNewInput').value;
-    const newPwdRepeat = document.getElementById('pwdNewRepeatInput').value;
-
-    if (!currentPwd || !newPwd || !newPwdRepeat) { showToast('Заполните все поля!'); return; }
-    if (newPwd !== newPwdRepeat) { showToast('Новые пароли не совпадают!'); return; }
-    if (newPwd.length < 4) { showToast('Новый пароль слишком короткий (мин. 4 символа)'); return; }
-
-    try {
-        // Проверяем текущий пароль
-        const checkResponse = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(currentPwd)}&select=username`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!checkResponse.ok) throw new Error('Ошибка сервера');
-        const found = await checkResponse.json();
-        if (!found || found.length === 0) {
-            showToast('Текущий пароль указан неверно!');
-            return;
-        }
-
-        // Сохраняем новый пароль
-        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}`, {
-            method: 'PATCH',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ password: newPwd })
-        });
-        if (!response.ok) throw new Error('Ошибка сохранения');
-
-        closePasswordModal();
-        logAction('profile', 'Смена своего пароля');
-        showToast('Пароль успешно изменён!', 'success');
-    } catch (err) {
-        console.error(err);
-        showToast('Не удалось изменить пароль');
-    }
-}
-
-/* ---------- Смена аватарки ---------- */
-function openAvatarModal() {
-    if (!authGet('auth_user_username')) {
-        showToast('Перезайдите в аккаунт, чтобы менять аватарку');
-        return;
-    }
-    document.getElementById('avaUrlInput').value = authGet('auth_user_ava') || '';
-    updateAvaPreview();
-    document.getElementById('avaModal').classList.add('show');
-}
-function closeAvatarModal() {
-    document.getElementById('avaModal').classList.remove('show');
-}
-function updateAvaPreview() {
-    const url = document.getElementById('avaUrlInput').value.trim();
-    const preview = document.getElementById('avaPreview');
-    preview.innerHTML = url
-        ? `<img src="${escapeAttr(url)}" alt="preview" onerror="this.parentElement.innerHTML='Не грузится'">`
-        : 'Нет фото';
-}
-
-async function submitAvatarChange() {
-    const username = authGet('auth_user_username');
-    const url = document.getElementById('avaUrlInput').value.trim();
-
-    try {
-        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}`, {
-            method: 'PATCH',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ ava: url || null })
-        });
-        if (!response.ok) throw new Error('Ошибка сохранения');
-
-        authSet('auth_user_ava', url);
-        closeAvatarModal();
-        renderHomeProfile();
-        renderSidebar();
-        logAction('profile', url ? 'Смена аватарки' : 'Удаление аватарки');
-        showToast(url ? 'Аватарка обновлена!' : 'Аватарка удалена', 'success');
-    } catch (err) {
-        console.error(err);
-        showToast('Не удалось сохранить аватарку');
-    }
-}
-
-/* ============================================================
-   СТРАНИЦА: АДМИНКА (управление персоналом)
-   ============================================================ */
-let allAdminUsers = [];
-
-async function loadAdminUsers() {
-    try {
-        const response = await fetch(`${USERS_AUTH_URL}?select=*`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error();
-        allAdminUsers = await response.json();
-        renderAdminUserList();
-    } catch (err) {
-        showToast('Ошибка соединения с БД');
-    }
-}
-
-function renderAdminUserList() {
-    const container = document.getElementById('admUserListContainer');
-    if (allAdminUsers.length === 0) {
-        container.innerHTML = `<div class="empty-state">Администраторы отсутствуют</div>`;
-        return;
-    }
-
-    container.innerHTML = allAdminUsers.map(user => {
-        const avaHtml = user.ava
-            ? `<img src="${escapeAttr(user.ava)}" alt="avatar" onerror="this.parentElement.innerText='${user.name ? escapeAttr(user.name[0].toUpperCase()) : '?'}'">`
-            : escapeHtml(user.name ? user.name[0].toUpperCase() : '?');
-
-        return `
-            <div class="user-card">
-                <div class="user-card-top">
-                    <div class="user-card-avatar">${avaHtml}</div>
-                    <div class="user-info">
-                        <div class="user-name">${escapeHtml(user.name)}</div>
-                        <div class="user-details">@${escapeHtml(user.username)}</div>
-                    </div>
-                </div>
-                <div class="actions-group">
-                    <button class="btn-chip edit" onclick="openAdminModalForEdit('${escapeAttr(user.username)}')">Редактировать</button>
-                    <button class="btn-chip del" onclick="deleteAdminUser('${escapeAttr(user.username)}')">Удалить</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function openAdminModalForCreate() {
-    resetAdminForm();
-    document.getElementById('admModalTitle').innerText = 'Добавить администратора';
-    document.getElementById('admSaveBtn').innerText = 'Создать аккаунт';
-    document.getElementById('admModalOverlay').classList.add('show');
-}
-
-function openAdminModalForEdit(username) {
-    resetAdminForm();
-    const user = allAdminUsers.find(u => u.username === username);
-    if (!user) return;
-
-    document.getElementById('admModalTitle').innerText = 'Редактировать профиль';
-    document.getElementById('admUserId').value = user.username;
-    document.getElementById('admUsernameInput').value = user.username;
-    document.getElementById('admUsernameInput').disabled = true;
-    document.getElementById('admNameInput').value = user.name;
-    document.getElementById('admPasswordInput').value = user.password;
-    document.getElementById('admRoleInput').value = user.role || '';
-    document.getElementById('admAvaInput').value = user.ava || '';
-
-    document.getElementById('accAdmin').checked = Number(user.access_admin) === 1 || user.access_admin === true;
-    document.getElementById('accBalance').checked = Number(user.access_balance) === 1 || user.access_balance === true;
-    document.getElementById('accServers').checked = Number(user.access_servers) === 1 || user.access_servers === true;
-    document.getElementById('accReviews').checked = Number(user.access_reviews) === 1 || user.access_reviews === true;
-    document.getElementById('accGiveaway').checked = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
-
-    document.getElementById('admSaveBtn').innerText = 'Сохранить изменения';
-    document.getElementById('admModalOverlay').classList.add('show');
-}
-
-function closeAdminModal() {
-    document.getElementById('admModalOverlay').classList.remove('show');
-}
-
-function resetAdminForm() {
-    document.getElementById('admUserId').value = '';
-    document.getElementById('admUsernameInput').value = '';
-    document.getElementById('admUsernameInput').disabled = false;
-    document.getElementById('admNameInput').value = '';
-    document.getElementById('admPasswordInput').value = '';
-    document.getElementById('admRoleInput').value = '';
-    document.getElementById('admAvaInput').value = '';
-    document.getElementById('accAdmin').checked = false;
-    document.getElementById('accBalance').checked = false;
-    document.getElementById('accServers').checked = false;
-    document.getElementById('accReviews').checked = false;
-    document.getElementById('accGiveaway').checked = false;
-}
-
-async function saveAdminUser() {
-    const userId = document.getElementById('admUserId').value;
-    const username = document.getElementById('admUsernameInput').value.trim();
-    const name = document.getElementById('admNameInput').value.trim();
-    const password = document.getElementById('admPasswordInput').value;
-    const role = document.getElementById('admRoleInput').value.trim();
-    const ava = document.getElementById('admAvaInput').value.trim();
-
-    if (!username || !name || !password) {
-        showToast('Заполните обязательные поля!');
-        return;
-    }
-
-    const payload = {
-        name: name,
-        username: username,
-        password: password,
-        role: role,
-        ava: ava || null,
-        access_admin: document.getElementById('accAdmin').checked ? 1 : 0,
-        access_balance: document.getElementById('accBalance').checked ? 1 : 0,
-        access_servers: document.getElementById('accServers').checked ? 1 : 0,
-        access_reviews: document.getElementById('accReviews').checked ? 1 : 0,
-        access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0
-    };
-
-    try {
-        let url = USERS_AUTH_URL;
-        let method = 'POST';
-
-        if (userId) {
-            method = 'PATCH';
-            url = `${USERS_AUTH_URL}?username=eq.${encodeURIComponent(userId)}`;
-        }
-
-        const response = await fetch(url, {
-            method: method,
-            headers: { ...REST_HEADERS, 'Prefer': 'return=representation' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `Статус: ${response.status}`);
-        }
-
-        logAction('admin', userId
-            ? `Изменение профиля администратора @${username}`
-            : `Создание администратора @${username} (${name})`);
-        showToast(userId ? 'Изменения сохранены!' : 'Успешно добавлено!', 'success');
-        closeAdminModal();
-        loadAdminUsers();
-    } catch (err) {
-        console.error('Детали ошибки Supabase:', err);
-        showToast(`Ошибка БД: ${err.message}`);
-    }
-}
-
-async function deleteAdminUser(username) {
-    if (!confirm(`Удалить доступ для @${username}?`)) return;
-
-    try {
-        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}`, {
-            method: 'DELETE',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error();
-        logAction('admin', `Удаление администратора @${username}`);
-        showToast('Аккаунт удален', 'success');
-        loadAdminUsers();
-    } catch (err) {
-        showToast('Ошибка удаления');
-    }
-}
-
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function escapeAttr(str) {
-    return String(str).replace(/'/g, "\\'");
-}
-
-/* ============================================================
-   СТРАНИЦА: БАЛАНС
-   ============================================================ */
-let currentBalanceActionType = 'add';
-let allBalanceHistoryRows = [];
-let balanceVisibleCount = 10;
-const BALANCE_PAGE_SIZE = 10;
-
-async function fetchBalanceData() {
-    try {
-        const response = await fetch(`${BALANCE_TABLE_URL}?select=balance,history_comments,created_at&order=created_at.desc`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        const rows = await response.json();
-
-        allBalanceHistoryRows = rows || [];
-        balanceVisibleCount = BALANCE_PAGE_SIZE;
-
-        if (allBalanceHistoryRows.length === 0) {
-            document.getElementById('balanceDisplay').innerText = '0 ₽';
-            document.getElementById('historyDisplay').innerHTML = '<li class="history-item" style="justify-content: center; font-weight:700;">История пуста</li>';
-            document.getElementById('historyMoreBtn').classList.add('hidden');
-            return;
-        }
-
-        const totalBalance = allBalanceHistoryRows.reduce((sum, row) => sum + Number(row.balance), 0);
-        document.getElementById('balanceDisplay').innerText = `${Math.round(totalBalance)} ₽`;
-
-        renderHistoryList();
-
-    } catch (err) {
-        console.error(err);
-        document.getElementById('balanceDisplay').innerText = 'Ошибка';
-        document.getElementById('historyDisplay').innerHTML = `<li class="history-item" style="color:red; justify-content:center;">Ошибка соединения.</li>`;
-        document.getElementById('historyMoreBtn').classList.add('hidden');
-    }
-}
-
-function renderHistoryList() {
-    const historyList = document.getElementById('historyDisplay');
-    const moreBtn = document.getElementById('historyMoreBtn');
-    const visibleRows = allBalanceHistoryRows.slice(0, balanceVisibleCount);
-
-    historyList.innerHTML = '';
-    visibleRows.forEach(row => {
-        const amount = Number(row.balance);
-        const comment = row.history_comments || 'Без комментария';
-
-        const dateObj = new Date(row.created_at);
-        const formattedDate = dateObj.toLocaleDateString('ru-RU') + ' ' + dateObj.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-
-        const isPlus = amount >= 0;
-
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerHTML = `
-            <div class="history-meta">
-                <span class="history-comment">${escapeHtml(comment)}</span>
-                <span class="history-date">${formattedDate}</span>
-            </div>
-            <span class="history-amount ${isPlus ? 'amount-plus' : 'amount-minus'}">
-                ${isPlus ? '+' : ''}${amount.toFixed(2)} ₽
-            </span>
-        `;
-        historyList.appendChild(li);
-    });
-
-    if (balanceVisibleCount < allBalanceHistoryRows.length) {
-        moreBtn.classList.remove('hidden');
-    } else {
-        moreBtn.classList.add('hidden');
-    }
-}
-
-function showMoreHistory() {
-    balanceVisibleCount += BALANCE_PAGE_SIZE;
-    renderHistoryList();
-}
-
-function openBalanceModal(type) {
-    currentBalanceActionType = type;
-    document.getElementById('balModalTitle').innerText = type === 'add' ? 'Пополнение баланса' : 'Списание баланса';
-    document.getElementById('balModalAmount').value = '';
-    document.getElementById('balModalComment').value = '';
-    document.getElementById('balModal').style.display = 'flex';
-}
-
-function closeBalanceModal() {
-    document.getElementById('balModal').style.display = 'none';
-}
-
-async function submitBalanceModal() {
-    const amountInput = document.getElementById('balModalAmount').value;
-    const commentInput = document.getElementById('balModalComment').value.trim();
-
-    const numericAmount = parseFloat(amountInput);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-        showToast('Укажите корректную сумму больше 0');
-        return;
-    }
-    if (!commentInput) {
-        showToast("Поле 'Комментарий' обязательно для заполнения!");
-        return;
-    }
-
-    const finalValue = currentBalanceActionType === 'add' ? numericAmount : -numericAmount;
-    closeBalanceModal();
-
-    try {
-        const response = await fetch(BALANCE_TABLE_URL, {
-            method: 'POST',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({
-                balance: finalValue,
-                balance_history: { type: currentBalanceActionType },
-                history_comments: commentInput
-            })
-        });
-
-        if (!response.ok) throw new Error(`Ошибка добавления строки: ${response.status}`);
-        logAction('balance', currentBalanceActionType === 'add'
-            ? `Пополнение баланса на ${numericAmount} ₽ — ${commentInput}`
-            : `Списание с баланса ${numericAmount} ₽ — ${commentInput}`);
-        showToast('Операция сохранена', 'success');
-        fetchBalanceData();
-        checkBalanceNotifications();
-
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка сохранения операции в Supabase.');
-    }
-}
-
-/* ============================================================
-   СТРАНИЦА: СЕРВЕРА
-   ============================================================ */
-let localServersCache = [];
-
-async function fetchServersData() {
-    try {
-        const response = await fetch(`${SERVERS_TABLE_URL}?select=id,location,paid_until&order=created_at.desc`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        localServersCache = await response.json();
-
-        const serverList = document.getElementById('srvServerDisplay');
-
-        if (!localServersCache || localServersCache.length === 0) {
-            serverList.innerHTML = '<li class="server-item" style="justify-content: center; font-weight:700;">Список серверов пуст</li>';
-            return;
-        }
-
-        serverList.innerHTML = '';
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        localServersCache.forEach(row => {
-            const location = row.location || 'Неизвестно';
-            const dateObj = new Date(row.paid_until);
-            const formattedDate = dateObj.toLocaleDateString('ru-RU');
-
-            // За 3 дня до окончания (и после) дата подсвечивается красным
-            const paidDay = new Date(dateObj);
-            paidDay.setHours(0, 0, 0, 0);
-            const daysLeft = Math.round((paidDay - today) / 86400000);
-            const dateClass = daysLeft <= 3 ? 'server-date expiring' : 'server-date';
-
-            const li = document.createElement('li');
-            li.className = 'server-item';
-            li.innerHTML = `
-                <div class="server-info">
-                    <span class="server-label">Локация</span>
-                    <span class="server-location">${escapeHtml(location)}</span>
-                </div>
-                <div class="server-right">
-                    <div class="server-date-box">
-                        <span class="server-label">Оплачен до</span>
-                        <div class="${dateClass}">${formattedDate}</div>
-                    </div>
-                    <button class="btn-mini del" onclick="deleteServer('${escapeAttr(String(row.id))}', '${escapeAttr(location)}')" title="Удалить сервер">
-                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                    </button>
+                <button class="btn btn-tg" onclick="window.open('https://t.me/on1xVPN_bot?start=user_${r.contact}', '_blank')" style="margin-bottom:0;">ОТКРЫТЬ В БОТЕ</button>
+                ` : `
+                <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
+                <div class="tg-id-field">
+                    <span class="tg-id-value" style="color:var(--text-sub);">— не указан</span>
+                </div>`}
+
+                <span class="filter-label" style="margin-top:6px;">Количество звёзд (оценка):</span>
+                ${getStarsEditButtons(r.id, activeStarsEditing[r.id])}
+
+                <span class="filter-label">Текст отзыва:</span>
+                <textarea id="msg-${r.id}" rows="3">${r.msg || ''}</textarea>
+                
+                <span class="filter-label">Комментарий администратора (admin):</span>
+                <textarea id="admin-${r.id}" rows="2" placeholder="Ваш ответ под отзывом...">${r.admin || ''}</textarea>
+                
+                <span class="filter-label">Статус (proverka):</span>
+                <select id="proverka-${r.id}" style="margin-bottom:12px;">
+                    <option value="0" ${r.proverka === 0 ? 'selected' : ''}>Не опубликован</option>
+                    <option value="1" ${r.proverka === 1 ? 'selected' : ''}>Опубликован</option>
+                    <option value="2" ${r.proverka === 2 ? 'selected' : ''}>Опубликован (Оценка НЕ учитывается)</option>
+                </select>
+
+                <div class="btn-group">
+                    <button class="btn btn-save" onclick="updateReview('${r.id}')">Сохранить</button>
+                    <button class="btn btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
                 </div>
             `;
-            serverList.appendChild(li);
-        });
 
-    } catch (err) {
-        console.error(err);
-        document.getElementById('srvServerDisplay').innerHTML = `<li class="server-item" style="color:red; justify-content:center;">Ошибка получения списка.</li>`;
-    }
-}
-
-async function deleteServer(serverId, location) {
-    if (!confirm(`Удалить сервер «${location}» безвозвратно?`)) return;
-
-    try {
-        const response = await fetch(`${SERVERS_TABLE_URL}?id=eq.${encodeURIComponent(serverId)}`, {
-            method: 'DELETE',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        logAction('server', `Удаление сервера «${location}»`);
-        showToast('Сервер удалён', 'success');
-        fetchServersData();
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка удаления сервера');
-    }
-}
-
-function openSrvAddModal() {
-    document.getElementById('srvLocationInput').value = '';
-    document.getElementById('srvPaidUntilInput').value = '';
-    document.getElementById('srvAddModal').style.display = 'flex';
-}
-
-function openSrvRenewModal() {
-    const selectElement = document.getElementById('srvRenewSelect');
-    selectElement.innerHTML = '';
-
-    if (localServersCache.length === 0) {
-        showToast('Нет доступных серверов для продления. Сначала добавьте сервер.');
-        return;
-    }
-
-    localServersCache.forEach(server => {
-        const option = document.createElement('option');
-        option.value = server.id;
-        const currentPaidDate = new Date(server.paid_until).toLocaleDateString('ru-RU');
-        option.innerText = `${server.location} (до ${currentPaidDate})`;
-        selectElement.appendChild(option);
-    });
-
-    document.getElementById('srvRenewDaysInput').value = '';
-    document.getElementById('srvRenewModal').style.display = 'flex';
-}
-
-function closeSrvModals() {
-    document.getElementById('srvAddModal').style.display = 'none';
-    document.getElementById('srvRenewModal').style.display = 'none';
-}
-
-async function submitAddServer() {
-    const locationInput = document.getElementById('srvLocationInput').value.trim();
-    const dateInput = document.getElementById('srvPaidUntilInput').value;
-
-    if (!locationInput) { showToast('Укажите локацию сервера!'); return; }
-    if (!dateInput) { showToast('Выберите начальную дату окончания оплаты!'); return; }
-
-    closeSrvModals();
-
-    try {
-        const response = await fetch(SERVERS_TABLE_URL, {
-            method: 'POST',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ location: locationInput, paid_until: dateInput })
-        });
-
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        logAction('server', `Добавление сервера «${locationInput}» (оплачен до ${new Date(dateInput).toLocaleDateString('ru-RU')})`);
-        showToast('Сервер добавлен', 'success');
-        fetchServersData();
-
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка сохранения сервера.');
-    }
-}
-
-async function submitRenewServer() {
-    const serverId = document.getElementById('srvRenewSelect').value;
-    const daysInput = parseInt(document.getElementById('srvRenewDaysInput').value);
-
-    if (!serverId) return;
-    if (isNaN(daysInput) || daysInput <= 0) {
-        showToast('Укажите корректное количество дней больше 0!');
-        return;
-    }
-
-    const targetServer = localServersCache.find(s => s.id == serverId);
-    if (!targetServer) return;
-
-    const baseDate = new Date(targetServer.paid_until);
-    baseDate.setDate(baseDate.getDate() + daysInput);
-    const newPaidUntilString = baseDate.toISOString().split('T')[0];
-
-    closeSrvModals();
-
-    try {
-        const response = await fetch(`${SERVERS_TABLE_URL}?id=eq.${serverId}`, {
-            method: 'PATCH',
-            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ paid_until: newPaidUntilString })
-        });
-
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        logAction('server', `Продление сервера «${targetServer.location}» на ${daysInput} дн. (до ${new Date(newPaidUntilString).toLocaleDateString('ru-RU')})`);
-        showToast('Дата обновлена', 'success');
-        fetchServersData();
-        checkServerNotifications();
-
-    } catch (err) {
-        console.error(err);
-        showToast('Не удалось обновить дату на сервере.');
-    }
-}
-
-/* ============================================================
-   СТРАНИЦА: ОТЗЫВЫ (модерация)
-   Доступ регулируется общей авторизацией сайта (access_reviews).
-   Собственная авторизация и кнопка "Выйти" удалены по требованию.
-   ============================================================ */
-let allReviews = [];
-let activeStarsEditing = {};
-
-function getStarSvg(isFilled) {
-    return `<svg class="brutal-star ${isFilled ? 'filled' : 'empty'}" viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>`;
-}
-
-function getStarsRowHtml(starsCount) {
-    let html = '';
-    for (let i = 1; i <= 5; i++) html += getStarSvg(i <= starsCount);
-    return html;
-}
-
-function getStarsEditButtons(reviewId, currentStars) {
-    let html = `<div class="stars-edit-row" id="stars-container-${reviewId}">`;
-    for (let i = 1; i <= 5; i++) {
-        html += `
-        <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
-            ${getStarSvg(i <= currentStars)}
-        </button>`;
-    }
-    html += `</div>`;
-    return html;
-}
-
-function setStarsEditing(reviewId, starsCount) {
-    activeStarsEditing[reviewId] = starsCount;
-    const container = document.getElementById(`stars-container-${reviewId}`);
-    if (container) {
-        let buttonsHtml = '';
-        for (let i = 1; i <= 5; i++) {
-            buttonsHtml += `
-            <button class="star-btn" onclick="setStarsEditing('${reviewId}', ${i})">
-                ${getStarSvg(i <= starsCount)}
-            </button>`;
+            editModalOverlay.classList.add('active');
         }
-        container.innerHTML = buttonsHtml;
-    }
-}
 
-function updateReviewStatsCounters() {
-    const countPublished = allReviews.filter(r => r.proverka === 1 || r.proverka === 2).length;
-    const countPending = allReviews.filter(r => r.proverka === 0).length;
-    document.getElementById('revStatPublished').textContent = countPublished;
-    document.getElementById('revStatPending').textContent = countPending;
-}
-
-async function fetchAllReviews() {
-    try {
-        let { data: reviews, error } = await supabaseClient
-            .from('reviews')
-            .select('id, name, contact, msg, stars, created_at, admin, proverka, source')
-            .order('created_at', { ascending: false });
-        if (!error && reviews) {
-            allReviews = reviews;
-            updateReviewStatsCounters();
-            renderFilteredReviews();
-        } else if (error) {
-            console.error(error);
-            showToast('Ошибка загрузки отзывов');
+        function closeEditModal() {
+            editModalOverlay.classList.remove('active');
+            editModalContent.innerHTML = '';
         }
-    } catch (e) {
-        showToast('Ошибка загрузки данных');
-    }
-}
 
-function getSourceBadgeHtml(source) {
-    if (!source) return '';
-    const map = { telegram: ['Telegram', 'telegram'], vk: ['ВКонтакте', 'vk'], website: ['Сайт', 'website'] };
-    const entry = map[source];
-    if (!entry) return '';
-    return `<span class="source-badge ${entry[1]}">${entry[0]}</span>`;
-}
+        function renderFiltered() {
+            const filterValue = statusFilter.value;
+            const query = searchInput.value.trim().toLowerCase();
 
-function openReviewEditModal(reviewId) {
-    const r = allReviews.find(item => String(item.id) === String(reviewId));
-    if (!r) return;
+            let filteredData = filterValue === 'all' 
+                ? allReviews 
+                : allReviews.filter(r => r.proverka.toString() === filterValue);
 
-    const dateObj = new Date(r.created_at);
-    const tzOffset = dateObj.getTimezoneOffset() * 60000;
-    const localISODate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+            if (query) {
+                filteredData = filteredData.filter(r => {
+                    const nameMatch = r.name ? r.name.toLowerCase().includes(query) : false;
+                    const msgMatch = r.msg ? r.msg.toLowerCase().includes(query) : false;
+                    return nameMatch || msgMatch;
+                });
+            }
 
-    if (activeStarsEditing[r.id] === undefined) {
-        activeStarsEditing[r.id] = r.stars;
-    }
+            const statusLabels = { 0: 'Проверка', 1: 'Опубликован', 2: 'Опубликован (Оценка НЕ учитывается)' };
 
-    document.getElementById('revEditModalTitle').innerText = `Отзыв — ${r.name || 'Аноним'}`;
+            if (filteredData.length === 0) {
+                grid.innerHTML = `<div style="text-align:center; padding:20px; font-weight:800; color:var(--text-sub); text-transform:uppercase; font-size:13px;">Ничего не найдено</div>`;
+                return;
+            }
 
-    const contactBlock = r.contact ? `
-        <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
-        <div class="tg-id-field">
-            <span class="tg-id-label">ID:</span>
-            <span class="tg-id-value">${escapeHtml(r.contact)}</span>
-        </div>
-        <button class="btn btn-tg" onclick="window.open('https://t.me/on1xVPN_bot?start=user_${encodeURIComponent(r.contact)}', '_blank')">Открыть в боте</button>
-    ` : `
-        <span class="filter-label" style="margin-top:6px;">Telegram ID пользователя:</span>
-        <div class="tg-id-field">
-            <span class="tg-id-value" style="color:var(--text-sub);">— не указан</span>
-        </div>
-    `;
+            grid.innerHTML = filteredData.map((r) => {
+                const dateObj = new Date(r.created_at);
+                const displayDate = `${String(dateObj.getDate()).padStart(2, '0')}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${dateObj.getFullYear()}`;
 
-    document.getElementById('revEditModalContent').innerHTML = `
-        <span class="filter-label">Дата написания отзыва:</span>
-        <input type="datetime-local" id="date-${r.id}" value="${localISODate}">
-
-        <span class="filter-label">Источник публикации:</span>
-        <select id="source-${r.id}">
-            <option value="" ${!r.source ? 'selected' : ''}>— не указан</option>
-            <option value="website" ${r.source === 'website' ? 'selected' : ''}>🌐 Сайт</option>
-            <option value="telegram" ${r.source === 'telegram' ? 'selected' : ''}>📱 Telegram</option>
-            <option value="vk" ${r.source === 'vk' ? 'selected' : ''}>💙 ВКонтакте</option>
-        </select>
-
-        ${contactBlock}
-
-        <span class="filter-label">Количество звёзд (оценка):</span>
-        ${getStarsEditButtons(r.id, activeStarsEditing[r.id])}
-
-        <span class="filter-label">Текст отзыва:</span>
-        <textarea id="msg-${r.id}" rows="3">${escapeHtml(r.msg || '')}</textarea>
-
-        <span class="filter-label">Комментарий администратора (admin):</span>
-        <textarea id="admin-${r.id}" rows="2" placeholder="Ваш ответ под отзывом...">${escapeHtml(r.admin || '')}</textarea>
-
-        <span class="filter-label">Статус (proverka):</span>
-        <select id="proverka-${r.id}">
-            <option value="0" ${r.proverka === 0 ? 'selected' : ''}>Не опубликован</option>
-            <option value="1" ${r.proverka === 1 ? 'selected' : ''}>Опубликован</option>
-            <option value="2" ${r.proverka === 2 ? 'selected' : ''}>Опубликован (Оценка НЕ учитывается)</option>
-        </select>
-
-        <div class="btn-group">
-            <button class="btn btn-save" onclick="updateReview('${r.id}')">Сохранить</button>
-            <button class="btn btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
-        </div>
-    `;
-
-    document.getElementById('revEditModalOverlay').classList.add('show');
-}
-
-function closeReviewEditModal() {
-    document.getElementById('revEditModalOverlay').classList.remove('show');
-    document.getElementById('revEditModalContent').innerHTML = '';
-}
-
-function renderFilteredReviews() {
-    const statusFilter = document.getElementById('revStatusFilter');
-    const searchInput = document.getElementById('revSearchInput');
-    const grid = document.getElementById('revGrid');
-
-    const filterValue = statusFilter.value;
-    const query = searchInput.value.trim().toLowerCase();
-
-    let filteredData = filterValue === 'all'
-        ? allReviews
-        : allReviews.filter(r => r.proverka.toString() === filterValue);
-
-    if (query) {
-        filteredData = filteredData.filter(r => {
-            const nameMatch = r.name ? r.name.toLowerCase().includes(query) : false;
-            const msgMatch = r.msg ? r.msg.toLowerCase().includes(query) : false;
-            return nameMatch || msgMatch;
-        });
-    }
-
-    const statusLabels = { 0: 'Проверка', 1: 'Опубликован', 2: 'Опубликован (Оценка НЕ учитывается)' };
-
-    if (filteredData.length === 0) {
-        grid.innerHTML = `<div class="empty-state">Ничего не найдено</div>`;
-        return;
-    }
-
-    grid.innerHTML = filteredData.map((r) => {
-        const dateObj = new Date(r.created_at);
-        const displayDate = `${String(dateObj.getDate()).padStart(2, '0')}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${dateObj.getFullYear()}`;
-
-        return `
-        <div class="review-card" id="card-${r.id}" onclick="openReviewEditModal('${r.id}')">
-            <div class="card-header-clickable">
-                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                    <span class="status-badge status-${r.proverka}">${statusLabels[r.proverka] || r.proverka}</span>
-                    ${getSourceBadgeHtml(r.source)}
-                </div>
-                <div class="user-meta">
-                    <div class="avatar">${r.name ? escapeHtml(r.name[0].toUpperCase()) : '?'}</div>
-                    <div class="username">
-                        <span>${escapeHtml(r.name || 'Аноним')} ${r.contact ? `<span style="color:var(--text-sub); font-size:10px; font-weight:500;">(${escapeHtml(r.contact)})</span>` : ''}</span>
-                        <span class="review-date">${displayDate}</span>
+                return `
+                <div class="section-box" id="card-${r.id}" onclick="openEditModal(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+                    <div class="card-header-clickable">
+                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                            <span class="status-badge status-${r.proverka}">${statusLabels[r.proverka] || r.proverka}</span>
+                            ${r.source ? `<span class="source-badge ${r.source === 'telegram' ? 'telegram' : r.source === 'vk' ? 'vk' : 'website'}">${r.source === 'telegram' ? 'Telegram' : r.source === 'vk' ? 'ВКонтакте' : 'Сайт'}</span>` : ''}
+                        </div>
+                        <div class="user-meta">
+                            <div class="avatar">${r.name ? r.name[0].toUpperCase() : '?'}</div>
+                            <div class="username">
+                                <span>${r.name || 'Аноним'} ${r.contact ? `<span style="color:var(--text-sub); font-size:10px; font-weight:500;">(${r.contact})</span>` : ''}</span>
+                                <span class="review-date">${displayDate}</span>
+                            </div>
+                        </div>
+                        <div class="stars-row">${getStarsRowHtml(r.stars)}</div>
                     </div>
-                </div>
-                <div class="stars-row">${getStarsRowHtml(r.stars)}</div>
-            </div>
-        </div>`;
-    }).join('');
-}
+                </div>`;
+            }).join('');
+        }
 
-async function updateReview(id) {
-    const revItem = allReviews.find(item => String(item.id) === String(id));
-    const stars = activeStarsEditing[id] || 5;
-    const msg = document.getElementById(`msg-${id}`).value.trim();
-    const admin = document.getElementById(`admin-${id}`).value.trim();
-    const proverka = parseInt(document.getElementById(`proverka-${id}`).value);
-    const inputDate = document.getElementById(`date-${id}`).value;
-    const sourceEl = document.getElementById(`source-${id}`);
-    const source = sourceEl ? sourceEl.value : null;
+        statusFilter.addEventListener('change', renderFiltered);
+        searchInput.addEventListener('input', renderFiltered);
 
-    if (!msg) { showToast('Поле отзыва не должно быть пустым'); return; }
-    if (!inputDate) { showToast('Выберите корректную дату'); return; }
+        async function updateReview(id) {
+            // Берем количество звезд из сохраненного локального состояния кнопок
+            const stars = activeStarsEditing[id] || 5;
+            const msg = document.getElementById(`msg-${id}`).value.trim();
+            const admin = document.getElementById(`admin-${id}`).value.trim();
+            const proverka = parseInt(document.getElementById(`proverka-${id}`).value);
+            const inputDate = document.getElementById(`date-${id}`).value;
+            const source = document.getElementById(`source-${id}`).value;
 
-    const isoDate = new Date(inputDate).toISOString();
+            if (!msg) { showNotification("Поле отзыва не должно быть пустым", "error"); return; }
+            if (!inputDate) { showNotification("Выберите корректную дату", "error"); return; }
 
-    const { error } = await supabaseClient
-        .from('reviews')
-        .update({
-            stars: stars > 5 ? 5 : (stars < 1 ? 1 : stars),
-            msg,
-            admin: admin || null,
-            proverka,
-            created_at: isoDate,
-            source: source || null
-        })
-        .eq('id', id);
+            const isoDate = new Date(inputDate).toISOString();
 
-    if (!error) {
-        logAction('review', `Редактирование отзыва от «${revItem ? (revItem.name || 'Аноним') : id}»`);
-        showToast('Сохранено успешно!', 'success');
-        delete activeStarsEditing[id];
-        closeReviewEditModal();
-        fetchAllReviews();
-    } else {
-        showToast('Ошибка RLS или сервера Supabase');
-    }
-}
+            const { error } = await supabaseClient
+                .from('reviews')
+                .update({ 
+                    stars: stars > 5 ? 5 : (stars < 1 ? 1 : stars), 
+                    msg, 
+                    admin: admin || null, 
+                    proverka,
+                    created_at: isoDate,
+                    source: source || null
+                })
+                .eq('id', id);
 
-async function deleteReview(id) {
-    if (!confirm('Вы уверены, что хотите навсегда удалить этот отзыв из базы данных?')) return;
-    const revItem = allReviews.find(item => String(item.id) === String(id));
+            if (!error) {
+                showNotification("Сохранено успешно!", "success");
+                delete activeStarsEditing[id]; // Очищаем временное состояние для этой карточки
+                closeEditModal();
+                fetchAllReviews(); 
+            } else {
+                showNotification("Ошибка RLS или сервера Supabase", "error");
+            }
+        }
 
-    const { error } = await supabaseClient
-        .from('reviews')
-        .delete()
-        .eq('id', id);
+        async function deleteReview(id) {
+            if (!confirm("Вы уверены, что хотите навсегда удалить этот отзыв из базы данных?")) return;
 
-    if (!error) {
-        logAction('review', `Удаление отзыва от «${revItem ? (revItem.name || 'Аноним') : id}»`);
-        showToast('Запись удалена!', 'success');
-        delete activeStarsEditing[id];
-        closeReviewEditModal();
-        fetchAllReviews();
-    } else {
-        showToast('Ошибка удаления');
-    }
-}
+            const { error } = await supabaseClient
+                .from('reviews')
+                .delete()
+                .eq('id', id);
 
-/* ============================================================
-   СТРАНИЦА: РОЗЫГРЫШ
-   ============================================================ */
-let rafParticipants = [];
+            if (!error) {
+                showNotification("Запись удалена!", "success");
+                delete activeStarsEditing[id];
+                closeEditModal();
+                fetchAllReviews();
+            } else {
+                showNotification("Ошибка удаления", "error");
+            }
+        }
 
-function openRaffleModal() {
-    if (rafParticipants.length === 0) {
-        showToast('Сначала загрузите участников или список пуст!');
-        return;
-    }
-    document.getElementById('rafWinnersCountInput').max = rafParticipants.length;
-    document.getElementById('rafWinnersResultSection').style.display = 'none';
-    document.getElementById('rafWinnersListContainer').innerHTML = '';
-    document.getElementById('rafModal').classList.add('show');
-}
-
-function closeRaffleModal() {
-    document.getElementById('rafModal').classList.remove('show');
-}
-
-function rollRaffle() {
-    const countInput = document.getElementById('rafWinnersCountInput');
-    let requestedCount = parseInt(countInput.value);
-
-    if (isNaN(requestedCount) || requestedCount < 1) {
-        showToast('Укажите корректное число победителей!');
-        return;
-    }
-    if (requestedCount > rafParticipants.length) {
-        showToast(`Запрошено ${requestedCount} мест, а участников всего ${rafParticipants.length}!`);
-        return;
-    }
-
-    let pool = [...rafParticipants];
-
-    // Алгоритм тасования Фишера-Йетса с Web Crypto API для честного рандома
-    for (let i = pool.length - 1; i > 0; i--) {
-        const array = new Uint32Array(1);
-        window.crypto.getRandomValues(array);
-        const randomIdx = array[0] % (i + 1);
-        let temp = pool[i];
-        pool[i] = pool[randomIdx];
-        pool[randomIdx] = temp;
-    }
-
-    const winners = pool.slice(0, requestedCount);
-
-    const resultContainer = document.getElementById('rafWinnersListContainer');
-    resultContainer.innerHTML = winners.map((w, idx) => {
-        const username = w.username ? `@${escapeHtml(w.username)}` : `ID: ${escapeHtml(w.telegram_id)}`;
-        const name = w.first_name ? escapeHtml(w.first_name) : 'Без имени';
-        return `
-            <div class="winner-item">
-                <span>#${idx + 1} ${name}</span>
-                <span style="color: var(--btn-primary-bg); font-weight:800;">${username}</span>
-            </div>
-        `;
-    }).join('');
-
-    const winnersStr = winners.map(w => w.username ? '@' + w.username : ('ID:' + w.telegram_id)).join(', ');
-    logAction('raffle', `Розыгрыш (${requestedCount} побед.): ${winnersStr}`);
-
-    document.getElementById('rafWinnersResultSection').style.display = 'block';
-    showToast('Победители определены успешно!', 'success');
-}
-
-async function loadParticipants() {
-    try {
-        const response = await fetch(`${RAFFLE_TABLE_URL}?select=*&order=id.desc`, {
-            method: 'GET',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error(`Статус: ${response.status}`);
-        rafParticipants = await response.json();
-
-        document.getElementById('rafTotalCount').innerText = rafParticipants.length;
-        renderRaffleParticipants();
-    } catch (err) {
-        console.error(err);
-        showToast('Ошибка загрузки данных из БД');
-    }
-}
-
-function renderRaffleParticipants() {
-    const container = document.getElementById('rafParticipantsContainer');
-    if (rafParticipants.length === 0) {
-        container.innerHTML = `<div class="empty-state">Нет зарегистрированных участников</div>`;
-        return;
-    }
-
-    container.innerHTML = rafParticipants.map(p => {
-        const usernameDisplay = p.username ? `<span style="color:var(--btn-primary-bg); font-size:13px;">@${escapeHtml(p.username)}</span>` : '<span style="color:var(--text-sub); font-size:12px;">(нет username)</span>';
-        const nameDisplay = p.first_name ? escapeHtml(p.first_name) : 'Без имени';
-
-        return `
-            <div class="user-card">
-                <div class="user-info">
-                    <div class="user-name">${nameDisplay} ${usernameDisplay}</div>
-                    <div class="user-details">Telegram ID: ${escapeHtml(p.telegram_id || '—')}</div>
-                    <div class="user-details" style="font-size:10px; margin-top:2px;">ID записи: ${escapeHtml(p.id)}</div>
-                </div>
-                <div>
-                    <button class="btn-mini del" onclick="deleteRaffleParticipant('${escapeAttr(p.telegram_id)}', '${escapeAttr(nameDisplay)}')" title="Исключить">
-                        <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-async function deleteRaffleParticipant(telegramId, name) {
-    if (!confirm(`Исключить участника ${name} (ID: ${telegramId}) из розыгрыша?`)) return;
-
-    try {
-        const response = await fetch(`${RAFFLE_TABLE_URL}?telegram_id=eq.${encodeURIComponent(telegramId)}`, {
-            method: 'DELETE',
-            headers: REST_HEADERS
-        });
-        if (!response.ok) throw new Error();
-        logAction('raffle', `Исключение участника ${name} (ID: ${telegramId}) из розыгрыша`);
-        showToast('Участник исключен', 'success');
-        loadParticipants();
-    } catch (err) {
-        showToast('Ошибка при удалении');
-    }
-}
-
-/* ============================================================
-   ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
-   ============================================================ */
-function init() {
-    // Подписка на фильтры отзывов (элементы существуют в DOM всегда)
-    document.getElementById('revStatusFilter').addEventListener('change', renderFilteredReviews);
-    document.getElementById('revSearchInput').addEventListener('input', renderFilteredReviews);
-    document.getElementById('logsSearchInput').addEventListener('input', () => {
-        logsVisibleCount = LOGS_PAGE_SIZE;
-        renderLogsList();
-    });
-
-    registerServiceWorker();
-    router();
-
-    // При каждом открытии сайта проверяем сервера, баланс и новые уведомления
-    checkServerNotifications();
-    checkBalanceNotifications();
-    checkCustomNotifications();
-}
-
-document.addEventListener('DOMContentLoaded', init);
-</script>
+        checkSession();
+    </script>
 </body>
 </html>
