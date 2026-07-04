@@ -573,6 +573,30 @@ select.modal-input, select.form-input {
 .notif-item-date { font-size: 10px; font-weight: 700; color: var(--text-sub); }
 .notif-perm-hint { font-size: 11px; font-weight: 700; color: var(--text-sub); text-align: center; }
 
+/* ============ ЖУРНАЛ ДЕЙСТВИЙ (ИСТОРИЯ) ============ */
+.log-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.log-item {
+    background: rgba(0, 0, 0, 0.15); border: 1px solid var(--card-border);
+    box-shadow: 2px 2px 0px var(--shadow-color); padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 5px;
+}
+.log-item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.log-badge {
+    font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 8px; border: 2px solid var(--card-border); box-shadow: 2px 2px 0px var(--shadow-color);
+}
+.log-badge.auth { background: var(--text-sub); color: #000000; }
+.log-badge.balance { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+.log-badge.server { background: #0088cc; color: #ffffff; }
+.log-badge.admin { background: var(--admin-red); color: #ffffff; }
+.log-badge.review { background: var(--pending-orange); color: #000000; }
+.log-badge.raffle { background: var(--success-green); color: #ffffff; }
+.log-badge.notify { background: #8b5cf6; color: #ffffff; }
+.log-badge.profile { background: var(--btn-secondary-bg); color: var(--text-body); }
+.log-date { font-size: 10px; color: var(--text-sub); font-weight: 700; }
+.log-admin { font-size: 12px; font-weight: 800; color: var(--text-title); text-transform: uppercase; }
+.log-desc { font-size: 13px; font-weight: 600; color: var(--text-body); word-break: break-word; }
+
 /* ============ КНОПКИ В АДМИНКЕ (упрощённые карточки) ============ */
 .btn-chip {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -878,6 +902,31 @@ select.modal-input, select.form-input {
             </div>
         </section>
 
+        <!-- ============ СТРАНИЦА: ИСТОРИЯ ДЕЙСТВИЙ ============ -->
+        <section class="page" id="page-logs">
+            <div class="container container-wide">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X CORE</h1>
+                    <p class="brand-slogan">История действий</p>
+                </header>
+
+                <div class="filter-box">
+                    <div>
+                        <span class="filter-label">Поиск по истории</span>
+                        <input type="text" id="logsSearchInput" placeholder="Имя админа или действие...">
+                    </div>
+                </div>
+
+                <section class="section-box">
+                    <div class="section-title">Журнал действий администраторов</div>
+                    <div class="log-list" id="logsListContainer">
+                        <div class="empty-state">Загрузка...</div>
+                    </div>
+                    <button class="btn btn-secondary history-more-btn hidden" id="logsMoreBtn" onclick="showMoreLogs()">Показать ещё</button>
+                </section>
+            </div>
+        </section>
+
         <!-- ============ СТРАНИЦА: РОЗЫГРЫШ ============ -->
         <section class="page" id="page-giveaway">
             <div class="container container-wide">
@@ -1153,6 +1202,7 @@ const BALANCE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/user_balances`;
 const SERVERS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/servers`;
 const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
 const ADMIN_NOTIF_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_notifications`;
+const ADMIN_LOGS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_logs`;
 
 const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false }
@@ -1496,6 +1546,7 @@ async function submitCustomNotif() {
         if (!response.ok) throw new Error(`Status: ${response.status}`);
 
         closeCustomNotifModal();
+        logAction('notify', `Отправка уведомления «${title}»`);
         showToast('Уведомление отправлено!', 'success');
         checkCustomNotifications();
     } catch (err) {
@@ -1586,6 +1637,104 @@ async function checkBalanceNotifications() {
 }
 
 /* ============================================================
+   ЖУРНАЛ ДЕЙСТВИЙ АДМИНИСТРАТОРОВ
+   Каждое действие записывается в таблицу admin_logs в Supabase.
+   ============================================================ */
+let allAdminLogs = [];
+let logsVisibleCount = 15;
+const LOGS_PAGE_SIZE = 15;
+
+/* Записать действие в журнал (в фоне, не мешает работе) */
+function logAction(actionType, description) {
+    try {
+        fetch(ADMIN_LOGS_TABLE_URL, {
+            method: 'POST',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({
+                admin_name: authGet('auth_user_name') || 'Неизвестно',
+                admin_username: authGet('auth_user_username') || null,
+                action_type: actionType,
+                description: String(description).slice(0, 500)
+            })
+        }).catch(() => {});
+    } catch (e) {}
+}
+
+async function fetchAdminLogs() {
+    try {
+        const response = await fetch(`${ADMIN_LOGS_TABLE_URL}?select=admin_name,admin_username,action_type,description,created_at&order=created_at.desc&limit=300`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        allAdminLogs = await response.json();
+        logsVisibleCount = LOGS_PAGE_SIZE;
+        renderLogsList();
+    } catch (err) {
+        console.error(err);
+        document.getElementById('logsListContainer').innerHTML =
+            '<div class="empty-state">Не удалось загрузить журнал. Создана ли таблица admin_logs?</div>';
+        document.getElementById('logsMoreBtn').classList.add('hidden');
+    }
+}
+
+const LOG_BADGE_LABELS = {
+    auth: 'Вход', balance: 'Баланс', server: 'Сервер', admin: 'Админка',
+    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль'
+};
+
+function renderLogsList() {
+    const container = document.getElementById('logsListContainer');
+    const moreBtn = document.getElementById('logsMoreBtn');
+    const query = document.getElementById('logsSearchInput').value.trim().toLowerCase();
+
+    let filtered = allAdminLogs;
+    if (query) {
+        filtered = allAdminLogs.filter(log => {
+            const nameMatch = log.admin_name ? log.admin_name.toLowerCase().includes(query) : false;
+            const userMatch = log.admin_username ? log.admin_username.toLowerCase().includes(query) : false;
+            const descMatch = log.description ? log.description.toLowerCase().includes(query) : false;
+            return nameMatch || userMatch || descMatch;
+        });
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">Записей не найдено</div>';
+        moreBtn.classList.add('hidden');
+        return;
+    }
+
+    const visible = filtered.slice(0, logsVisibleCount);
+    container.innerHTML = visible.map(log => {
+        const d = new Date(log.created_at);
+        const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const badgeType = LOG_BADGE_LABELS[log.action_type] ? log.action_type : 'auth';
+        const badgeLabel = LOG_BADGE_LABELS[log.action_type] || log.action_type;
+        const who = log.admin_username
+            ? `${escapeHtml(log.admin_name)} <span style="color:var(--text-sub); font-size:10px; font-weight:600;">@${escapeHtml(log.admin_username)}</span>`
+            : escapeHtml(log.admin_name || '—');
+
+        return `
+            <div class="log-item">
+                <div class="log-item-top">
+                    <span class="log-badge ${badgeType}">${escapeHtml(badgeLabel)}</span>
+                    <span class="log-date">${dateStr}</span>
+                </div>
+                <span class="log-admin">${who}</span>
+                <span class="log-desc">${escapeHtml(log.description || '')}</span>
+            </div>
+        `;
+    }).join('');
+
+    moreBtn.classList.toggle('hidden', logsVisibleCount >= filtered.length);
+}
+
+function showMoreLogs() {
+    logsVisibleCount += LOGS_PAGE_SIZE;
+    renderLogsList();
+}
+
+/* ============================================================
    МАРШРУТЫ И ИКОНКИ БОКОВОГО МЕНЮ
    ============================================================ */
 const ICONS = {
@@ -1594,12 +1743,14 @@ const ICONS = {
     balance: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
     servers: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>',
     reviews: '<svg viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>',
+    logs: '<svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
     giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
 };
 
 const ROUTES = {
     home:     { label: 'Главная',   access: null,              onEnter: renderHomeProfile },
     admin:    { label: 'Админка',   access: 'access_admin',    onEnter: loadAdminUsers },
+    logs:     { label: 'История',   access: 'access_admin',    onEnter: fetchAdminLogs },
     balance:  { label: 'Баланс',    access: 'access_balance',  onEnter: fetchBalanceData },
     servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
     reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
@@ -1694,6 +1845,7 @@ function renderSidebar() {
     let html = navLinkHtml('home', currentRoute);
 
     if (hasAccess('access_admin'))    html += navLinkHtml('admin', currentRoute);
+    if (hasAccess('access_admin'))    html += navLinkHtml('logs', currentRoute);
     if (hasAccess('access_balance'))  html += navLinkHtml('balance', currentRoute);
     if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
     if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
@@ -1799,6 +1951,7 @@ async function handleLogin() {
             checkServerNotifications();
             checkBalanceNotifications();
             checkCustomNotifications();
+            logAction('auth', 'Вход в систему');
         } else {
             showToast('Неверный логин или пароль!');
         }
@@ -1809,6 +1962,7 @@ async function handleLogin() {
 }
 
 function handleLogout() {
+    if (isLoggedIn()) logAction('auth', 'Выход из системы');
     AUTH_KEYS.forEach(authRemove);
 
     document.getElementById('sidebarOverlay').classList.remove('active');
@@ -1885,6 +2039,7 @@ async function submitPasswordChange() {
         if (!response.ok) throw new Error('Ошибка сохранения');
 
         closePasswordModal();
+        logAction('profile', 'Смена своего пароля');
         showToast('Пароль успешно изменён!', 'success');
     } catch (err) {
         console.error(err);
@@ -1929,6 +2084,7 @@ async function submitAvatarChange() {
         closeAvatarModal();
         renderHomeProfile();
         renderSidebar();
+        logAction('profile', url ? 'Смена аватарки' : 'Удаление аватарки');
         showToast(url ? 'Аватарка обновлена!' : 'Аватарка удалена', 'success');
     } catch (err) {
         console.error(err);
@@ -2081,6 +2237,9 @@ async function saveAdminUser() {
             throw new Error(errorData.message || `Статус: ${response.status}`);
         }
 
+        logAction('admin', userId
+            ? `Изменение профиля администратора @${username}`
+            : `Создание администратора @${username} (${name})`);
         showToast(userId ? 'Изменения сохранены!' : 'Успешно добавлено!', 'success');
         closeAdminModal();
         loadAdminUsers();
@@ -2099,6 +2258,7 @@ async function deleteAdminUser(username) {
             headers: REST_HEADERS
         });
         if (!response.ok) throw new Error();
+        logAction('admin', `Удаление администратора @${username}`);
         showToast('Аккаунт удален', 'success');
         loadAdminUsers();
     } catch (err) {
@@ -2237,6 +2397,9 @@ async function submitBalanceModal() {
         });
 
         if (!response.ok) throw new Error(`Ошибка добавления строки: ${response.status}`);
+        logAction('balance', currentBalanceActionType === 'add'
+            ? `Пополнение баланса на ${numericAmount} ₽ — ${commentInput}`
+            : `Списание с баланса ${numericAmount} ₽ — ${commentInput}`);
         showToast('Операция сохранена', 'success');
         fetchBalanceData();
         checkBalanceNotifications();
@@ -2319,6 +2482,7 @@ async function deleteServer(serverId, location) {
             headers: REST_HEADERS
         });
         if (!response.ok) throw new Error(`Status: ${response.status}`);
+        logAction('server', `Удаление сервера «${location}»`);
         showToast('Сервер удалён', 'success');
         fetchServersData();
     } catch (err) {
@@ -2376,6 +2540,7 @@ async function submitAddServer() {
         });
 
         if (!response.ok) throw new Error(`Status: ${response.status}`);
+        logAction('server', `Добавление сервера «${locationInput}» (оплачен до ${new Date(dateInput).toLocaleDateString('ru-RU')})`);
         showToast('Сервер добавлен', 'success');
         fetchServersData();
 
@@ -2412,6 +2577,7 @@ async function submitRenewServer() {
         });
 
         if (!response.ok) throw new Error(`Status: ${response.status}`);
+        logAction('server', `Продление сервера «${targetServer.location}» на ${daysInput} дн. (до ${new Date(newPaidUntilString).toLocaleDateString('ru-RU')})`);
         showToast('Дата обновлена', 'success');
         fetchServersData();
         checkServerNotifications();
@@ -2625,6 +2791,7 @@ function renderFilteredReviews() {
 }
 
 async function updateReview(id) {
+    const revItem = allReviews.find(item => String(item.id) === String(id));
     const stars = activeStarsEditing[id] || 5;
     const msg = document.getElementById(`msg-${id}`).value.trim();
     const admin = document.getElementById(`admin-${id}`).value.trim();
@@ -2651,6 +2818,7 @@ async function updateReview(id) {
         .eq('id', id);
 
     if (!error) {
+        logAction('review', `Редактирование отзыва от «${revItem ? (revItem.name || 'Аноним') : id}»`);
         showToast('Сохранено успешно!', 'success');
         delete activeStarsEditing[id];
         closeReviewEditModal();
@@ -2662,6 +2830,7 @@ async function updateReview(id) {
 
 async function deleteReview(id) {
     if (!confirm('Вы уверены, что хотите навсегда удалить этот отзыв из базы данных?')) return;
+    const revItem = allReviews.find(item => String(item.id) === String(id));
 
     const { error } = await supabaseClient
         .from('reviews')
@@ -2669,6 +2838,7 @@ async function deleteReview(id) {
         .eq('id', id);
 
     if (!error) {
+        logAction('review', `Удаление отзыва от «${revItem ? (revItem.name || 'Аноним') : id}»`);
         showToast('Запись удалена!', 'success');
         delete activeStarsEditing[id];
         closeReviewEditModal();
@@ -2737,6 +2907,9 @@ function rollRaffle() {
         `;
     }).join('');
 
+    const winnersStr = winners.map(w => w.username ? '@' + w.username : ('ID:' + w.telegram_id)).join(', ');
+    logAction('raffle', `Розыгрыш (${requestedCount} побед.): ${winnersStr}`);
+
     document.getElementById('rafWinnersResultSection').style.display = 'block';
     showToast('Победители определены успешно!', 'success');
 }
@@ -2795,6 +2968,7 @@ async function deleteRaffleParticipant(telegramId, name) {
             headers: REST_HEADERS
         });
         if (!response.ok) throw new Error();
+        logAction('raffle', `Исключение участника ${name} (ID: ${telegramId}) из розыгрыша`);
         showToast('Участник исключен', 'success');
         loadParticipants();
     } catch (err) {
@@ -2809,6 +2983,10 @@ function init() {
     // Подписка на фильтры отзывов (элементы существуют в DOM всегда)
     document.getElementById('revStatusFilter').addEventListener('change', renderFilteredReviews);
     document.getElementById('revSearchInput').addEventListener('input', renderFilteredReviews);
+    document.getElementById('logsSearchInput').addEventListener('input', () => {
+        logsVisibleCount = LOGS_PAGE_SIZE;
+        renderLogsList();
+    });
 
     registerServiceWorker();
     router();
