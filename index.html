@@ -608,6 +608,8 @@ select.modal-input, select.form-input {
 .btn-chip.edit { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
 .btn-chip.del { background: var(--btn-danger-bg); color: var(--btn-danger-text); }
 .user-card .actions-group { flex-direction: column; gap: 6px; }
+.admin-log-card { cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+.admin-log-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--shadow-color); }
 
 /* ============ АДАПТАЦИЯ: ТЕЛЕФОНЫ (основной сценарий) ============ */
 @media (max-width: 600px) {
@@ -766,7 +768,12 @@ select.modal-input, select.form-input {
                     </div>
                 </section>
 
-                <button class="btn btn-secondary" onclick="handleLogout()">Выйти из системы</button>
+                <button class="btn btn-danger" onclick="handleLogout()">
+                    <div class="btn-left">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <span>Выйти из системы</span>
+                    </div>
+                </button>
             </div>
         </section>
 
@@ -910,6 +917,13 @@ select.modal-input, select.form-input {
                     <p class="brand-slogan">История действий</p>
                 </header>
 
+                <section class="section-box">
+                    <div class="section-title">Администраторы</div>
+                    <div id="logsAdminListContainer" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                        <div class="empty-state">Загрузка...</div>
+                    </div>
+                </section>
+
                 <div class="filter-box">
                     <div>
                         <span class="filter-label">Поиск по истории</span>
@@ -984,8 +998,8 @@ select.modal-input, select.form-input {
             <input type="text" class="form-input" id="admPasswordInput" placeholder="Пароль">
         </div>
         <div class="form-group">
-            <span class="form-label">Роль (Пояснение)</span>
-            <input type="text" class="form-input" id="admRoleInput" placeholder="Напр: Разработчик">
+            <span class="form-label">Уровень администратора</span>
+            <input type="text" class="form-input" id="admRoleInput" placeholder="Напр: высшего / первого / второго">
         </div>
         <div class="form-group">
             <span class="form-label">Аватарка (прямая ссылка на картинку)</span>
@@ -998,7 +1012,8 @@ select.modal-input, select.form-input {
                 <label class="checkbox-item"><input type="checkbox" id="accBalance"> Баланс</label>
                 <label class="checkbox-item"><input type="checkbox" id="accServers"> Сервера</label>
                 <label class="checkbox-item"><input type="checkbox" id="accReviews"> Отзывы</label>
-                <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
+                <label class="checkbox-item"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
+                <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accLogs"> История (журнал действий)</label>
             </div>
         </div>
 
@@ -1115,6 +1130,18 @@ select.modal-input, select.form-input {
     </div>
 </div>
 
+<!-- ============ МОДАЛКА: ИСТОРИЯ ДЕЙСТВИЙ АДМИНИСТРАТОРА ============ -->
+<div class="modal-overlay" id="adminLogsModal" onclick="if(event.target.id === 'adminLogsModal') closeAdminLogsModal()">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeAdminLogsModal()">×</button>
+        <div class="section-title" id="adminLogsModalTitle">История действий</div>
+        <div class="log-list" id="adminLogsModalList">
+            <div class="empty-state">Загрузка...</div>
+        </div>
+        <button class="btn btn-secondary history-more-btn hidden" id="adminLogsMoreBtn" onclick="showMoreAdminLogs()">Показать ещё</button>
+    </div>
+</div>
+
 <!-- ============ МОДАЛКА: СМЕНА ПАРОЛЯ ============ -->
 <div class="modal-overlay" id="pwdModal" onclick="if(event.target.id === 'pwdModal') closePasswordModal()">
     <div class="modal-box">
@@ -1222,7 +1249,7 @@ const REST_HEADERS = {
    ============================================================ */
 const AUTH_KEYS = [
     'auth_user_name', 'auth_user_role', 'auth_user_ava', 'auth_user_username',
-    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway'
+    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway', 'access_logs'
 ];
 
 function setCookie(name, value, days = 365) {
@@ -1442,6 +1469,7 @@ function showSystemNotification(title, body) {
    Для каждого сервера с оплатой <= 3 дней создаётся уведомление
    (не чаще одного раза в день на сервер). */
 async function checkServerNotifications() {
+    /* Уведомления о серверах получают ТОЛЬКО админы с доступом к разделу "Сервера" */
     if (!isLoggedIn() || !hasAccess('access_servers')) return;
 
     try {
@@ -1556,6 +1584,8 @@ async function submitCustomNotif() {
 }
 
 async function checkCustomNotifications() {
+    /* Кастомные уведомления из "Админки" получают ВСЕ авторизованные админы,
+       независимо от доступов — поэтому здесь нет проверки hasAccess() */
     if (!isLoggedIn()) return;
 
     try {
@@ -1598,6 +1628,7 @@ async function checkCustomNotifications() {
    с последней увиденной записью: новые пополнения и списания —
    в том числе сделанные другими админами — станут уведомлениями. */
 async function checkBalanceNotifications() {
+    /* Уведомления о балансе получают ТОЛЬКО админы с доступом к разделу "Баланс" */
     if (!isLoggedIn() || !hasAccess('access_balance')) return;
 
     try {
@@ -1683,6 +1714,122 @@ const LOG_BADGE_LABELS = {
     review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль'
 };
 
+/* Общий HTML одной записи журнала */
+function logItemHtml(log) {
+    const d = new Date(log.created_at);
+    const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const badgeType = LOG_BADGE_LABELS[log.action_type] ? log.action_type : 'auth';
+    const badgeLabel = LOG_BADGE_LABELS[log.action_type] || log.action_type;
+    const who = log.admin_username
+        ? `${escapeHtml(log.admin_name)} <span style="color:var(--text-sub); font-size:10px; font-weight:600;">@${escapeHtml(log.admin_username)}</span>`
+        : escapeHtml(log.admin_name || '—');
+
+    return `
+        <div class="log-item">
+            <div class="log-item-top">
+                <span class="log-badge ${badgeType}">${escapeHtml(badgeLabel)}</span>
+                <span class="log-date">${dateStr}</span>
+            </div>
+            <span class="log-admin">${who}</span>
+            <span class="log-desc">${escapeHtml(log.description || '')}</span>
+        </div>
+    `;
+}
+
+/* Вход на страницу "История": грузим и список админов, и общий журнал */
+function enterLogsPage() {
+    fetchLogsAdmins();
+    fetchAdminLogs();
+}
+
+/* ---------- Список администраторов на странице "История" ---------- */
+async function fetchLogsAdmins() {
+    const container = document.getElementById('logsAdminListContainer');
+    try {
+        const response = await fetch(`${USERS_AUTH_URL}?select=name,username,role,ava&order=name.asc`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        const admins = await response.json();
+
+        if (!Array.isArray(admins) || admins.length === 0) {
+            container.innerHTML = '<div class="empty-state">Администраторы отсутствуют</div>';
+            return;
+        }
+
+        container.innerHTML = admins.map(user => {
+            const avaHtml = user.ava
+                ? `<img src="${escapeAttr(user.ava)}" alt="avatar" onerror="this.parentElement.innerText='${user.name ? escapeAttr(user.name[0].toUpperCase()) : '?'}'">`
+                : escapeHtml(user.name ? user.name[0].toUpperCase() : '?');
+            return `
+                <div class="user-card admin-log-card" onclick="openAdminLogsModal('${escapeAttr(user.username)}', '${escapeAttr(user.name || '')}')">
+                    <div class="user-card-top">
+                        <div class="user-card-avatar">${avaHtml}</div>
+                        <div class="user-info">
+                            <div class="user-name">${escapeHtml(user.name || '—')}</div>
+                            <div class="user-details">@${escapeHtml(user.username)}</div>
+                        </div>
+                    </div>
+                    <svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:var(--text-sub); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="empty-state">Не удалось загрузить администраторов</div>';
+    }
+}
+
+/* ---------- Модалка с историей конкретного администратора ---------- */
+let adminModalLogs = [];
+let adminModalVisibleCount = 15;
+
+async function openAdminLogsModal(username, name) {
+    const listEl = document.getElementById('adminLogsModalList');
+    document.getElementById('adminLogsModalTitle').innerText = `История — ${name || '@' + username}`;
+    listEl.innerHTML = '<div class="empty-state">Загрузка...</div>';
+    document.getElementById('adminLogsMoreBtn').classList.add('hidden');
+    document.getElementById('adminLogsModal').classList.add('show');
+
+    try {
+        const response = await fetch(`${ADMIN_LOGS_TABLE_URL}?select=admin_name,admin_username,action_type,description,created_at&admin_username=eq.${encodeURIComponent(username)}&order=created_at.desc&limit=500`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        adminModalLogs = await response.json();
+        adminModalVisibleCount = LOGS_PAGE_SIZE;
+        renderAdminLogsModal();
+    } catch (err) {
+        console.error(err);
+        listEl.innerHTML = '<div class="empty-state">Не удалось загрузить историю</div>';
+    }
+}
+
+function renderAdminLogsModal() {
+    const listEl = document.getElementById('adminLogsModalList');
+    const moreBtn = document.getElementById('adminLogsMoreBtn');
+
+    if (!Array.isArray(adminModalLogs) || adminModalLogs.length === 0) {
+        listEl.innerHTML = '<div class="empty-state">Действий пока нет</div>';
+        moreBtn.classList.add('hidden');
+        return;
+    }
+
+    listEl.innerHTML = adminModalLogs.slice(0, adminModalVisibleCount).map(logItemHtml).join('');
+    moreBtn.classList.toggle('hidden', adminModalVisibleCount >= adminModalLogs.length);
+}
+
+function showMoreAdminLogs() {
+    adminModalVisibleCount += LOGS_PAGE_SIZE;
+    renderAdminLogsModal();
+}
+
+function closeAdminLogsModal() {
+    document.getElementById('adminLogsModal').classList.remove('show');
+}
+
 function renderLogsList() {
     const container = document.getElementById('logsListContainer');
     const moreBtn = document.getElementById('logsMoreBtn');
@@ -1705,26 +1852,7 @@ function renderLogsList() {
     }
 
     const visible = filtered.slice(0, logsVisibleCount);
-    container.innerHTML = visible.map(log => {
-        const d = new Date(log.created_at);
-        const dateStr = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        const badgeType = LOG_BADGE_LABELS[log.action_type] ? log.action_type : 'auth';
-        const badgeLabel = LOG_BADGE_LABELS[log.action_type] || log.action_type;
-        const who = log.admin_username
-            ? `${escapeHtml(log.admin_name)} <span style="color:var(--text-sub); font-size:10px; font-weight:600;">@${escapeHtml(log.admin_username)}</span>`
-            : escapeHtml(log.admin_name || '—');
-
-        return `
-            <div class="log-item">
-                <div class="log-item-top">
-                    <span class="log-badge ${badgeType}">${escapeHtml(badgeLabel)}</span>
-                    <span class="log-date">${dateStr}</span>
-                </div>
-                <span class="log-admin">${who}</span>
-                <span class="log-desc">${escapeHtml(log.description || '')}</span>
-            </div>
-        `;
-    }).join('');
+    container.innerHTML = visible.map(logItemHtml).join('');
 
     moreBtn.classList.toggle('hidden', logsVisibleCount >= filtered.length);
 }
@@ -1750,7 +1878,7 @@ const ICONS = {
 const ROUTES = {
     home:     { label: 'Главная',   access: null,              onEnter: renderHomeProfile },
     admin:    { label: 'Админка',   access: 'access_admin',    onEnter: loadAdminUsers },
-    logs:     { label: 'История',   access: 'access_admin',    onEnter: fetchAdminLogs },
+    logs:     { label: 'История',   access: 'access_logs',     onEnter: enterLogsPage },
     balance:  { label: 'Баланс',    access: 'access_balance',  onEnter: fetchBalanceData },
     servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
     reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
@@ -1811,6 +1939,38 @@ function isLoggedIn() {
     return !!(authGet('auth_user_name') && authGet('auth_user_role'));
 }
 
+/* Обновить доступы текущего пользователя из БД без перезахода.
+   Нужно, чтобы выданный после входа доступ (например, к "Истории")
+   сразу появлялся в боковом меню при следующем открытии сайта. */
+async function refreshAccessRights() {
+    const username = authGet('auth_user_username');
+    if (!isLoggedIn() || !username) return;
+
+    try {
+        const selectColumns = 'name,role,ava,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs';
+        const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&select=${selectColumns}`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) return;
+        const users = await response.json();
+        if (!users || users.length === 0) return;
+
+        const u = users[0];
+        authSet('auth_user_name', u.name);
+        authSet('auth_user_role', u.role);
+        authSet('auth_user_ava', u.ava || '');
+        authSet('access_admin', String(u.access_admin));
+        authSet('access_balance', String(u.access_balance));
+        authSet('access_servers', String(u.access_servers));
+        authSet('access_reviews', String(u.access_reviews));
+        authSet('access_giveaway', String(u.access_giveaway));
+        authSet('access_logs', String(u.access_logs));
+
+        renderSidebar();
+    } catch (e) { console.warn('Не удалось обновить доступы:', e); }
+}
+
 function renderSidebar() {
     const menuList = document.getElementById('menuList');
     const burgerBtn = document.getElementById('burgerBtn');
@@ -1832,10 +1992,10 @@ function renderSidebar() {
     footerBox.style.display = 'block';
 
     const userName = authGet('auth_user_name') || '';
-    const userRole = authGet('auth_user_role') || '';
+    const userLogin = authGet('auth_user_username') || '';
     const userAva = authGet('auth_user_ava') || '';
     document.getElementById('sidebarProfileName').innerText = userName;
-    document.getElementById('sidebarProfileRole').innerText = userRole;
+    document.getElementById('sidebarProfileRole').innerText = userLogin ? '@' + userLogin : '';
     const sidebarAvatarEl = document.getElementById('sidebarAvatar');
     sidebarAvatarEl.innerHTML = userAva
         ? `<img src="${escapeAttr(userAva)}" alt="avatar" onerror="this.parentElement.innerHTML='${userName ? escapeAttr(userName[0].toUpperCase()) : '?'}'">`
@@ -1845,7 +2005,7 @@ function renderSidebar() {
     let html = navLinkHtml('home', currentRoute);
 
     if (hasAccess('access_admin'))    html += navLinkHtml('admin', currentRoute);
-    if (hasAccess('access_admin'))    html += navLinkHtml('logs', currentRoute);
+    if (hasAccess('access_logs'))     html += navLinkHtml('logs', currentRoute);
     if (hasAccess('access_balance'))  html += navLinkHtml('balance', currentRoute);
     if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
     if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
@@ -1917,7 +2077,7 @@ async function handleLogin() {
     }
 
     try {
-        const selectColumns = 'name,role,ava,access_admin,access_balance,access_servers,access_reviews,access_giveaway';
+        const selectColumns = 'name,role,ava,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -1937,6 +2097,7 @@ async function handleLogin() {
             authSet('access_servers', String(u.access_servers));
             authSet('access_reviews', String(u.access_reviews));
             authSet('access_giveaway', String(u.access_giveaway));
+            authSet('access_logs', String(u.access_logs));
 
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
@@ -1981,7 +2142,7 @@ function renderHomeProfile() {
 
     document.getElementById('profileName').innerText = name;
     document.getElementById('profileUsername').innerText = username ? `@${username}` : 'Логин не сохранён — перезайдите';
-    document.getElementById('profileRole').innerText = `Вы авторизовались как ${role}`;
+    document.getElementById('profileRole').innerText = `Вы авторизовались как администратор ${role} уровня`;
 
     const avatarEl = document.getElementById('profileAvatar');
     const initial = name && name !== '—' ? name[0].toUpperCase() : '?';
@@ -2167,6 +2328,7 @@ function openAdminModalForEdit(username) {
     document.getElementById('accServers').checked = Number(user.access_servers) === 1 || user.access_servers === true;
     document.getElementById('accReviews').checked = Number(user.access_reviews) === 1 || user.access_reviews === true;
     document.getElementById('accGiveaway').checked = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
+    document.getElementById('accLogs').checked = Number(user.access_logs) === 1 || user.access_logs === true;
 
     document.getElementById('admSaveBtn').innerText = 'Сохранить изменения';
     document.getElementById('admModalOverlay').classList.add('show');
@@ -2189,6 +2351,7 @@ function resetAdminForm() {
     document.getElementById('accServers').checked = false;
     document.getElementById('accReviews').checked = false;
     document.getElementById('accGiveaway').checked = false;
+    document.getElementById('accLogs').checked = false;
 }
 
 async function saveAdminUser() {
@@ -2214,7 +2377,8 @@ async function saveAdminUser() {
         access_balance: document.getElementById('accBalance').checked ? 1 : 0,
         access_servers: document.getElementById('accServers').checked ? 1 : 0,
         access_reviews: document.getElementById('accReviews').checked ? 1 : 0,
-        access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0
+        access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0,
+        access_logs: document.getElementById('accLogs').checked ? 1 : 0
     };
 
     try {
@@ -2990,6 +3154,10 @@ function init() {
 
     registerServiceWorker();
     router();
+
+    // При каждом открытии сайта подтягиваем актуальные доступы из БД
+    // (чтобы выданный доступ появлялся в меню без перезахода)
+    refreshAccessRights();
 
     // При каждом открытии сайта проверяем сервера, баланс и новые уведомления
     checkServerNotifications();
