@@ -2424,7 +2424,7 @@ function renderHomeProfile() {
 
     document.getElementById('profileName').innerText = name;
     document.getElementById('profileUsername').innerText = username ? `@${username}` : 'Логин не сохранён — перезайдите';
-    document.getElementById('profileRole').innerText = `Вы авторизовались как администратор ${role} уровня`;
+    document.getElementById('profileRole').innerText = `Вы администратор ${role} уровня`;
 
     const avatarEl = document.getElementById('profileAvatar');
     const initial = name && name !== '—' ? name[0].toUpperCase() : '?';
