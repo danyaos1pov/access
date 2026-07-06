@@ -261,18 +261,14 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 }
 .sidebar-overlay.active .sidebar-menu { left: 0; }
 
-.sidebar-header {
-    display: flex; justify-content: flex-end; align-items: center;
-    padding: calc(24px + env(safe-area-inset-top)) 22px 14px 22px;
-    flex-shrink: 0;
-}
 .sidebar-scroll {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
     display: flex; flex-direction: column;
 }
 .sidebar-close {
     background: var(--btn-secondary-bg); border: none; border-radius: 999px;
-    width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+    width: 32px; height: 32px; min-width: 32px; margin-left: auto; flex-shrink: 0;
+    display: grid; place-items: center; padding: 0;
     cursor: pointer; color: var(--text-sub);
     transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -280,7 +276,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 .sidebar-close:active { transform: scale(0.92); }
 
 .sidebar-profile {
-    margin: 10px 16px 14px 16px;
+    margin: calc(20px + env(safe-area-inset-top)) 16px 14px 16px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
@@ -301,12 +297,6 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 .sidebar-profile-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .sidebar-profile-name { font-size: 16px; font-weight: 600; color: var(--text-title); letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-profile-role { font-size: 13px; font-weight: 500; color: var(--text-sub); }
-
-.sidebar-section-label {
-    font-size: 12px; font-weight: 600; color: var(--text-sub);
-    text-transform: uppercase; letter-spacing: 0.6px;
-    padding: 0 24px; margin: 6px 0 8px 0;
-}
 
 .sidebar-links { list-style: none; display: flex; flex-direction: column; gap: 4px; padding: 0 14px; }
 
@@ -907,6 +897,44 @@ select.modal-input, select.form-input {
     .server-item { padding: 14px 18px; }
     .user-card:hover { background: var(--btn-secondary-bg); }
 }
+
+.key-card {
+    background: var(--input-bg);
+    border: 1px solid var(--separator);
+    border-radius: var(--r-lg);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+}
+.key-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.key-status-badge {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.2px;
+    padding: 4px 12px; border-radius: 999px;
+}
+.key-status-badge.pending { background: rgba(255, 159, 10, 0.18); color: var(--pending-orange); }
+.key-status-badge.issued { background: rgba(48, 209, 88, 0.18); color: var(--success-green); }
+.key-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.key-issue-question {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--card-bg); border: 1px solid var(--separator); border-radius: var(--r-md);
+    padding: 10px 12px;
+}
+.key-issue-question span { font-size: 14px; font-weight: 600; color: var(--text-body); }
+.key-issue-buttons { display: flex; gap: 8px; }
+.key-issue-buttons .btn-chip { min-width: 56px; text-align: center; }
+.btn-chip.yes { background: rgba(48, 209, 88, 0.16); color: var(--success-green); }
+.btn-chip.no { background: rgba(255, 159, 10, 0.16); color: var(--pending-orange); }
+
+/* === Кнопки: без свечения и выпуклой окантовки === */
+.btn, .btn-primary, .btn-secondary, .btn-danger, .btn-action, .btn-refresh, .btn-tg,
+.btn-save, .btn-delete, .btn-small, .btn-mini, .btn-chip,
+.sidebar-logout-btn, .sidebar-item-link.active, .sidebar-close,
+.refresh-btn, .avatar-edit-btn, .notif-bell-btn, .modal-close-x, .star-btn {
+    box-shadow: none !important;
+}
+.btn-primary, .btn-danger, .btn-action, .btn-tg, .btn-save, .btn-delete,
+.sidebar-logout-btn, .sidebar-item-link.active {
+    border-color: transparent !important;
+}
 </style>
 </head>
 <body>
@@ -915,20 +943,16 @@ select.modal-input, select.form-input {
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenuOnOverlay(event)">
     <div class="sidebar-menu" id="sidebarMenu">
-        <div class="sidebar-header">
-            <button class="sidebar-close" onclick="toggleMenu()"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></button>
-        </div>
-
         <div class="sidebar-profile" id="sidebarProfile" style="display:none;">
             <div class="sidebar-avatar" id="sidebarAvatar">?</div>
             <div class="sidebar-profile-info">
                 <span class="sidebar-profile-name" id="sidebarProfileName">—</span>
                 <span class="sidebar-profile-role" id="sidebarProfileRole">—</span>
             </div>
+            <button class="sidebar-close" onclick="toggleMenu()"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></button>
         </div>
 
         <div class="sidebar-scroll">
-            <div class="sidebar-section-label">Разделы</div>
             <ul class="sidebar-links" id="menuList"></ul>
         </div>
 
@@ -1015,6 +1039,7 @@ select.modal-input, select.form-input {
                 <section class="section-box crypto-balance-box">
                     <div class="section-title" style="text-align: center; width: 100%;">Кошелёк</div>
                     <div class="balance-value" id="walletDisplay">—</div>
+                    <button class="btn btn-primary" onclick="openWithdrawModal()">Вывести</button>
                 </section>
 
                 <section class="section-box">
@@ -1203,6 +1228,29 @@ select.modal-input, select.form-input {
             </div>
         </section>
 
+        <section class="page" id="page-keys">
+            <div class="container">
+                <header class="brand-header">
+                    <h1 class="brand-title">ON1X VPN</h1>
+                    <p class="brand-slogan">Ключи</p>
+                </header>
+
+                <button class="btn btn-primary" onclick="openKeyModalForCreate()">
+                    <div class="btn-left">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Добавить</span>
+                    </div>
+                </button>
+
+                <section class="section-box">
+                    <div class="section-title">Список ключей</div>
+                    <div id="keysListContainer" style="display: flex; flex-direction: column; gap: 14px;">
+                        <div class="empty-state">Получение данных...</div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
         <section class="page" id="page-giveaway">
             <div class="container container-wide">
                 <header class="brand-header">
@@ -1277,12 +1325,37 @@ select.modal-input, select.form-input {
                 <label class="checkbox-item"><input type="checkbox" id="accServers"> Сервера</label>
                 <label class="checkbox-item"><input type="checkbox" id="accReviews"> Отзывы</label>
                 <label class="checkbox-item"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
+                <label class="checkbox-item"><input type="checkbox" id="accKeys"> Ключи</label>
                 <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accLogs"> История (журнал действий)</label>
             </div>
         </div>
 
         <button class="btn btn-primary" id="admSaveBtn" onclick="saveAdminUser()" style="margin-top: 6px;">Сохранить</button>
         <button class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="keyModal" onclick="if(event.target.id === 'keyModal') closeKeyModal()">
+    <div class="modal-box">
+        <div class="modal-title" id="keyModalTitle">Добавить ключ</div>
+        <input type="hidden" id="keyEditId">
+        <input type="text" class="modal-input" id="keyLinkInput" placeholder="Ссылка (ключ)">
+        <select class="modal-input" id="keyStatusSelect">
+            <option value="Ожидание">Ожидание</option>
+            <option value="Выдан">Выдан</option>
+        </select>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary btn-small" onclick="closeKeyModal()">ОТМЕНА</button>
+            <button class="btn btn-primary btn-small" id="keySaveBtn" onclick="submitKeyModal()">СОХРАНИТЬ</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="withdrawModal" onclick="if(event.target.id === 'withdrawModal') closeWithdrawModal()">
+    <div class="modal-box">
+        <div class="modal-title">Вывод средств</div>
+        <p style="font-size: 15px; font-weight: 500; line-height: 1.5; color: var(--text-body); margin: 0;">Для того, чтобы вывести заработанные денежные средства, пожалуйста, обратитесь к своему менеджеру.</p>
+        <button class="btn btn-primary" onclick="closeWithdrawModal()">Понятно</button>
     </div>
 </div>
 
@@ -1474,6 +1547,7 @@ const SERVERS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/servers`;
 const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
 const ADMIN_NOTIF_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_notifications`;
 const ADMIN_LOGS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_logs`;
+const KEYS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/vpn_keys`;
 
 const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false }
@@ -1487,7 +1561,7 @@ const REST_HEADERS = {
 
 const AUTH_KEYS = [
     'auth_user_name', 'auth_user_role', 'auth_user_ava', 'auth_user_username', 'auth_user_wallet',
-    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway', 'access_logs'
+    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway', 'access_logs', 'access_keys'
 ];
 
 function setCookie(name, value, days = 365) {
@@ -1864,7 +1938,7 @@ async function checkBalanceNotifications() {
             const isPlus = amount >= 0;
             const title = isPlus ? '💰 Пополнение баланса' : '💸 Списание с баланса';
             const comment = row.history_comments || 'Без комментария';
-            const text = `${isPlus ? '+' : ''}${amount.toFixed(2)} ₽ — ${comment}`;
+            const text = `${isPlus ? '+' : ''}${formatMoney(amount, 2)} ₽ — ${comment}`;
 
             const isNew = addNotification(`bal-${row.created_at}`, title, text);
             if (isNew) showSystemNotification(title, text);
@@ -1913,7 +1987,7 @@ async function fetchAdminLogs() {
 
 const LOG_BADGE_LABELS = {
     auth: 'Вход', balance: 'Баланс', server: 'Сервер', admin: 'Админка',
-    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль'
+    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль', keys: 'Ключи'
 };
 
 function logItemHtml(log) {
@@ -2067,7 +2141,8 @@ const ICONS = {
     servers: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>',
     reviews: '<svg viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>',
     logs: '<svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
-    giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
+    giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+    keys: '<svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>'
 };
 
 const ROUTES = {
@@ -2077,7 +2152,8 @@ const ROUTES = {
     balance:  { label: 'Баланс',    access: 'access_balance',  onEnter: fetchBalanceData },
     servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
     reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
-    giveaway: { label: 'Розыгрыш',  access: 'access_giveaway', onEnter: loadParticipants }
+    giveaway: { label: 'Розыгрыш',  access: 'access_giveaway', onEnter: loadParticipants },
+    keys:     { label: 'Ключи',     access: 'access_keys',     onEnter: fetchKeysData }
 };
 
 (function initTheme() {
@@ -2130,7 +2206,7 @@ async function refreshAccessRights() {
     if (!isLoggedIn() || !username) return;
 
     try {
-        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs';
+        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -2150,10 +2226,32 @@ async function refreshAccessRights() {
         authSet('access_reviews', String(u.access_reviews));
         authSet('access_giveaway', String(u.access_giveaway));
         authSet('access_logs', String(u.access_logs));
+        authSet('access_keys', String(u.access_keys));
+        authSet('access_keys', String(u.access_keys));
 
         renderSidebar();
         if (getCurrentRoute() === 'home' || !getCurrentRoute()) renderHomeProfile();
     } catch (e) { console.warn('Не удалось обновить доступы:', e); }
+}
+
+function formatMoney(num, decimals = 0) {
+    const fixed = Number(num || 0).toFixed(decimals);
+    let [intPart, fracPart] = fixed.split('.');
+    const sign = intPart.startsWith('-') ? '-' : '';
+    if (sign) intPart = intPart.slice(1);
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return sign + grouped + (fracPart ? '.' + fracPart : '');
+}
+
+function formatWalletValue(rawWallet) {
+    let val = String(rawWallet || '').trim();
+    val = val.replace(/(руб\.?|₽)\s*$/i, '').trim();
+    if (!val) val = '0';
+    const numeric = val.replace(/\s+/g, '').replace(',', '.');
+    if (numeric !== '' && !isNaN(Number(numeric))) {
+        val = formatMoney(Number(numeric), Number.isInteger(Number(numeric)) ? 0 : 2);
+    }
+    return `${val} руб`;
 }
 
 function renderSidebar() {
@@ -2180,7 +2278,7 @@ function renderSidebar() {
     const userWallet = authGet('auth_user_wallet') || '';
     const userAva = authGet('auth_user_ava') || '';
     document.getElementById('sidebarProfileName').innerText = userName;
-    document.getElementById('sidebarProfileRole').innerText = `Кошелёк: ${userWallet || '—'}`;
+    document.getElementById('sidebarProfileRole').innerText = `Кошелёк: ${formatWalletValue(userWallet)}`;
     const sidebarAvatarEl = document.getElementById('sidebarAvatar');
     sidebarAvatarEl.innerHTML = userAva
         ? `<img src="${escapeAttr(userAva)}" alt="avatar" onerror="this.parentElement.innerHTML='${userName ? escapeAttr(userName[0].toUpperCase()) : '?'}'">`
@@ -2195,6 +2293,7 @@ function renderSidebar() {
     if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
     if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
     if (hasAccess('access_giveaway')) html += navLinkHtml('giveaway', currentRoute);
+    if (hasAccess('access_keys'))     html += navLinkHtml('keys', currentRoute);
 
     menuList.innerHTML = html;
 }
@@ -2254,7 +2353,7 @@ async function handleLogin() {
     }
 
     try {
-        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs';
+        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -2276,6 +2375,10 @@ async function handleLogin() {
             authSet('access_reviews', String(u.access_reviews));
             authSet('access_giveaway', String(u.access_giveaway));
             authSet('access_logs', String(u.access_logs));
+            authSet('access_keys', String(u.access_keys));
+            authSet('access_keys', String(u.access_keys));
+        authSet('access_keys', String(u.access_keys));
+        authSet('access_keys', String(u.access_keys));
 
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
@@ -2317,7 +2420,7 @@ function renderHomeProfile() {
     document.getElementById('profileName').innerText = name;
     document.getElementById('profileUsername').innerText = username ? `@${username}` : 'Логин не сохранён — перезайдите';
     document.getElementById('profileRole').innerText = `Вы администратор ${role} уровня`;
-    document.getElementById('walletDisplay').innerText = authGet('auth_user_wallet') || '—';
+    document.getElementById('walletDisplay').innerText = formatWalletValue(authGet('auth_user_wallet'));
 
     const avatarEl = document.getElementById('profileAvatar');
     const initial = name && name !== '—' ? name[0].toUpperCase() : '?';
@@ -2499,6 +2602,7 @@ function openAdminModalForEdit(username) {
     document.getElementById('accReviews').checked = Number(user.access_reviews) === 1 || user.access_reviews === true;
     document.getElementById('accGiveaway').checked = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
     document.getElementById('accLogs').checked = Number(user.access_logs) === 1 || user.access_logs === true;
+    document.getElementById('accKeys').checked = Number(user.access_keys) === 1 || user.access_keys === true;
 
     document.getElementById('admSaveBtn').innerText = 'Сохранить изменения';
     document.getElementById('admModalOverlay').classList.add('show');
@@ -2523,6 +2627,7 @@ function resetAdminForm() {
     document.getElementById('accReviews').checked = false;
     document.getElementById('accGiveaway').checked = false;
     document.getElementById('accLogs').checked = false;
+    document.getElementById('accKeys').checked = false;
 }
 
 async function saveAdminUser() {
@@ -2551,7 +2656,8 @@ async function saveAdminUser() {
         access_servers: document.getElementById('accServers').checked ? 1 : 0,
         access_reviews: document.getElementById('accReviews').checked ? 1 : 0,
         access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0,
-        access_logs: document.getElementById('accLogs').checked ? 1 : 0
+        access_logs: document.getElementById('accLogs').checked ? 1 : 0,
+        access_keys: document.getElementById('accKeys').checked ? 1 : 0
     };
 
     try {
@@ -2637,7 +2743,7 @@ async function fetchBalanceData() {
         }
 
         const totalBalance = allBalanceHistoryRows.reduce((sum, row) => sum + Number(row.balance), 0);
-        document.getElementById('balanceDisplay').innerText = `${Math.round(totalBalance)} ₽`;
+        document.getElementById('balanceDisplay').innerText = `${formatMoney(Math.round(totalBalance))} ₽`;
 
         renderHistoryList();
 
@@ -2690,16 +2796,23 @@ function showMoreHistory() {
     renderHistoryList();
 }
 
+function openWithdrawModal() {
+    document.getElementById('withdrawModal').classList.add('show');
+}
+function closeWithdrawModal() {
+    document.getElementById('withdrawModal').classList.remove('show');
+}
+
 function openBalanceModal(type) {
     currentBalanceActionType = type;
     document.getElementById('balModalTitle').innerText = type === 'add' ? 'Пополнение баланса' : 'Списание баланса';
     document.getElementById('balModalAmount').value = '';
     document.getElementById('balModalComment').value = '';
-    document.getElementById('balModal').style.display = 'flex';
+    document.getElementById('balModal').classList.add('show');
 }
 
 function closeBalanceModal() {
-    document.getElementById('balModal').style.display = 'none';
+    document.getElementById('balModal').classList.remove('show');
 }
 
 async function submitBalanceModal() {
@@ -2824,7 +2937,7 @@ async function deleteServer(serverId, location) {
 function openSrvAddModal() {
     document.getElementById('srvLocationInput').value = '';
     document.getElementById('srvPaidUntilInput').value = '';
-    document.getElementById('srvAddModal').style.display = 'flex';
+    document.getElementById('srvAddModal').classList.add('show');
 }
 
 function openSrvRenewModal() {
@@ -2845,12 +2958,12 @@ function openSrvRenewModal() {
     });
 
     document.getElementById('srvRenewDaysInput').value = '';
-    document.getElementById('srvRenewModal').style.display = 'flex';
+    document.getElementById('srvRenewModal').classList.add('show');
 }
 
 function closeSrvModals() {
-    document.getElementById('srvAddModal').style.display = 'none';
-    document.getElementById('srvRenewModal').style.display = 'none';
+    document.getElementById('srvAddModal').classList.remove('show');
+    document.getElementById('srvRenewModal').classList.remove('show');
 }
 
 async function submitAddServer() {
@@ -3294,6 +3407,184 @@ async function deleteRaffleParticipant(telegramId, name) {
         loadParticipants();
     } catch (err) {
         showToast('Ошибка при удалении');
+    }
+}
+
+let allKeysCache = [];
+
+async function describeSupabaseError(response) {
+    let details = '';
+    try {
+        const data = await response.json();
+        details = data.message || data.hint || data.error || '';
+    } catch (e) {}
+    if (response.status === 404) {
+        return `Таблица vpn_keys не найдена в Supabase (404). Создайте её через SQL Editor. ${details}`;
+    }
+    if (response.status === 401 || response.status === 403 || /row-level security/i.test(details)) {
+        return `Доступ к таблице vpn_keys заблокирован политикой RLS (${response.status}). Отключите RLS или добавьте политики. ${details}`;
+    }
+    return `Ошибка ${response.status}. ${details}`;
+}
+
+async function fetchKeysData() {
+    if (!isLoggedIn() || !hasAccess('access_keys')) return;
+    try {
+        const response = await fetch(`${KEYS_TABLE_URL}?select=id,link,status,created_at&order=created_at.desc`, {
+            method: 'GET',
+            headers: REST_HEADERS
+        });
+        if (!response.ok) {
+            const msg = await describeSupabaseError(response);
+            document.getElementById('keysListContainer').innerHTML = `<div class="empty-state" style="color:var(--danger-color);">${escapeHtml(msg)}</div>`;
+            return;
+        }
+        allKeysCache = await response.json();
+        renderKeysList();
+    } catch (err) {
+        console.error(err);
+        document.getElementById('keysListContainer').innerHTML = '<div class="empty-state" style="color:var(--danger-color);">Нет соединения с Supabase.</div>';
+    }
+}
+
+function renderKeysList() {
+    const container = document.getElementById('keysListContainer');
+    if (!allKeysCache || allKeysCache.length === 0) {
+        container.innerHTML = '<div class="empty-state">Ключей пока нет</div>';
+        return;
+    }
+
+    container.innerHTML = allKeysCache.map(key => {
+        const issued = key.status === 'Выдан';
+        const badgeClass = issued ? 'issued' : 'pending';
+        const statusLabel = issued ? 'Выдан' : 'Ожидание';
+        const d = key.created_at ? new Date(key.created_at).toLocaleDateString('ru-RU') : '';
+        return `
+            <div class="key-card">
+                <div class="key-card-top">
+                    <span class="key-status-badge ${badgeClass}">${statusLabel}</span>
+                    <span style="font-size:12px; color:var(--text-sub); font-weight:500;">${d}</span>
+                </div>
+                <div class="key-actions">
+                    <button class="btn btn-secondary btn-small" onclick="copyKeyLink('${escapeAttr(String(key.id))}')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span>Скопировать ключ</span>
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="openKeyModalForEdit('${escapeAttr(String(key.id))}')">Редактировать</button>
+                </div>
+                <div class="key-issue-question">
+                    <span>Выдан ключ?</span>
+                    <div class="key-issue-buttons">
+                        <button class="btn-chip yes" onclick="setKeyStatus('${escapeAttr(String(key.id))}', 'Выдан')">Да</button>
+                        <button class="btn-chip no" onclick="setKeyStatus('${escapeAttr(String(key.id))}', 'Ожидание')">Нет</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function copyKeyLink(keyId) {
+    const key = allKeysCache.find(k => String(k.id) === String(keyId));
+    if (!key || !key.link) {
+        showToast('Ссылка не заполнена');
+        return;
+    }
+    const text = String(key.link);
+    const onDone = () => showToast('Ключ скопирован', 'success');
+    const fallbackCopy = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); onDone(); }
+        catch (e) { showToast('Не удалось скопировать'); }
+        document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onDone).catch(fallbackCopy);
+    } else {
+        fallbackCopy();
+    }
+}
+
+function openKeyModalForCreate() {
+    document.getElementById('keyModalTitle').innerText = 'Добавить ключ';
+    document.getElementById('keySaveBtn').innerText = 'ДОБАВИТЬ';
+    document.getElementById('keyEditId').value = '';
+    document.getElementById('keyLinkInput').value = '';
+    document.getElementById('keyStatusSelect').value = 'Ожидание';
+    document.getElementById('keyModal').classList.add('show');
+}
+
+function openKeyModalForEdit(keyId) {
+    const key = allKeysCache.find(k => String(k.id) === String(keyId));
+    if (!key) return;
+    document.getElementById('keyModalTitle').innerText = 'Редактировать ключ';
+    document.getElementById('keySaveBtn').innerText = 'СОХРАНИТЬ';
+    document.getElementById('keyEditId').value = key.id;
+    document.getElementById('keyLinkInput').value = key.link || '';
+    document.getElementById('keyStatusSelect').value = key.status === 'Выдан' ? 'Выдан' : 'Ожидание';
+    document.getElementById('keyModal').classList.add('show');
+}
+
+function closeKeyModal() {
+    document.getElementById('keyModal').classList.remove('show');
+}
+
+async function submitKeyModal() {
+    const keyId = document.getElementById('keyEditId').value;
+    const link = document.getElementById('keyLinkInput').value.trim();
+    const status = document.getElementById('keyStatusSelect').value;
+
+    if (!link) { showToast('Укажите ссылку (ключ)!'); return; }
+
+    closeKeyModal();
+
+    try {
+        let url = KEYS_TABLE_URL;
+        let method = 'POST';
+        if (keyId) {
+            method = 'PATCH';
+            url = `${KEYS_TABLE_URL}?id=eq.${encodeURIComponent(keyId)}`;
+        }
+        const response = await fetch(url, {
+            method: method,
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ link: link, status: status })
+        });
+        if (!response.ok) {
+            showToast(await describeSupabaseError(response));
+            return;
+        }
+        logAction('keys', keyId ? `Изменение ключа #${keyId}` : 'Добавление нового ключа');
+        showToast(keyId ? 'Изменения сохранены' : 'Ключ добавлен', 'success');
+        fetchKeysData();
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка сохранения ключа.');
+    }
+}
+
+async function setKeyStatus(keyId, status) {
+    try {
+        const response = await fetch(`${KEYS_TABLE_URL}?id=eq.${encodeURIComponent(keyId)}`, {
+            method: 'PATCH',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ status: status })
+        });
+        if (!response.ok) {
+            showToast(await describeSupabaseError(response));
+            return;
+        }
+        logAction('keys', `Смена статуса ключа #${keyId} → «${status}»`);
+        showToast(`Статус: ${status}`, 'success');
+        fetchKeysData();
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка обновления статуса.');
     }
 }
 
