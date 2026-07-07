@@ -19,7 +19,7 @@
 <style>
 
 :root {
-    --topbar-h: calc(50px + max(10px, env(safe-area-inset-top, 0px)));
+    --topbar-h: calc(66px + max(10px, env(safe-area-inset-top, 0px)));
     --bg-main: #050508;
     --card-bg: rgba(255, 255, 255, 0.07);
     --card-border: rgba(255, 255, 255, 0.14);
@@ -176,17 +176,21 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 .toast-notification.success { background: rgba(48, 209, 88, 0.92); color: #fff; }
 
 .top-bar {
-    position: fixed; top: 0; left: 0; right: 0;
+    position: fixed;
+    top: max(10px, env(safe-area-inset-top, 0px));
+    left: 12px; right: 12px;
     z-index: 900;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding: max(10px, env(safe-area-inset-top, 0px)) 24px 10px 24px;
+    padding: 8px 10px;
     background: rgba(5, 5, 8, 0.72);
     backdrop-filter: blur(22px) saturate(160%);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
-    border-bottom: 1px solid var(--separator);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    box-shadow: var(--glass-highlight), 0 8px 28px rgba(0, 0, 0, 0.30);
 }
 [data-theme="light"] .top-bar { background: rgba(242, 242, 247, 0.80); }
 
@@ -323,6 +327,25 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     box-shadow: 0 6px 18px rgba(10, 132, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
+/* --- Выпадающая группа "Управление" --- */
+.sidebar-group { list-style: none; }
+.sidebar-group-toggle {
+    width: 100%; cursor: pointer; font: inherit; text-align: left;
+    font-size: 16px; font-weight: 500; letter-spacing: -0.2px;
+}
+.sidebar-group-toggle .sidebar-group-chevron {
+    margin-left: auto; width: 16px; height: 16px; opacity: 0.6;
+    transition: transform 0.25s ease;
+}
+.sidebar-group.open .sidebar-group-chevron { transform: rotate(180deg); }
+.sidebar-group-toggle.child-active { color: var(--tint); }
+.sidebar-group-items {
+    list-style: none; display: flex; flex-direction: column; gap: 4px;
+    max-height: 0; overflow: hidden; padding-left: 18px;
+    transition: max-height 0.3s ease, margin-top 0.3s ease;
+}
+.sidebar-group.open .sidebar-group-items { max-height: 220px; margin-top: 4px; }
+
 .sidebar-footer { margin-top: auto; padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px; border-top: 1px solid var(--separator); flex-shrink: 0; }
 .sidebar-logout-btn {
     width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -353,7 +376,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
         opacity: 1; visibility: visible; pointer-events: none;
     }
     body.authed .sidebar-menu { left: 0; position: fixed; top: 0; height: 100vh; pointer-events: auto; }
-    body.authed .top-bar { padding-left: calc(var(--sidebar-width) + 24px); }
+    body.authed .top-bar { left: calc(var(--sidebar-width) + 24px); right: 24px; }
     body.authed .page-wrap { padding-left: calc(var(--sidebar-width) + 24px); }
     body.authed .menu-burger-btn { display: none !important; }
     body.authed .sidebar-close { display: none; }
@@ -1123,7 +1146,7 @@ body.chat-open #page-chat.active { animation: none; }
 }
 
 @media (max-width: 600px) {
-    .top-bar { padding-left: 16px; padding-right: 16px; }
+    .top-bar { left: 10px; right: 10px; }
     .page-wrap { padding: calc(var(--topbar-h) + 16px) 14px calc(48px + env(safe-area-inset-bottom)) 14px; }
     .brand-title { font-size: 30px; }
     .brutal-box, .section-box { padding: 18px 15px; border-radius: 24px; }
@@ -2039,12 +2062,12 @@ async function requestNotifPermission() {
     } catch (e) { console.warn(e); }
 }
 
-function showSystemNotification(title, body) {
+function showSystemNotification(title, body, targetHash) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistration().then(reg => {
             if (reg && reg.showNotification) {
-                reg.showNotification(title, { body: body, icon: APP_ICON_URL, badge: APP_ICON_URL });
+                reg.showNotification(title, { body: body, icon: APP_ICON_URL, badge: APP_ICON_URL, tag: 'onix-' + (targetHash || 'general'), data: { url: targetHash || '#home' } });
             } else {
                 try { new Notification(title, { body: body, icon: APP_ICON_URL }); } catch (e) {}
             }
@@ -2429,6 +2452,7 @@ function showMoreLogs() {
 
 const ICONS = {
     home: '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    manage: '<svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
     admin: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
     balance: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
     servers: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>',
@@ -2526,6 +2550,7 @@ async function refreshAccessRights() {
 
         renderSidebar();
         if (getCurrentRoute() === 'home' || !getCurrentRoute()) renderHomeProfile();
+        startChatWatcher();
     } catch (e) { console.warn('Не удалось обновить доступы:', e); }
 }
 
@@ -2582,8 +2607,7 @@ function renderSidebar() {
     const currentRoute = getCurrentRoute();
     let html = navLinkHtml('home', currentRoute);
 
-    if (hasAccess('access_admin'))    html += navLinkHtml('admin', currentRoute);
-    if (hasAccess('access_logs'))     html += navLinkHtml('logs', currentRoute);
+    html += manageGroupHtml(currentRoute);
     if (hasAccess('access_balance'))  html += navLinkHtml('balance', currentRoute);
     if (hasAccess('access_servers'))  html += navLinkHtml('servers', currentRoute);
     if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
@@ -2592,6 +2616,33 @@ function renderSidebar() {
     if (hasAccess('access_chat'))     html += navLinkHtml('chat', currentRoute);
 
     menuList.innerHTML = html;
+}
+
+let sidebarManageOpen = false;
+function manageGroupHtml(currentRoute) {
+    const items = [];
+    if (hasAccess('access_admin')) items.push('admin');
+    if (hasAccess('access_logs'))  items.push('logs');
+    if (!items.length) return '';
+
+    const childActive = items.includes(currentRoute);
+    const open = sidebarManageOpen || childActive;
+    const inner = items.map(r => navLinkHtml(r, currentRoute)).join('');
+
+    return `<li class="sidebar-group${open ? ' open' : ''}" id="sidebarManageGroup">
+        <button type="button" class="sidebar-item-link sidebar-group-toggle${childActive ? ' child-active' : ''}" onclick="toggleManageGroup()">
+            ${ICONS.manage}<span>Управление</span>
+            <svg class="sidebar-group-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="sidebar-group-items">${inner}</ul>
+    </li>`;
+}
+
+function toggleManageGroup() {
+    const group = document.getElementById('sidebarManageGroup');
+    if (!group) return;
+    sidebarManageOpen = !group.classList.contains('open');
+    group.classList.toggle('open', sidebarManageOpen);
 }
 
 function navLinkHtml(route, currentRoute) {
@@ -2702,6 +2753,8 @@ async function handleLogin() {
 
 function handleLogout() {
     if (isLoggedIn()) logAction('auth', 'Выход из системы');
+    stopChatWatcher();
+    try { localStorage.removeItem(CHAT_SEEN_KEY); } catch (e) {}
     AUTH_KEYS.forEach(authRemove);
 
     document.getElementById('sidebarOverlay').classList.remove('active');
@@ -3772,6 +3825,10 @@ function renderKeysList() {
                         <span>Скопировать ключ</span>
                     </button>
                     <button class="btn btn-secondary btn-small" onclick="openKeyModalForEdit('${escapeAttr(String(key.id))}')">Редактировать</button>
+                    <button class="btn btn-danger btn-small" style="grid-column: span 2;" onclick="deleteKey('${escapeAttr(String(key.id))}')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <span>Удалить ключ</span>
+                    </button>
                 </div>
                 <div class="key-issue-question">
                     <span>Выдан ключ?</span>
@@ -3866,6 +3923,26 @@ async function submitKeyModal() {
     } catch (err) {
         console.error(err);
         showToast('Ошибка сохранения ключа.');
+    }
+}
+
+async function deleteKey(keyId) {
+    if (!confirm('Удалить этот ключ безвозвратно?')) return;
+    try {
+        const response = await fetch(`${KEYS_TABLE_URL}?id=eq.${encodeURIComponent(keyId)}`, {
+            method: 'DELETE',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' }
+        });
+        if (!response.ok) {
+            showToast(await describeSupabaseError(response));
+            return;
+        }
+        logAction('keys', `Удаление ключа #${keyId}`);
+        showToast('Ключ удалён', 'success');
+        fetchKeysData();
+    } catch (err) {
+        console.error(err);
+        showToast('Ошибка удаления ключа.');
     }
 }
 
@@ -4028,6 +4105,7 @@ async function fetchChatMessages(fullReload) {
             rows.forEach(addChatMessageToCache);
             renderChatMessages(false);
         }
+        if (getCurrentRoute() === 'chat' && document.visibilityState === 'visible') markChatAsSeen();
     } catch (err) {
         console.error(err);
         const box = document.getElementById('chatMessages');
@@ -4290,6 +4368,112 @@ function teardownChatLive() {
     }
 }
 
+/* ============================================================
+   Фоновые уведомления мессенджера.
+   Работают на любой странице сайта и в свёрнутой PWA:
+   Realtime-подписка + страховочный поллинг раз в 30 сек.
+   ============================================================ */
+
+const CHAT_SEEN_KEY = 'onix_chat_last_seen_id';
+const CHAT_WATCH_POLL_INTERVAL = 30000;
+let chatWatchChannel = null;
+let chatWatchPollTimer = null;
+
+function getChatLastSeenId() {
+    const v = Number(localStorage.getItem(CHAT_SEEN_KEY));
+    return Number.isFinite(v) ? v : 0;
+}
+
+function setChatLastSeenId(id) {
+    const n = Number(id);
+    if (!Number.isFinite(n)) return;
+    if (n > getChatLastSeenId()) {
+        try { localStorage.setItem(CHAT_SEEN_KEY, String(n)); } catch (e) {}
+    }
+}
+
+function markChatAsSeen() {
+    if (chatMessagesCache.length) {
+        setChatLastSeenId(chatMessagesCache[chatMessagesCache.length - 1].id);
+    }
+}
+
+function notifyNewChatMessage(msg) {
+    if (!msg || msg.id === undefined) return;
+    const myUsername = authGet('auth_user_username') || '';
+
+    // свои сообщения не считаем новыми
+    if (msg.admin_username === myUsername) { setChatLastSeenId(msg.id); return; }
+
+    // пользователь сейчас смотрит чат — уведомление не нужно
+    if (getCurrentRoute() === 'chat' && document.visibilityState === 'visible') {
+        setChatLastSeenId(msg.id);
+        return;
+    }
+
+    if (Number(msg.id) <= getChatLastSeenId()) return;
+    setChatLastSeenId(msg.id);
+
+    const author = msg.admin_name || ('@' + (msg.admin_username || 'admin'));
+    const title = `Мессенджер — ${author}`;
+    const text = String(msg.message || '').slice(0, 140);
+    addNotification(`chat-${msg.id}`, title, text);
+    showSystemNotification(title, text, '#chat');
+}
+
+async function checkChatMissedMessages() {
+    if (!isLoggedIn() || !hasAccess('access_chat')) return;
+    try {
+        const lastSeen = getChatLastSeenId();
+        const url = `${CHAT_TABLE_URL}?select=id,admin_name,admin_username,message&id=gt.${encodeURIComponent(lastSeen)}&order=id.asc&limit=30`;
+        const response = await fetch(url, { method: 'GET', headers: REST_HEADERS });
+        if (!response.ok) return;
+        const rows = await response.json();
+        (rows || []).forEach(notifyNewChatMessage);
+    } catch (e) {}
+}
+
+async function startChatWatcher() {
+    stopChatWatcher();
+    if (!isLoggedIn() || !hasAccess('access_chat')) return;
+
+    // первый запуск: молча запоминаем последний id, чтобы не завалить старыми уведомлениями
+    if (localStorage.getItem(CHAT_SEEN_KEY) === null) {
+        try {
+            const r = await fetch(`${CHAT_TABLE_URL}?select=id&order=id.desc&limit=1`, { method: 'GET', headers: REST_HEADERS });
+            if (r.ok) {
+                const rows = await r.json();
+                try { localStorage.setItem(CHAT_SEEN_KEY, String(rows && rows.length ? rows[0].id : 0)); } catch (e) {}
+            }
+        } catch (e) {}
+    }
+
+    try {
+        chatWatchChannel = supabaseClient
+            .channel('admin-chat-watch')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_chat' }, (payload) => {
+                if (payload && payload.new) notifyNewChatMessage(payload.new);
+            })
+            .subscribe();
+    } catch (e) { console.warn('Наблюдатель чата: Realtime недоступен, остаётся поллинг.', e); }
+
+    chatWatchPollTimer = setInterval(checkChatMissedMessages, CHAT_WATCH_POLL_INTERVAL);
+    checkChatMissedMessages();
+}
+
+function stopChatWatcher() {
+    if (chatWatchPollTimer) { clearInterval(chatWatchPollTimer); chatWatchPollTimer = null; }
+    if (chatWatchChannel) {
+        try { supabaseClient.removeChannel(chatWatchChannel); } catch (e) {}
+        chatWatchChannel = null;
+    }
+}
+
+// при возврате на вкладку сразу проверяем пропущенное
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkChatMissedMessages();
+});
+
 function init() {
 
     document.getElementById('revStatusFilter').addEventListener('change', renderFilteredReviews);
@@ -4307,6 +4491,7 @@ function init() {
     checkServerNotifications();
     checkBalanceNotifications();
     checkCustomNotifications();
+    startChatWatcher();
 }
 
 document.addEventListener('DOMContentLoaded', init);
