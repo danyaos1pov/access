@@ -848,8 +848,12 @@ select.modal-input, select.form-input {
 .log-badge.raffle { background: rgba(48, 209, 88, 0.18); color: var(--success-green); }
 .log-badge.notify { background: rgba(191, 90, 242, 0.18); color: #BF5AF2; }
 .log-badge.profile { background: var(--input-bg); color: var(--text-body); }
+.log-badge.keys { background: rgba(255, 214, 10, 0.18); color: #FFD60A; }
+.log-badge.chat { background: rgba(100, 210, 255, 0.18); color: #64D2FF; }
 [data-theme="light"] .log-badge.server { color: #0077b5; }
 [data-theme="light"] .log-badge.notify { color: #AF52DE; }
+[data-theme="light"] .log-badge.keys { color: #B8860B; background: rgba(255, 204, 0, 0.18); }
+[data-theme="light"] .log-badge.chat { color: #0071A4; background: rgba(50, 173, 230, 0.15); }
 .log-date { font-size: 11px; color: var(--text-sub); font-weight: 500; font-variant-numeric: tabular-nums; }
 .log-admin { font-size: 13px; font-weight: 600; letter-spacing: -0.1px; color: var(--text-title); }
 .log-desc { font-size: 14px; font-weight: 400; color: var(--text-body); word-break: break-word; }
@@ -867,6 +871,258 @@ select.modal-input, select.form-input {
 .user-card .actions-group { flex-direction: column; gap: 6px; }
 .admin-log-card { cursor: pointer; }
 .admin-log-card:active { transform: scale(0.98); background: var(--btn-secondary-bg); }
+
+/* ===== МЕССЕНДЖЕР ===== */
+.container-chat { max-width: 900px; }
+
+.chat-shell {
+    width: 100%;
+    display: flex; flex-direction: column;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-xl);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-highlight), var(--glass-shadow);
+    overflow: hidden;
+    height: calc(100dvh - 210px);
+    min-height: 460px;
+    max-height: 940px;
+}
+
+/* --- Шапка чата --- */
+.chat-header {
+    display: flex; align-items: center; gap: 13px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--separator);
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), transparent);
+    flex-shrink: 0;
+}
+.chat-header-icon {
+    width: 44px; height: 44px; border-radius: 14px;
+    background: linear-gradient(135deg, #0A84FF, #4FB0FF);
+    box-shadow: 0 6px 16px rgba(10, 132, 255, 0.35);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.chat-header-icon svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-header-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.chat-header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; color: var(--text-title); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-header-status { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--text-sub); letter-spacing: -0.1px; }
+.chat-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--pending-orange);
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+}
+.chat-live-dot.online {
+    background: var(--success-green);
+    animation: chatPulse 2.2s ease-in-out infinite;
+}
+@keyframes chatPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.5); }
+    50% { box-shadow: 0 0 0 5px rgba(48, 209, 88, 0); }
+}
+.chat-header-members {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: var(--text-sub);
+    background: var(--input-bg);
+    border: 1px solid var(--separator);
+    padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap; flex-shrink: 0;
+}
+.chat-header-members svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --- Лента сообщений --- */
+.chat-body { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat-messages {
+    flex: 1;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    padding: 20px 20px 14px 20px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 128, 140, 0.35) transparent;
+}
+.chat-messages::-webkit-scrollbar { width: 5px; }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(128, 128, 140, 0.35); border-radius: 99px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+
+.chat-empty {
+    margin: auto; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    color: var(--text-sub); padding: 30px 20px;
+}
+.chat-empty svg { width: 46px; height: 46px; fill: none; stroke: var(--text-sub); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
+.chat-empty-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-body); }
+.chat-empty-sub { font-size: 13.5px; font-weight: 500; letter-spacing: -0.1px; }
+
+.chat-date-divider {
+    align-self: center;
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.2px;
+    color: var(--text-sub);
+    background: var(--input-bg);
+    border: 1px solid var(--separator);
+    padding: 5px 14px; border-radius: 999px;
+    margin: 14px 0 10px 0;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.chat-messages > .chat-date-divider:first-child { margin-top: 0; }
+
+.chat-row {
+    display: flex; gap: 10px; align-items: flex-end;
+    max-width: min(72%, 560px);
+    animation: chatMsgIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes chatMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.chat-row.own { align-self: flex-end; flex-direction: row-reverse; }
+.chat-row.other { align-self: flex-start; }
+.chat-row + .chat-row { margin-top: 3px; }
+.chat-row.new-group { margin-top: 14px; }
+
+.chat-ava {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--btn-secondary-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--text-title);
+    overflow: hidden; flex-shrink: 0;
+}
+.chat-ava img { width: 100%; height: 100%; object-fit: cover; }
+.chat-ava.ghost { visibility: hidden; box-shadow: none; }
+
+.chat-bubble {
+    position: relative;
+    padding: 9px 14px 7px 14px;
+    border-radius: 20px;
+    font-size: 15px; line-height: 1.4; letter-spacing: -0.2px;
+    word-break: break-word; white-space: pre-wrap;
+    min-width: 64px;
+}
+.chat-row.other .chat-bubble {
+    background: var(--input-bg);
+    border: 1px solid var(--separator);
+    color: var(--text-body);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.chat-row.other.new-group .chat-bubble { border-top-left-radius: 20px; }
+.chat-row.other .chat-bubble { border-bottom-left-radius: 8px; }
+.chat-row.own .chat-bubble {
+    background: linear-gradient(160deg, #3396FF 0%, #0A84FF 55%, #0068D6 100%);
+    color: #ffffff;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 4px 14px rgba(10, 132, 255, 0.30);
+}
+[data-theme="light"] .chat-row.other .chat-bubble { background: #ffffff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07); }
+
+.chat-author { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: -0.1px; margin-bottom: 3px; }
+.chat-author .chat-author-tag { opacity: 0.55; font-weight: 600; font-size: 11px; }
+
+.chat-meta {
+    float: right;
+    display: inline-flex; align-items: center; gap: 7px;
+    margin: 8px 0 0 10px;
+    font-size: 10.5px; font-weight: 500; font-variant-numeric: tabular-nums;
+    line-height: 1;
+    position: relative; top: 2px;
+}
+.chat-row.other .chat-meta { color: var(--text-sub); }
+.chat-row.own .chat-meta { color: rgba(255, 255, 255, 0.8); }
+.chat-del-btn {
+    background: none; border: none; padding: 2px; margin: -2px; cursor: pointer;
+    color: rgba(255, 255, 255, 0.8);
+    display: inline-flex; align-items: center;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.chat-del-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-del-btn:active { transform: scale(0.85); opacity: 0.6; }
+
+.chat-scroll-down {
+    position: absolute; right: 16px; bottom: 14px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    color: var(--text-title);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px var(--shadow-color);
+    opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 2;
+}
+.chat-scroll-down.visible { opacity: 1; visibility: visible; transform: none; }
+.chat-scroll-down:active { transform: scale(0.9); }
+.chat-scroll-down svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --- Поле ввода --- */
+.chat-input-row {
+    display: flex; align-items: flex-end; gap: 10px;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)) 14px;
+    border-top: 1px solid var(--separator);
+    background: linear-gradient(0deg, rgba(255,255,255,0.035), transparent);
+    flex-shrink: 0;
+}
+.chat-input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--separator);
+    border-radius: 22px;
+    color: var(--text-body);
+    font-family: inherit; font-size: 15px; letter-spacing: -0.2px;
+    padding: 12px 16px;
+    resize: none; outline: none;
+    max-height: 130px;
+    line-height: 1.4;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    min-height: 46px;
+}
+.chat-input::placeholder { color: var(--text-sub); }
+.chat-input:focus { border-color: var(--tint); background: rgba(118, 118, 128, 0.16); }
+[data-theme="light"] .chat-input:focus { background: #ffffff; }
+
+.chat-send-btn {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: none; cursor: pointer; flex-shrink: 0;
+    background: linear-gradient(160deg, #3396FF, #0A84FF);
+    color: #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 5px 14px rgba(10, 132, 255, 0.35);
+    transition: transform 0.15s ease, filter 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+.chat-send-btn:active { transform: scale(0.88); filter: brightness(0.92); }
+.chat-send-btn:disabled { opacity: 0.4; box-shadow: none; cursor: default; }
+.chat-send-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-left: -2px; }
+
+/* --- Адаптив мессенджера --- */
+@media (max-width: 600px) {
+    #page-chat .container-chat { gap: 12px; }
+    .chat-shell {
+        height: calc(100dvh - 148px);
+        min-height: 400px;
+        border-radius: 24px;
+    }
+    .chat-header { padding: 12px 14px; gap: 11px; }
+    .chat-header-icon { width: 40px; height: 40px; border-radius: 12px; }
+    .chat-header-title { font-size: 16px; }
+    .chat-header-members span { display: none; }   /* оставляем только число */
+    .chat-header-members b { font-weight: 700; }
+    .chat-messages { padding: 14px 12px 10px 12px; }
+    .chat-row { max-width: 86%; gap: 7px; }
+    .chat-ava { width: 30px; height: 30px; font-size: 13px; }
+    .chat-bubble { font-size: 15px; padding: 8px 12px 6px 12px; border-radius: 18px; }
+    .chat-input-row { padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) 10px; gap: 8px; }
+    .chat-input { min-height: 44px; padding: 11px 14px; }
+    .chat-send-btn { width: 44px; height: 44px; }
+    .chat-scroll-down { right: 12px; bottom: 12px; width: 38px; height: 38px; }
+}
+@media (min-width: 960px) {
+    .chat-shell { height: calc(100dvh - 185px); }
+    .chat-messages { padding: 24px 26px 16px 26px; }
+    .chat-input-row { padding: 14px 18px; }
+}
 
 @media (max-width: 600px) {
     .top-bar { padding: max(16px, env(safe-area-inset-top)) 16px 0 16px; }
@@ -1283,6 +1539,43 @@ select.modal-input, select.form-input {
             </div>
         </section>
 
+        <section class="page" id="page-chat">
+            <div class="container container-chat">
+                <section class="chat-shell">
+                    <div class="chat-header">
+                        <div class="chat-header-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </div>
+                        <div class="chat-header-info">
+                            <div class="chat-header-title">Чат администраторов</div>
+                            <div class="chat-header-status">
+                                <span class="chat-live-dot" id="chatLiveDot"></span>
+                                <span id="chatLiveLabel">Подключение...</span>
+                            </div>
+                        </div>
+                        <div class="chat-header-members" id="chatMembersBadge" style="display:none;">
+                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <b id="chatMembersCount">0</b><span>&nbsp;участников</span>
+                        </div>
+                    </div>
+                    <div class="chat-body">
+                        <div class="chat-messages" id="chatMessages" onscroll="onChatScroll()">
+                            <div class="chat-empty"><div class="chat-empty-sub">Загрузка сообщений...</div></div>
+                        </div>
+                        <button class="chat-scroll-down" id="chatScrollDownBtn" onclick="chatScrollToBottom(true)" aria-label="Вниз">
+                            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="chat-input-row">
+                        <textarea class="chat-input" id="chatInput" rows="1" maxlength="1000" placeholder="Сообщение..."></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" disabled aria-label="Отправить">
+                            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </section>
+
     </div>
 </div>
 
@@ -1326,6 +1619,7 @@ select.modal-input, select.form-input {
                 <label class="checkbox-item"><input type="checkbox" id="accReviews"> Отзывы</label>
                 <label class="checkbox-item"><input type="checkbox" id="accGiveaway"> Розыгрыши</label>
                 <label class="checkbox-item"><input type="checkbox" id="accKeys"> Ключи</label>
+                <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accChat"> Мессенджер (чат администраторов)</label>
                 <label class="checkbox-item" style="grid-column: span 2;"><input type="checkbox" id="accLogs"> История (журнал действий)</label>
             </div>
         </div>
@@ -1548,6 +1842,7 @@ const RAFFLE_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/raffle`;
 const ADMIN_NOTIF_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_notifications`;
 const ADMIN_LOGS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_logs`;
 const KEYS_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/vpn_keys`;
+const CHAT_TABLE_URL = `${SUPABASE_PROJECT_URL}/rest/v1/admin_chat`;
 
 const supabaseClient = supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false }
@@ -1561,7 +1856,7 @@ const REST_HEADERS = {
 
 const AUTH_KEYS = [
     'auth_user_name', 'auth_user_role', 'auth_user_ava', 'auth_user_username', 'auth_user_wallet',
-    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway', 'access_logs', 'access_keys'
+    'access_admin', 'access_balance', 'access_servers', 'access_reviews', 'access_giveaway', 'access_logs', 'access_keys', 'access_chat'
 ];
 
 function setCookie(name, value, days = 365) {
@@ -1987,7 +2282,7 @@ async function fetchAdminLogs() {
 
 const LOG_BADGE_LABELS = {
     auth: 'Вход', balance: 'Баланс', server: 'Сервер', admin: 'Админка',
-    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль', keys: 'Ключи'
+    review: 'Отзыв', raffle: 'Розыгрыш', notify: 'Уведомл.', profile: 'Профиль', keys: 'Ключи', chat: 'Чат'
 };
 
 function logItemHtml(log) {
@@ -2142,7 +2437,8 @@ const ICONS = {
     reviews: '<svg viewBox="0 0 24 24"><path d="M12 1.7l3.09 6.26L22 8.9l-5 4.87L18.18 22 12 18.75 5.82 22 7 13.77 2 8.9l6.91-.94L12 1.7z"/></svg>',
     logs: '<svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
     giveaway: '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
-    keys: '<svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>'
+    keys: '<svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+    chat: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
 };
 
 const ROUTES = {
@@ -2153,7 +2449,8 @@ const ROUTES = {
     servers:  { label: 'Сервера',   access: 'access_servers',  onEnter: fetchServersData },
     reviews:  { label: 'Отзывы',    access: 'access_reviews',  onEnter: fetchAllReviews },
     giveaway: { label: 'Розыгрыш',  access: 'access_giveaway', onEnter: loadParticipants },
-    keys:     { label: 'Ключи',     access: 'access_keys',     onEnter: fetchKeysData }
+    keys:     { label: 'Ключи',     access: 'access_keys',     onEnter: fetchKeysData },
+    chat:     { label: 'Мессенджер', access: 'access_chat',     onEnter: enterChatPage }
 };
 
 (function initTheme() {
@@ -2206,7 +2503,7 @@ async function refreshAccessRights() {
     if (!isLoggedIn() || !username) return;
 
     try {
-        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys';
+        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys,access_chat';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -2227,7 +2524,7 @@ async function refreshAccessRights() {
         authSet('access_giveaway', String(u.access_giveaway));
         authSet('access_logs', String(u.access_logs));
         authSet('access_keys', String(u.access_keys));
-        authSet('access_keys', String(u.access_keys));
+        authSet('access_chat', String(u.access_chat));
 
         renderSidebar();
         if (getCurrentRoute() === 'home' || !getCurrentRoute()) renderHomeProfile();
@@ -2294,6 +2591,7 @@ function renderSidebar() {
     if (hasAccess('access_reviews'))  html += navLinkHtml('reviews', currentRoute);
     if (hasAccess('access_giveaway')) html += navLinkHtml('giveaway', currentRoute);
     if (hasAccess('access_keys'))     html += navLinkHtml('keys', currentRoute);
+    if (hasAccess('access_chat'))     html += navLinkHtml('chat', currentRoute);
 
     menuList.innerHTML = html;
 }
@@ -2317,6 +2615,7 @@ function showPage(pageId) {
 
 function router() {
     if (!isLoggedIn()) {
+        teardownChatLive();
         showPage('login');
         renderSidebar();
         return;
@@ -2332,6 +2631,8 @@ function router() {
         window.location.hash = '#home';
         return;
     }
+
+    if (route !== 'chat') teardownChatLive();
 
     showPage(route);
     renderSidebar();
@@ -2353,7 +2654,7 @@ async function handleLogin() {
     }
 
     try {
-        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys';
+        const selectColumns = 'name,role,ava,wallet,access_admin,access_balance,access_servers,access_reviews,access_giveaway,access_logs,access_keys,access_chat';
         const response = await fetch(`${USERS_AUTH_URL}?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=${selectColumns}`, {
             method: 'GET',
             headers: REST_HEADERS
@@ -2376,9 +2677,7 @@ async function handleLogin() {
             authSet('access_giveaway', String(u.access_giveaway));
             authSet('access_logs', String(u.access_logs));
             authSet('access_keys', String(u.access_keys));
-            authSet('access_keys', String(u.access_keys));
-        authSet('access_keys', String(u.access_keys));
-        authSet('access_keys', String(u.access_keys));
+            authSet('access_chat', String(u.access_chat));
 
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
@@ -2603,6 +2902,7 @@ function openAdminModalForEdit(username) {
     document.getElementById('accGiveaway').checked = Number(user.access_giveaway) === 1 || user.access_giveaway === true;
     document.getElementById('accLogs').checked = Number(user.access_logs) === 1 || user.access_logs === true;
     document.getElementById('accKeys').checked = Number(user.access_keys) === 1 || user.access_keys === true;
+    document.getElementById('accChat').checked = Number(user.access_chat) === 1 || user.access_chat === true;
 
     document.getElementById('admSaveBtn').innerText = 'Сохранить изменения';
     document.getElementById('admModalOverlay').classList.add('show');
@@ -2628,6 +2928,7 @@ function resetAdminForm() {
     document.getElementById('accGiveaway').checked = false;
     document.getElementById('accLogs').checked = false;
     document.getElementById('accKeys').checked = false;
+    document.getElementById('accChat').checked = false;
 }
 
 async function saveAdminUser() {
@@ -2657,7 +2958,8 @@ async function saveAdminUser() {
         access_reviews: document.getElementById('accReviews').checked ? 1 : 0,
         access_giveaway: document.getElementById('accGiveaway').checked ? 1 : 0,
         access_logs: document.getElementById('accLogs').checked ? 1 : 0,
-        access_keys: document.getElementById('accKeys').checked ? 1 : 0
+        access_keys: document.getElementById('accKeys').checked ? 1 : 0,
+        access_chat: document.getElementById('accChat').checked ? 1 : 0
     };
 
     try {
@@ -3585,6 +3887,407 @@ async function setKeyStatus(keyId, status) {
     } catch (err) {
         console.error(err);
         showToast('Ошибка обновления статуса.');
+    }
+}
+
+
+/* ============================================================
+   МЕССЕНДЖЕР — общий чат администраторов (таблица admin_chat)
+   Реальное время: Supabase Realtime (postgres_changes).
+   Если Realtime недоступен — автоматический fallback на поллинг.
+   ============================================================ */
+
+const CHAT_FETCH_LIMIT = 200;      // сколько последних сообщений грузим
+const CHAT_POLL_INTERVAL = 5000;   // мс, поллинг при недоступном Realtime
+
+let chatMessagesCache = [];        // сообщения, отсортированы по возрастанию id
+let chatAvatarMap = {};            // username -> ava (для чужих сообщений)
+let chatChannel = null;            // realtime-канал
+let chatPollTimer = null;
+let chatRealtimeOk = false;
+let chatEnterToken = 0;            // защита от гонок при быстрых переходах
+let chatStickToBottom = true;      // автопрокрутка, пока юзер внизу
+let chatInputBound = false;
+
+function chatSetLive(mode) {
+    const dot = document.getElementById('chatLiveDot');
+    const label = document.getElementById('chatLiveLabel');
+    if (!dot || !label) return;
+    if (mode === 'live') {
+        dot.classList.add('online');
+        label.innerText = 'в сети — реальное время';
+    } else if (mode === 'poll') {
+        dot.classList.remove('online');
+        label.innerText = 'автообновление каждые 5 сек';
+    } else {
+        dot.classList.remove('online');
+        label.innerText = 'подключение...';
+    }
+}
+
+async function enterChatPage() {
+    if (!isLoggedIn() || !hasAccess('access_chat')) return;
+    const token = ++chatEnterToken;
+
+    bindChatInputOnce();
+    chatSetLive('connecting');
+    chatStickToBottom = true;
+
+    const box = document.getElementById('chatMessages');
+    if (box && chatMessagesCache.length === 0) {
+        box.innerHTML = '<div class="chat-empty"><div class="chat-empty-sub">Загрузка сообщений...</div></div>';
+    }
+
+    await fetchChatAvatars();
+    if (token !== chatEnterToken) return;
+
+    await fetchChatMessages(true);
+    if (token !== chatEnterToken) return;
+
+    subscribeChatRealtime();
+}
+
+function bindChatInputOnce() {
+    if (chatInputBound) return;
+    chatInputBound = true;
+    const input = document.getElementById('chatInput');
+    if (!input) return;
+    // Enter — отправить, Shift+Enter — перенос строки
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+        }
+    });
+    // Авто-высота textarea + активность кнопки отправки
+    input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+        const btn = document.getElementById('chatSendBtn');
+        if (btn) btn.disabled = !input.value.trim();
+    });
+}
+
+async function fetchChatAvatars() {
+    try {
+        const response = await fetch(`${USERS_AUTH_URL}?select=username,ava`, {
+            method: 'GET', headers: REST_HEADERS
+        });
+        if (!response.ok) return;
+        const rows = await response.json();
+        chatAvatarMap = {};
+        (rows || []).forEach(r => { if (r.username) chatAvatarMap[r.username] = r.ava || ''; });
+
+        const badge = document.getElementById('chatMembersBadge');
+        const count = document.getElementById('chatMembersCount');
+        if (badge && count && Array.isArray(rows) && rows.length) {
+            count.innerText = rows.length;
+            badge.style.display = 'flex';
+        }
+    } catch (e) { /* аватарки не критичны */ }
+}
+
+async function describeChatError(response) {
+    let details = '';
+    try {
+        const data = await response.json();
+        details = data.message || data.hint || '';
+    } catch (e) {}
+    if (response.status === 404) {
+        return 'Таблица admin_chat не найдена (404). Создайте её через SQL Editor в Supabase.';
+    }
+    if (response.status === 401 || response.status === 403 || /row-level security/i.test(details)) {
+        return `Доступ к admin_chat заблокирован политикой RLS (${response.status}).`;
+    }
+    return `Ошибка ${response.status}. ${details}`;
+}
+
+async function fetchChatMessages(fullReload) {
+    try {
+        let url = `${CHAT_TABLE_URL}?select=id,admin_name,admin_username,message,created_at`;
+        const lastId = chatMessagesCache.length ? chatMessagesCache[chatMessagesCache.length - 1].id : 0;
+
+        if (fullReload || !lastId) {
+            url += `&order=id.desc&limit=${CHAT_FETCH_LIMIT}`;
+        } else {
+            url += `&id=gt.${encodeURIComponent(lastId)}&order=id.asc&limit=${CHAT_FETCH_LIMIT}`;
+        }
+
+        const response = await fetch(url, { method: 'GET', headers: REST_HEADERS });
+        if (!response.ok) {
+            const msg = await describeChatError(response);
+            const box = document.getElementById('chatMessages');
+            if (box) box.innerHTML = `<div class="chat-empty"><div class="chat-empty-title" style="color:var(--danger-color);">Ошибка</div><div class="chat-empty-sub">${escapeHtml(msg)}</div></div>`;
+            return;
+        }
+
+        const rows = await response.json();
+        if (fullReload || !lastId) {
+            chatMessagesCache = (rows || []).slice().reverse(); // desc -> asc
+            renderChatMessages(true);
+        } else if (rows && rows.length) {
+            rows.forEach(addChatMessageToCache);
+            renderChatMessages(false);
+        }
+    } catch (err) {
+        console.error(err);
+        const box = document.getElementById('chatMessages');
+        if (box && chatMessagesCache.length === 0) {
+            box.innerHTML = '<div class="chat-empty"><div class="chat-empty-title" style="color:var(--danger-color);">Нет соединения</div><div class="chat-empty-sub">Не удалось связаться с Supabase. Проверьте интернет.</div></div>';
+        }
+    }
+}
+
+function addChatMessageToCache(msg) {
+    if (!msg || msg.id === undefined) return false;
+    if (chatMessagesCache.some(m => String(m.id) === String(msg.id))) return false; // дедупликация
+    chatMessagesCache.push(msg);
+    chatMessagesCache.sort((a, b) => Number(a.id) - Number(b.id));
+    return true;
+}
+
+function removeChatMessageFromCache(id) {
+    const before = chatMessagesCache.length;
+    chatMessagesCache = chatMessagesCache.filter(m => String(m.id) !== String(id));
+    return chatMessagesCache.length !== before;
+}
+
+const CHAT_AUTHOR_COLORS = ['#FF9F0A', '#30D158', '#64D2FF', '#BF5AF2', '#FF6482', '#FFD60A', '#5E9EFF', '#66D4CF'];
+function chatAuthorColor(key) {
+    let hash = 0;
+    const str = String(key || '');
+    for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    return CHAT_AUTHOR_COLORS[hash % CHAT_AUTHOR_COLORS.length];
+}
+
+function chatDateLabel(d) {
+    const today = new Date();
+    const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return 'Сегодня';
+    if (d.toDateString() === yesterday.toDateString()) return 'Вчера';
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function renderChatMessages(forceScroll) {
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+
+    if (!chatMessagesCache.length) {
+        box.innerHTML = `
+            <div class="chat-empty">
+                <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <div class="chat-empty-title">Сообщений пока нет</div>
+                <div class="chat-empty-sub">Напишите первым — все администраторы увидят сообщение мгновенно</div>
+            </div>`;
+        return;
+    }
+
+    const myUsername = authGet('auth_user_username') || '';
+    let html = '';
+    let prevDateKey = '';
+    let prevAuthor = null;
+
+    chatMessagesCache.forEach(msg => {
+        const d = new Date(msg.created_at);
+        const dateKey = d.toDateString();
+        if (dateKey !== prevDateKey) {
+            html += `<div class="chat-date-divider">${escapeHtml(chatDateLabel(d))}</div>`;
+            prevDateKey = dateKey;
+            prevAuthor = null;
+        }
+
+        const own = msg.admin_username && msg.admin_username === myUsername;
+        const sameAuthor = prevAuthor === (msg.admin_username || msg.admin_name);
+        prevAuthor = msg.admin_username || msg.admin_name;
+
+        const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const name = msg.admin_name || msg.admin_username || '—';
+
+        let avaHtml = '';
+        if (!own) {
+            const ava = msg.admin_username ? (chatAvatarMap[msg.admin_username] || '') : '';
+            const letter = name ? name[0].toUpperCase() : '?';
+            const inner = ava
+                ? `<img src="${escapeAttr(ava)}" alt="" onerror="this.parentElement.innerText='${escapeAttr(letter)}'">`
+                : escapeHtml(letter);
+            avaHtml = `<div class="chat-ava${sameAuthor ? ' ghost' : ''}">${inner}</div>`;
+        }
+
+        const authorColor = chatAuthorColor(msg.admin_username || name);
+        const authorHtml = (!own && !sameAuthor)
+            ? `<span class="chat-author" style="color:${authorColor};">${escapeHtml(name)}${msg.admin_username ? ' <span class="chat-author-tag">@' + escapeHtml(msg.admin_username) + '</span>' : ''}</span>`
+            : '';
+
+        const delHtml = own
+            ? `<button class="chat-del-btn" onclick="deleteChatMessage('${escapeAttr(String(msg.id))}')" aria-label="Удалить"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`
+            : '';
+
+        // ВАЖНО: внутри .chat-bubble стоит white-space: pre-wrap, поэтому
+        // содержимое пузыря собираем в одну строку без переносов и отступов —
+        // иначе форматирование шаблона рендерится как пустые строки.
+        const bubbleHtml = `<div class="chat-bubble">${authorHtml}${escapeHtml(msg.message || '')}<span class="chat-meta">${delHtml}<span>${time}</span></span></div>`;
+        html += `<div class="chat-row ${own ? 'own' : 'other'}${sameAuthor ? '' : ' new-group'}">${avaHtml}${bubbleHtml}</div>`;
+    });
+
+    box.innerHTML = html;
+
+    if (forceScroll || chatStickToBottom) chatScrollToBottom(false);
+    updateChatScrollButton();
+}
+
+function chatScrollToBottom(smooth) {
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+    chatStickToBottom = true;
+    box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+    updateChatScrollButton();
+}
+
+function onChatScroll() {
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+    chatStickToBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 120;
+    updateChatScrollButton();
+}
+
+function updateChatScrollButton() {
+    const btn = document.getElementById('chatScrollDownBtn');
+    if (!btn) return;
+    btn.classList.toggle('visible', !chatStickToBottom);
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const btn = document.getElementById('chatSendBtn');
+    if (!input) return;
+
+    const text = input.value.trim().slice(0, 1000);
+    if (!text) return;
+    if (!hasAccess('access_chat')) { showToast('Нет доступа к мессенджеру!'); return; }
+
+    if (btn) btn.disabled = true;
+
+    try {
+        const response = await fetch(CHAT_TABLE_URL, {
+            method: 'POST',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify({
+                admin_name: authGet('auth_user_name') || 'Неизвестно',
+                admin_username: authGet('auth_user_username') || null,
+                message: text
+            })
+        });
+
+        if (!response.ok) {
+            showToast(await describeChatError(response));
+            return;
+        }
+
+        const rows = await response.json();
+        input.value = '';
+        input.style.height = 'auto';
+        if (btn) btn.disabled = true;
+
+        // Мгновенно показываем своё сообщение (realtime продублирует — дедуп по id)
+        if (Array.isArray(rows) && rows[0] && addChatMessageToCache(rows[0])) {
+            chatStickToBottom = true;
+            renderChatMessages(true);
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Не удалось отправить сообщение.');
+    } finally {
+        if (btn) btn.disabled = !input.value.trim();
+        input.focus();
+    }
+}
+
+async function deleteChatMessage(id) {
+    const msg = chatMessagesCache.find(m => String(m.id) === String(id));
+    const myUsername = authGet('auth_user_username') || '';
+    if (!msg || msg.admin_username !== myUsername) return; // можно удалять только свои
+    if (!confirm('Удалить это сообщение?')) return;
+
+    try {
+        const response = await fetch(`${CHAT_TABLE_URL}?id=eq.${encodeURIComponent(id)}&admin_username=eq.${encodeURIComponent(myUsername)}`, {
+            method: 'DELETE',
+            headers: { ...REST_HEADERS, 'Prefer': 'return=minimal' }
+        });
+        if (!response.ok) {
+            showToast(await describeChatError(response));
+            return;
+        }
+        if (removeChatMessageFromCache(id)) renderChatMessages(false);
+    } catch (err) {
+        console.error(err);
+        showToast('Не удалось удалить сообщение.');
+    }
+}
+
+function subscribeChatRealtime() {
+    teardownChatLive();
+
+    try {
+        chatChannel = supabaseClient
+            .channel('admin-chat-live')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_chat' }, (payload) => {
+                if (payload && payload.new && addChatMessageToCache(payload.new)) {
+                    renderChatMessages(false);
+                }
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'admin_chat' }, (payload) => {
+                if (payload && payload.old && payload.old.id !== undefined && removeChatMessageFromCache(payload.old.id)) {
+                    renderChatMessages(false);
+                }
+            })
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    chatRealtimeOk = true;
+                    chatSetLive('live');
+                    stopChatPolling();
+                    fetchChatMessages(false); // добираем пропущенное за время подключения
+                } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                    chatRealtimeOk = false;
+                    // Realtime не включён для таблицы или соединение упало — переходим на поллинг
+                    if (getCurrentRoute() === 'chat') {
+                        chatSetLive('poll');
+                        startChatPolling();
+                    }
+                }
+            });
+    } catch (e) {
+        console.warn('Realtime недоступен, включаю поллинг:', e);
+        chatSetLive('poll');
+        startChatPolling();
+    }
+
+    // Страховка: если за 6 секунд Realtime так и не подключился — поллинг
+    setTimeout(() => {
+        if (!chatRealtimeOk && getCurrentRoute() === 'chat' && !chatPollTimer) {
+            chatSetLive('poll');
+            startChatPolling();
+        }
+    }, 6000);
+}
+
+function startChatPolling() {
+    if (chatPollTimer) return;
+    chatPollTimer = setInterval(() => {
+        if (getCurrentRoute() !== 'chat') { stopChatPolling(); return; }
+        fetchChatMessages(false);
+    }, CHAT_POLL_INTERVAL);
+}
+
+function stopChatPolling() {
+    if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; }
+}
+
+function teardownChatLive() {
+    stopChatPolling();
+    chatRealtimeOk = false;
+    if (chatChannel) {
+        try { supabaseClient.removeChannel(chatChannel); } catch (e) {}
+        chatChannel = null;
     }
 }
 
