@@ -150,9 +150,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 
 .toast-notification {
     position: fixed;
-    top: -120px;
     left: 50%;
-    transform: translateX(-50%);
     width: calc(100% - 48px);
     max-width: 360px;
     background: var(--danger-bg);
@@ -168,11 +166,14 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     letter-spacing: -0.1px;
     text-align: center;
     z-index: 9999;
-    transition: top 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease;
+    top: calc(var(--topbar-h) + 12px);
+    transform: translate(-50%, calc(-1 * var(--topbar-h) - 160px));
+    will-change: transform, opacity;
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease;
     word-break: break-word;
 }
 .toast-notification { opacity: 0; }
-.toast-notification.show { top: calc(var(--topbar-h) + 12px); opacity: 1; }
+.toast-notification.show { transform: translate(-50%, 0); opacity: 1; }
 .toast-notification.success { background: rgba(48, 209, 88, 0.92); color: #fff; }
 
 .top-bar {
@@ -257,22 +258,27 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
 .sidebar-menu {
-    position: fixed; top: 0; left: -320px; width: var(--sidebar-width); height: 100%;
-    will-change: left;
+    position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100%;
+    /* Анимируем transform, а не left: движение идёт на композиторе (GPU),
+       без пересчёта layout на каждом кадре — заметно плавнее на iOS */
+    transform: translate3d(calc(-100% - 56px), 0, 0);
+    will-change: transform;
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(42px) saturate(180%);
-    -webkit-backdrop-filter: blur(42px) saturate(180%);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
     border-right: 1px solid var(--glass-border);
     box-shadow: var(--glass-highlight), 12px 0 48px rgba(0, 0, 0, 0.28);
     z-index: 1001;
     display: flex; flex-direction: column;
-    transition: left 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1);
     overflow: hidden;
 }
-.sidebar-overlay.active .sidebar-menu { left: 0; }
+.sidebar-overlay.active .sidebar-menu { transform: translate3d(0, 0, 0); }
 
 .sidebar-scroll {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     display: flex; flex-direction: column;
 }
 .sidebar-close {
@@ -366,8 +372,8 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
     display: flex; justify-content: center;
 }
 .page { display: none; width: 100%; }
-.page.active { display: flex; flex-direction: column; align-items: center; animation: pageIn 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
-@keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.page.active { display: flex; flex-direction: column; align-items: center; animation: pageIn 0.38s cubic-bezier(0.32, 0.72, 0, 1) both; }
+@keyframes pageIn { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
 @media (min-width: 960px) {
     body.authed .sidebar-overlay {
@@ -375,7 +381,7 @@ input, textarea, select { user-select: text !important; -webkit-user-select: tex
         background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
         opacity: 1; visibility: visible; pointer-events: none;
     }
-    body.authed .sidebar-menu { left: 0; position: fixed; top: 0; height: 100vh; pointer-events: auto; }
+    body.authed .sidebar-menu { left: 0; transform: none; will-change: auto; transition: none; position: fixed; top: 0; height: 100vh; pointer-events: auto; }
     body.authed .top-bar { left: calc(var(--sidebar-width) + 24px); right: 24px; }
     body.authed .page-wrap { padding-left: calc(var(--sidebar-width) + 24px); }
     body.authed .menu-burger-btn { display: none !important; }
@@ -533,15 +539,16 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opaci
 }
 .modal-content, .modal-box {
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(42px) saturate(180%);
-    -webkit-backdrop-filter: blur(42px) saturate(180%);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-xl);
     box-shadow: var(--glass-highlight), 0 24px 64px rgba(0, 0, 0, 0.4);
     width: 100%; max-width: 380px; padding: 24px 20px;
     display: flex; flex-direction: column; gap: 14px; position: relative;
     margin: auto 0;
-    opacity: 0; transform: translateY(28px) scale(0.95);
+    opacity: 0; transform: translate3d(0, 28px, 0) scale(0.95);
+    will-change: transform, opacity;
     transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .modal-overlay.show .modal-content, .modal-overlay.show .modal-box {
@@ -1212,6 +1219,17 @@ body.chat-open #page-chat.active { animation: none; }
 .sidebar-logout-btn, .sidebar-item-link.active {
     border-color: transparent !important;
 }
+
+/* Плавность: уважение системной настройки «Уменьшение движения» на iOS/Android.
+   Если пользователь её включил — анимации почти мгновенные, интерфейс не тормозит. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -3274,17 +3292,34 @@ async function deleteServer(serverId, location) {
     if (!confirm(`Удалить сервер «${location}» безвозвратно?`)) return;
 
     try {
+        // Prefer: return=representation заставляет Supabase вернуть удалённые строки.
+        // Без этого API отвечает 204 даже если RLS-политика заблокировала удаление,
+        // и сайт ложно сообщал «Сервер удалён».
         const response = await fetch(`${SERVERS_TABLE_URL}?id=eq.${encodeURIComponent(serverId)}`, {
             method: 'DELETE',
-            headers: REST_HEADERS
+            headers: { ...REST_HEADERS, 'Prefer': 'return=representation' }
         });
         if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+        let deletedRows = [];
+        try { deletedRows = await response.json(); } catch (e) { deletedRows = []; }
+
+        if (!Array.isArray(deletedRows) || deletedRows.length === 0) {
+            // Запрос прошёл, но ни одна строка не удалена — база отклонила операцию
+            // (почти всегда это отсутствие RLS-политики на DELETE для таблицы servers).
+            showToast('Сервер НЕ удалён: база отклонила запрос. Проверьте RLS-политику DELETE для таблицы servers в Supabase.');
+            fetchServersData();
+            return;
+        }
+
         logAction('server', `Удаление сервера «${location}»`);
         showToast('Сервер удалён', 'success');
         fetchServersData();
+        checkServerNotifications();
     } catch (err) {
         console.error(err);
         showToast('Ошибка удаления сервера');
+        fetchServersData();
     }
 }
 
